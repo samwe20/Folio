@@ -9,9 +9,29 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Stack](https://img.shields.io/badge/stack-Tauri%202%20%C2%B7%20Vite%20%C2%B7%20TypeScript-333)](docs/development.md)
 
-[Download for Windows](#download) · [Quick start](#quick-start) · [Docs](#documentation) · [Screenshots](#screenshots)
+[**Download Folio 1.0.5 (Windows)**](#latest-release) · [Quick start](#quick-start) · [Docs](#documentation) · [Screenshots](#screenshots)
 
 </div>
+
+## Latest release
+
+**Folio 1.0.5** — November 2025 · Windows 10/11
+
+| | |
+|---|---|
+| **Installer** | [**Folio_1.0.5_x64-setup.exe**](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe) (NSIS, ~3 MB) |
+| **All assets** | [Release folio-1.0.5](https://github.com/samwe20/Folio/releases/tag/folio-1.0.5) |
+| **User guide (CS + EN)** | [docs/release-latest.md](docs/release-latest.md) |
+
+**What's new for users**
+
+- **UI language** — switch **English / Čeština** from the toolbar (your Markdown stays as you write it).
+- **Rounded UI** — file rows, selects, and the title field match the calm paper aesthetic.
+- **Same Folio core** — Focus Mode, `[[wiki links]]`, backlinks, light/dark themes, library on disk.
+
+**Install in three steps:** download the `.exe` → run the installer → open Folio (default library: `Documents/Folio/Library`, or choose any folder of `.md` files).
+
+Older releases: [GitHub Releases](https://github.com/samwe20/Folio/releases).
 
 <video src="docs/assets/folio-demo.mp4" controls width="100%" muted loop playsinline>
   <a href="docs/assets/folio-demo.mp4">Download demo video</a>
@@ -82,7 +102,7 @@ Built with **Tauri 2** (Windows, NSIS + WebView2), **Vite + CodeMirror 6**, **DO
 
 | Platform | How |
 |----------|-----|
-| **Windows 10/11** | [Latest release](https://github.com/samwe20/Folio/releases/latest) → `Folio_*_x64-setup.exe` (standalone installer) |
+| **Windows 10/11** | **Current:** [Folio 1.0.5 installer](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe) · [release notes](docs/release-latest.md) · [all releases](https://github.com/samwe20/Folio/releases) |
 | **iPhone (no Mac)** | Web / PWA — [guide](docs/web-pwa.md) |
 | **Native iOS** | Mac + Xcode — [guide](docs/ios-native.md) |
 
@@ -106,6 +126,7 @@ Details: [Windows](docs/windows.md) · [Web / PWA](docs/web-pwa.md)
 
 | Doc | Topics |
 |-----|--------|
+| [docs/release-latest.md](docs/release-latest.md) | **Current release** — install steps & what's new (CS + EN) |
 | [docs/windows.md](docs/windows.md) | Install, development, shortcuts, library |
 | [docs/web-pwa.md](docs/web-pwa.md) | iPhone, offline, export/import |
 | [docs/ios-native.md](docs/ios-native.md) | Tauri iOS on Mac |
