@@ -54,7 +54,7 @@
 
 ## Purpose
 
-Folio exists to **merge two ideas that usually live in separate apps**:
+Folio exists to **merge two ideas that today live in separate apps**:
 
 1. **iA Writer** — typography-first, distraction-free writing (Focus Mode, typewriter, plain paper).
 2. **Obsidian** — linked notes with `[[wiki links]]`, autocomplete, and **backlinks** (who links here, where you link out).
