@@ -2,7 +2,7 @@
 
 # Folio
 
-**Distraction-free Markdown writing** — iA Writer typography, Obsidian-style linked notes.
+**Combine iA Writer minimalism with Obsidian backlinks** — a calm Markdown surface for writing, plus `[[wiki links]]` and live backlink panels when you need context.
 
 [![Release](https://img.shields.io/github/v/release/samwe20/Folio?display_name=tag&filter=folio-*&label=release&color=f3efe4&logoColor=1a1a1a)](https://github.com/samwe20/Folio/releases/latest)
 [![Windows CI](https://github.com/samwe20/Folio/actions/workflows/folio.yml/badge.svg?branch=main)](https://github.com/samwe20/Folio/actions/workflows/folio.yml)
@@ -52,12 +52,23 @@
 
 ---
 
+## Purpose
+
+Folio exists to **merge two ideas that usually live in separate apps**:
+
+1. **iA Writer** — typography-first, distraction-free writing (Focus Mode, typewriter, plain paper).
+2. **Obsidian** — linked notes with `[[wiki links]]`, autocomplete, and **backlinks** (who links here, where you link out).
+
+You get one editor: minimal while you write, connected when you explore — without turning the UI into a heavy knowledge base.
+
+---
+
 ## Why Folio
 
 | | |
 |---|---|
-| ✍️ **Calm writing** | Typography-first editor, Focus Mode, optional typewriter |
-| 🔗 **`[[Wiki links]]`** | Autocomplete, double-click (desktop), long-press (mobile) |
+| ✍️ **iA Writer side** | Typography-first editor, Focus Mode, optional typewriter |
+| 🔗 **Obsidian side** | `[[Wiki links]]`, autocomplete, double-click / long-press to open |
 | ↩️ **Backlinks** | Live panel of incoming and outgoing links |
 | 📁 **Your files** | Library = a folder of `.md` on disk (Windows); export/import on web |
 | 🌓 **Light / dark** | Warm paper in light mode, near-black in dark mode |
