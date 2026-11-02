@@ -23,6 +23,15 @@ import { enterFullscreen, exitFullscreen } from "./lib/fullscreen";
 import { NoteIndex } from "./lib/noteIndex";
 import { isAppleMobile, isMobileUi } from "./lib/platform";
 import { isTauri } from "./lib/runtime";
+import {
+  applyStaticUi,
+  defaultNoteTitle,
+  formatCharCount,
+  formatWordCount,
+  setUiLocale,
+  sortLocaleTag,
+  t,
+} from "./lib/i18n";
 import { loadSettings, saveSettings } from "./lib/settings";
 import { sortNotes } from "./lib/sortNotes";
 import type { AppSettings, NoteMeta } from "./types";
@@ -97,6 +106,7 @@ export class FolioApp {
     btnPreview: document.getElementById("btn-preview")!,
     btnTheme: document.getElementById("btn-theme")!,
     btnBacklinks: document.getElementById("btn-backlinks")!,
+    btnLocale: document.getElementById("btn-locale")!,
     fontSelect: document.getElementById("font-select") as HTMLButtonElement,
     fontSelectLabel: document.getElementById("font-select-label")!,
     fontMenu: document.getElementById("font-menu")!,
@@ -105,8 +115,11 @@ export class FolioApp {
 
   async init() {
     this.settings = await loadSettings();
+    if (!this.settings.uiLocale) this.settings.uiLocale = "cs";
+    setUiLocale(this.settings.uiLocale);
     this.els.sortBy.value = this.settings.sortBy;
     this.els.sortDirection.value = this.settings.sortDirection;
+    applyStaticUi();
     this.applyTheme(this.settings.theme);
 
     this.editor = createEditor(
@@ -117,6 +130,7 @@ export class FolioApp {
         onOpenWiki: (title, createIfMissing) => void this.runAction(() => this.openWiki(title, createIfMissing)),
       },
       this.settings.theme,
+      t("editor.placeholder"),
     );
 
     this.editor.setReadOnly(true);
@@ -126,6 +140,8 @@ export class FolioApp {
     this.bindUi();
     this.bindShortcuts();
     this.bindLifecycle();
+    this.applyWelcomeTexts();
+    this.updateLocaleChip();
 
     if (this.settings.libraryPath) {
       await this.openLibrary(this.settings.libraryPath, this.settings.lastOpenPath);
@@ -140,8 +156,44 @@ export class FolioApp {
   private reportError(error: unknown) {
     console.error(error);
     this.els.statusSave.textContent = this.dirty
-      ? "Uložení selhalo — text zůstává v editoru. Zkuste Ctrl/Cmd+S."
-      : "Operace selhala. Zkuste ji znovu.";
+      ? t("status.saveFailedDirty")
+      : t("status.operationFailed");
+  }
+
+  private applyLocale() {
+    setUiLocale(this.settings.uiLocale);
+    applyStaticUi();
+    this.updateLocaleChip();
+    this.applyWelcomeTexts();
+    this.applyTheme(this.settings.theme);
+    this.editor.setPlaceholder(t("editor.placeholder"));
+    if (!this.dirty && !this.busy) this.els.statusSave.textContent = t("status.ready");
+    if (this.webOnly && this.settings.libraryPath) {
+      this.els.libraryPath.textContent = t("library.browserLabel");
+    }
+    const hint = document.getElementById("status-hint");
+    if (hint) hint.textContent = t("status.hintDesktop");
+    this.renderNoteList();
+    this.renderLinks();
+    this.updateStats(this.editor.getText());
+  }
+
+  private updateLocaleChip() {
+    this.els.btnLocale.textContent =
+      this.settings.uiLocale === "cs" ? t("chip.localeToEn") : t("chip.localeToCs");
+    this.els.btnLocale.title = this.settings.uiLocale === "cs" ? "English" : "Čeština";
+  }
+
+  private applyWelcomeTexts() {
+    if (this.webOnly) {
+      this.els.welcomeCopy.textContent = t("welcome.taglineWeb");
+      const demoBtn = document.getElementById("welcome-demo");
+      if (demoBtn) demoBtn.textContent = t("welcome.demoWeb");
+    } else if (this.mobile && !this.webOnly) {
+      this.els.welcomeCopy.textContent = t("welcome.taglineMobile");
+    } else {
+      this.els.welcomeCopy.textContent = t("welcome.tagline");
+    }
   }
 
   // Serialize navigation, rename, deletion and import. Autosave has its own queue.
@@ -197,12 +249,8 @@ export class FolioApp {
     this.els.app.classList.toggle("is-web", this.webOnly);
 
     if (this.webOnly) {
-      this.els.welcomeCopy.textContent =
-        "Folio v prohlížeči — soustředěné psaní s [[wikilinky]]. Na iPhonu: Sdílet → Přidat na plochu.";
       document.getElementById("btn-open-library")?.classList.add("mobile-hide");
       document.getElementById("welcome-open")?.classList.add("mobile-hide");
-      const demoBtn = document.getElementById("welcome-demo");
-      if (demoBtn) demoBtn.textContent = "Otevřít knihovnu";
       document.getElementById("disk-actions")?.classList.remove("hidden");
       const folderBtn = document.getElementById("btn-save-folder");
       if (folderBtn && !canUseDirectoryPicker()) {
@@ -215,8 +263,6 @@ export class FolioApp {
     this.els.app.classList.add("sidebar-collapsed");
     this.settings.showBacklinks = false;
     if (!this.webOnly) {
-      this.els.welcomeCopy.textContent =
-        "Soustředěné psaní na iPhonu — s [[propojenými]] poznámkami. Knihovna žije přímo v aplikaci.";
       document.getElementById("btn-open-library")?.classList.add("mobile-hide");
       document.getElementById("welcome-open")?.classList.add("mobile-hide");
     }
@@ -312,6 +358,12 @@ export class FolioApp {
       this.settings.theme = next;
       this.applyTheme(next);
       this.editor.setTheme(next);
+      void saveSettings(this.settings);
+    });
+
+    this.els.btnLocale.addEventListener("click", () => {
+      this.settings.uiLocale = this.settings.uiLocale === "cs" ? "en" : "cs";
+      this.applyLocale();
       void saveSettings(this.settings);
     });
 
@@ -471,7 +523,7 @@ export class FolioApp {
 
   private applyTheme(theme: "light" | "dark") {
     this.els.app.dataset.theme = theme;
-    this.els.btnTheme.textContent = theme === "light" ? "Dark" : "Light";
+    this.els.btnTheme.textContent = theme === "light" ? t("chip.themeDark") : t("chip.themeLight");
     document.documentElement.style.colorScheme = theme;
     document.querySelector('meta[name="theme-color"]')?.setAttribute(
       "content",
@@ -550,7 +602,7 @@ export class FolioApp {
       directory: true,
       recursive: true,
       multiple: false,
-      title: "Vyberte složku knihovny Folio",
+      title: t("dialog.pickLibrary"),
     });
     if (!selected || Array.isArray(selected)) return;
     await this.openLibrary(selected);
@@ -558,7 +610,7 @@ export class FolioApp {
 
   private async createDemo() {
     const path = await getDefaultLibraryPath();
-    const first = await createDemoLibrary(path);
+    const first = await createDemoLibrary(path, this.settings.uiLocale);
     await this.openLibrary(path, first);
   }
 
@@ -566,17 +618,17 @@ export class FolioApp {
     if (!this.settings.libraryPath) return;
     await this.flushCurrent();
     try {
-      this.els.statusSave.textContent = "Exportuji…";
+      this.els.statusSave.textContent = t("status.exporting");
       const mode = await exportLibraryToDisk(this.settings.libraryPath);
       this.els.statusSave.textContent =
-        mode === "shared" ? "Export připraven (Sdílet → Uložit do Souborů)" : "ZIP stažen na disk";
+        mode === "shared" ? t("status.exportShared") : t("status.exportDownloaded");
     } catch (error) {
       if ((error as DOMException)?.name === "AbortError") {
-        this.els.statusSave.textContent = "Export zrušen";
+        this.els.statusSave.textContent = t("status.exportCancelled");
         return;
       }
       console.error(error);
-      this.els.statusSave.textContent = "Export selhal";
+      this.els.statusSave.textContent = t("status.exportFailed");
     }
   }
 
@@ -589,10 +641,10 @@ export class FolioApp {
       const imported = await importMarkdownFiles(files, this.settings.libraryPath!);
       await this.refreshLibrary(imported[0] ?? this.settings.lastOpenPath);
       this.els.statusSave.textContent =
-        imported.length === 1 ? "Importován 1 soubor" : `Importováno ${imported.length} souborů`;
+        imported.length === 1 ? t("status.importOne") : t("status.importMany", { count: imported.length });
     } catch (error) {
       console.error(error);
-      this.els.statusSave.textContent = "Import selhal";
+      this.els.statusSave.textContent = t("status.importFailed");
     }
   }
 
@@ -601,14 +653,14 @@ export class FolioApp {
     await this.flushCurrent();
     try {
       const count = await saveLibraryToDirectory(this.settings.libraryPath);
-      this.els.statusSave.textContent = `Uloženo ${count} souborů do složky`;
+      this.els.statusSave.textContent = t("status.savedManyToFolder", { count });
     } catch (error) {
       if ((error as DOMException)?.name === "AbortError") {
-        this.els.statusSave.textContent = "Ukládání zrušeno";
+        this.els.statusSave.textContent = t("status.saveFolderCancelled");
         return;
       }
       console.error(error);
-      this.els.statusSave.textContent = "Uložení do složky selhalo";
+      this.els.statusSave.textContent = t("status.saveFolderFailed");
     }
   }
 
@@ -618,7 +670,7 @@ export class FolioApp {
     try {
       const mode = await exportNoteToDisk(this.current.path, this.current.title);
       this.els.statusSave.textContent =
-        mode === "shared" ? "Poznámka připravena ke sdílení" : "Poznámka stažena";
+        mode === "shared" ? t("status.noteShared") : t("status.noteDownloaded");
     } catch (error) {
       if ((error as DOMException)?.name === "AbortError") return;
       console.error(error);
@@ -628,7 +680,7 @@ export class FolioApp {
   private async openLibrary(path: string, openPath?: string | null) {
     await this.flushCurrent();
     this.settings.libraryPath = path;
-    const label = this.webOnly ? "Prohlížeč · Folio Library" : path;
+    const label = this.webOnly ? t("library.browserLabel") : path;
     this.els.libraryPath.textContent = label;
     this.els.libraryPath.title = path;
     this.showWelcome(false);
@@ -685,7 +737,7 @@ export class FolioApp {
     if (!this.notes.length) {
       const empty = document.createElement("div");
       empty.className = "note-empty";
-      empty.textContent = "Zatím žádné poznámky";
+      empty.textContent = t("empty.notes");
       this.els.noteList.appendChild(empty);
       return;
     }
@@ -727,7 +779,11 @@ export class FolioApp {
   private renderFolder(node: FolderNode, parent: HTMLElement, depth: number) {
     const direction = this.settings.sortDirection === "desc" ? -1 : 1;
     const folders = [...node.folders.values()].sort(
-      (a, b) => a.name.localeCompare(b.name, "cs", { sensitivity: "base", numeric: true }) * direction,
+      (a, b) =>
+        a.name.localeCompare(b.name, sortLocaleTag(this.settings.uiLocale), {
+          sensitivity: "base",
+          numeric: true,
+        }) * direction,
     );
     for (const folder of folders) {
       const collapsed = this.collapsedFolders.has(folder.path);
@@ -764,7 +820,7 @@ export class FolioApp {
       item.addEventListener("click", () => void this.runAction(() => this.openNote(note)));
       item.addEventListener("contextmenu", (e) => {
         e.preventDefault();
-        if (confirm(`Smazat „${note.title}“?`)) void this.runAction(() => this.removeNote(note));
+        if (confirm(t("confirm.delete", { title: note.title }))) void this.runAction(() => this.removeNote(note));
       });
       parent.appendChild(item);
     }
@@ -790,7 +846,7 @@ export class FolioApp {
     this.index.setContent(note.path, text);
     this.dirty = text !== stored;
     this.revision += 1;
-    this.els.statusSave.textContent = this.dirty ? "Obnoven rozepsaný text — ukládám…" : "Připraveno";
+    this.els.statusSave.textContent = this.dirty ? t("status.draftRecovering") : t("status.ready");
     if (this.dirty) this.scheduleSave();
     else forgetDraft(note.path, stored);
     this.renderNoteList();
@@ -810,7 +866,7 @@ export class FolioApp {
       return;
     }
     if (!createIfMissing || !this.settings.libraryPath) return;
-    if (!confirm(`Poznámka „${title}“ neexistuje. Vytvořit?`)) return;
+    if (!confirm(t("confirm.createWiki", { title }))) return;
     const path = await createNote(this.settings.libraryPath, title, `# ${title}\n\n`);
     await this.refreshLibrary(path);
   }
@@ -821,7 +877,8 @@ export class FolioApp {
       if (!this.settings.libraryPath) return;
     }
     await this.flushCurrent();
-    const path = await createNote(this.settings.libraryPath, "Bez názvu", "# Bez názvu\n\n");
+    const untitled = defaultNoteTitle();
+    const path = await createNote(this.settings.libraryPath, untitled, `# ${untitled}\n\n`);
     await this.refreshLibrary(path);
   }
 
@@ -841,7 +898,7 @@ export class FolioApp {
 
   private previewSidebarTitle() {
     if (!this.current) return;
-    const draft = this.els.titleInput.value.trim() || "Bez názvu";
+    const draft = this.els.titleInput.value.trim() || defaultNoteTitle();
     const active = this.els.noteList.querySelector(".note-item.active .note-item-title");
     if (active) active.textContent = draft;
   }
@@ -887,7 +944,7 @@ export class FolioApp {
       console.error("Rename failed", error);
       this.els.titleInput.value = previous.title;
       this.renderNoteList();
-      this.els.statusSave.textContent = "Přejmenování selhalo";
+      this.els.statusSave.textContent = t("status.renameFailed");
     } finally {
       this.renaming = false;
     }
@@ -898,7 +955,7 @@ export class FolioApp {
     this.dirty = true;
     this.revision += 1;
     const journaled = rememberDraft(this.current.path, text);
-    this.els.statusSave.textContent = journaled ? "Neuloženo…" : "Neuloženo — obnova konceptu není dostupná";
+    this.els.statusSave.textContent = journaled ? t("status.unsaved") : t("status.unsavedNoJournal");
     this.index.setContent(this.current.path, text);
     this.renderLinks();
     this.updateStats(text);
@@ -932,7 +989,7 @@ export class FolioApp {
       if (this.current?.path === path && this.revision === revision) {
         this.index.setContent(path, text);
         this.dirty = false;
-        this.els.statusSave.textContent = manual ? "Uloženo" : "Automaticky uloženo";
+        this.els.statusSave.textContent = manual ? t("status.saved") : t("status.autosaved");
       }
       const note = this.notes.find((n) => n.path === path);
       if (note) note.mtime = Date.now();
@@ -955,7 +1012,7 @@ export class FolioApp {
     if (!backlinks.length) {
       const empty = document.createElement("div");
       empty.className = "link-empty";
-      empty.textContent = "Zatím žádné backlinky";
+      empty.textContent = t("empty.backlinks");
       this.els.backlinksList.appendChild(empty);
     } else {
       for (const note of backlinks) {
@@ -968,11 +1025,11 @@ export class FolioApp {
     if (!outgoing.length) {
       const empty = document.createElement("div");
       empty.className = "link-empty";
-      empty.textContent = "Žádné odchozí [[odkazy]]";
+      empty.textContent = t("empty.outgoing");
       this.els.outgoingList.appendChild(empty);
     } else {
       for (const item of outgoing) {
-        const label = item.note ? item.title : `${item.title} (chybí)`;
+        const label = item.note ? item.title : t("links.missing", { title: item.title });
         this.els.outgoingList.appendChild(
           this.linkButton(label, () => void this.runAction(() => this.openWiki(item.title, true)), !item.note),
         );
@@ -991,8 +1048,8 @@ export class FolioApp {
 
   private updateStats(text: string) {
     const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-    this.els.statusWords.textContent = `${words} ${words === 1 ? "slovo" : words > 1 && words < 5 ? "slova" : "slov"}`;
-    this.els.statusChars.textContent = `${text.length} znaků`;
+    this.els.statusWords.textContent = formatWordCount(words);
+    this.els.statusChars.textContent = formatCharCount(text.length);
   }
 
   private togglePreview() {

@@ -1,3 +1,4 @@
+import type { UiLocale } from "./i18n";
 import type { NoteMeta } from "../types";
 import * as web from "./fs-web";
 import { isTauri } from "./runtime";
@@ -48,9 +49,9 @@ export async function deleteNote(path: string): Promise<void> {
   return (await tauri()).deleteNote(path);
 }
 
-export async function createDemoLibrary(libraryPath: string): Promise<string> {
-  if (!isTauri()) return web.createDemoLibrary(libraryPath);
-  return (await tauri()).createDemoLibrary(libraryPath);
+export async function createDemoLibrary(libraryPath: string, locale: UiLocale = "cs"): Promise<string> {
+  if (!isTauri()) return web.createDemoLibrary(libraryPath, locale);
+  return (await tauri()).createDemoLibrary(libraryPath, locale);
 }
 
 export async function join(...parts: string[]): Promise<string> {

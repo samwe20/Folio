@@ -48,4 +48,4 @@ Keep these in sync:
 - **Frontend:** Vite 6, TypeScript, CodeMirror 6
 - **Desktop:** Tauri 2, WebView2
 - **Preview:** Marked + DOMPurify ^3.4.17
-- **UI:** Czech labels, light/dark themes (`src/styles.css`, `src/editor/theme.ts`)
+- **UI:** Czech or English labels (`uiLocale` in settings, **English / Čeština** chip in the toolbar), light/dark themes (`src/styles.css`, `src/editor/theme.ts`)

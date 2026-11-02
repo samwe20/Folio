@@ -1,4 +1,5 @@
 import type { EditorFontId } from "./lib/fonts";
+import type { UiLocale } from "./lib/i18n";
 
 export interface NoteMeta {
   id: string;
@@ -19,6 +20,7 @@ export interface AppSettings {
   editorFont: EditorFontId;
   sortBy: "title" | "createdAt";
   sortDirection: "asc" | "desc";
+  uiLocale: UiLocale;
 }
 
 export interface WikiTarget {
@@ -37,4 +39,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   editorFont: "literata",
   sortBy: "title",
   sortDirection: "asc",
+  uiLocale: "cs",
 };

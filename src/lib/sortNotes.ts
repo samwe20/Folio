@@ -1,8 +1,8 @@
 import type { AppSettings, NoteMeta } from "../types";
+import { sortLocaleTag } from "./i18n";
 
-const collator = new Intl.Collator("cs", { sensitivity: "base", numeric: true });
-
-export function sortNotes(notes: NoteMeta[], settings: Pick<AppSettings, "sortBy" | "sortDirection">): NoteMeta[] {
+export function sortNotes(notes: NoteMeta[], settings: Pick<AppSettings, "sortBy" | "sortDirection" | "uiLocale">): NoteMeta[] {
+  const collator = new Intl.Collator(sortLocaleTag(settings.uiLocale), { sensitivity: "base", numeric: true });
   const direction = settings.sortDirection === "desc" ? -1 : 1;
   return [...notes].sort((a, b) => {
     if (settings.sortBy === "createdAt") {
