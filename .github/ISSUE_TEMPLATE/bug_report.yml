@@ -1,38 +1,38 @@
-name: Chyba
-description: Něco nefunguje podle očekávání
+name: Bug report
+description: Something does not work as expected
 labels: ["bug"]
 body:
   - type: dropdown
     id: platform
     attributes:
-      label: Platforma
+      label: Platform
       options:
         - Windows (desktop)
-        - Web / PWA (prohlížeč)
+        - Web / PWA (browser)
         - iPhone PWA
-        - iOS nativní
-        - Jiné
+        - Native iOS
+        - Other
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Verze Folio
-      placeholder: např. 1.0.4
+      label: Folio version
+      placeholder: e.g. 1.0.4
   - type: textarea
     id: steps
     attributes:
-      label: Kroky k reprodukci
+      label: Steps to reproduce
       placeholder: 1. … 2. …
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Očekávané chování
+      label: Expected behavior
   - type: textarea
     id: actual
     attributes:
-      label: Skutečné chování
+      label: Actual behavior
     validations:
       required: true

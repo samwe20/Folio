@@ -1,37 +1,37 @@
-# Nativní iOS (Tauri)
+# Native iOS (Tauri)
 
-Nativní iOS build běží přes **Tauri 2 + Xcode**. Apple vyžaduje **macOS** — z Windows nebo Linuxu `.ipa` nevznikne.
+Native iOS builds use **Tauri 2 + Xcode**. Apple requires **macOS** — you cannot produce an `.ipa` from Windows or Linux.
 
-## Co je připravené
+## What is ready
 
-- Mobilní UI (drawer, bottom sheet pro backlinky, safe areas)
-- Knihovna v app sandboxu (Documents)
+- Mobile UI (drawer, backlinks bottom sheet, safe areas)
+- Library in the app sandbox (Documents)
 - `src-tauri/tauri.ios.conf.json`
-- Skripty `ios:init`, `ios:dev`, `ios:build`
+- Scripts `ios:init`, `ios:dev`, `ios:build`
 
-## Požadavky na Macu
+## Requirements on Mac
 
-1. macOS + **Xcode** (plné IDE)
+1. macOS + **Xcode** (full IDE)
 2. Node.js 22+
 3. Rust (`rustup`)
 4. CocoaPods: `brew install cocoapods`
-5. Rust targety:
+5. Rust targets:
 
 ```bash
 rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
 ```
 
-6. Apple ID v Xcode (TestFlight → Apple Developer Program)
+6. Apple ID in Xcode (TestFlight → Apple Developer Program)
 
-## První sestavení
+## First build
 
 ```bash
 git clone https://github.com/samwe20/Folio.git
 cd Folio
 npm ci
 
-npm run ios:init   # jednou — Xcode projekt
-npm run ios:dev    # simulátor / zařízení
+npm run ios:init   # once — generates Xcode project
+npm run ios:dev    # simulator / device
 ```
 
 Release:
@@ -40,8 +40,8 @@ Release:
 npm run ios:build
 ```
 
-Podrobnosti k podpisování a TestFlight řeší Xcode podle Apple dokumentace.
+Signing and TestFlight follow Apple’s documentation in Xcode.
 
-## Alternativa bez Macu
+## Without a Mac
 
-Pro iPhone bez Macu použij [webovou PWA](./web-pwa.md).
+For iPhone without a Mac, use the [web PWA](./web-pwa.md).

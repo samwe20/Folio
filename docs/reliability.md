@@ -1,32 +1,32 @@
-# Spolehlivost a chování dat
+# Reliability & data behavior
 
-## Řazení knihovny
+## Library sorting
 
-**Řadit podle** — název (česká abeceda, přirozené číslování) nebo datum vytvoření, vzestupně i sestupně. Volba přežije restart.
+**Sort by** — title (Czech alphabet, natural number order) or creation date, ascending or descending. The choice survives restart.
 
-U nativních souborů Folio uchovává datum vytvoření v app metadata (atomické přepisy nemění „birth time“ souboru spolehlivě). Staré webové poznámky bez data nebo soubory bez birth time končí na konci řazení.
+On native files, Folio stores creation dates in app metadata (atomic rewrites do not reliably preserve filesystem birth time). Older web notes without a date, or files without birth time, sort to the end.
 
-## Ukládání
+## Saving
 
-- Undo je **izolované na načtenou poznámku**; změna motivu nebo obnova indexu historii nemaže
-- Ukládání je serializované; navigace čeká na dokončení editace
-- **Recovery journal** obnoví text přerušený před autosave (není to záloha ani historie verzí)
-- Nativní zápis: dočasný soubor ve stejné složce → `rename`
-- Prohlížeč: IndexedDB transakce před potvrzením „uloženo“
-- Import duplicitního jména → kopie s číslem; export ZIP zachová podsložky
+- Undo is **scoped to the loaded note**; theme changes and index refresh do not wipe history
+- Saves are serialized; navigation waits for edits to finish
+- **Recovery journal** restores text interrupted before autosave (not a backup or version history)
+- Native writes: temp file in the same folder → `rename`
+- Browser: IndexedDB transaction completes before “saved” is shown
+- Duplicate import names → numbered copy; ZIP export keeps subfolders
 
-## Náhled Markdownu
+## Markdown preview
 
-Preview prochází **DOMPurify** — spustitelné HTML a nebezpečné odkazy se odstraní. Wiki příklady v code blocích zůstávají literální.
+Preview runs through **DOMPurify** — executable HTML and dangerous links are stripped. Wiki examples inside code blocks stay literal.
 
 ## Offline (PWA)
 
-Produkční build precachuje JS, CSS a fonty včetně hostingu pod podsložkou. Novou verzi aktivuj zavřením všech karet Folia.
+Production builds precache JS, CSS, and fonts, including when hosted under a subpath. Activate a new version by closing all Folio tabs.
 
-## Co Folio záměrně neřeší
+## Out of scope (by design)
 
-- **Cloud sync** — knihovna jsou soubory; sync řeší OneDrive/iCloud, pokud složku umístíš tam (viz diskuze v issues)
-- **Přepis wikilinků** při přejmenování poznámky — zatím ne
-- **Souběžná editace** stejného souboru z více aplikací — vyhni se; poslední zápis vyhrává
+- **Cloud sync** — the library is files; use OneDrive/iCloud if you put the folder there
+- **Rewriting wiki links** when renaming a note — not yet
+- **Concurrent editing** of the same file from multiple apps — avoid; last write wins
 
-Desktopová a webová knihovna zůstávají oddělené, dokud nepřenášíš exportem/importem.
+Desktop and web libraries stay separate unless you move notes via export/import.

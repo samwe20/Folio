@@ -1,10 +1,10 @@
-# Přispívání do Folio
+# Contributing to Folio
 
-Děkujeme za zájem o Folio.
+Thanks for your interest in Folio.
 
-1. Pro bug nebo nápad otevři [issue](https://github.com/samwe20/Folio/issues).
-2. Fork → větev → změna → pull request na `main`.
-3. Před odesláním spusť:
+1. Open an [issue](https://github.com/samwe20/Folio/issues) for bugs or ideas.
+2. Fork → branch → change → pull request to `main`.
+3. Before submitting, run:
 
 ```bash
 npm ci
@@ -12,6 +12,6 @@ npm run check
 npm test
 ```
 
-Pro větší změny UI nejdřív issue — vzhled Folio je záměrně ustálený (typografie, světlý/tmavý režim).
+For large UI changes, open an issue first — Folio’s look is intentionally stable (typography, light/dark themes).
 
-Viz [docs/development.md](docs/development.md) pro CI a strukturu projektu.
+See [docs/development.md](docs/development.md) for CI and project layout.

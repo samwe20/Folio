@@ -1,8 +1,8 @@
-# Web a PWA (iPhone / prohlížeč)
+# Web & PWA (iPhone / browser)
 
-Webová verze Folia funguje v **Safari na iPhonu** bez Macu a bez App Store — přidej si ji na plochu jako PWA.
+The web build runs in **Safari on iPhone** without a Mac or the App Store — add it to your home screen as a PWA.
 
-## Rychlý start
+## Quick start
 
 ```bash
 git clone https://github.com/samwe20/Folio.git
@@ -11,51 +11,51 @@ npm ci
 npm run web:dev
 ```
 
-Produkční build:
+Production build:
 
 ```bash
 npm run web:build
 npm run web:preview
 ```
 
-## Přidat na plochu iPhonu
+## Add to iPhone home screen
 
-1. Otevři Folio v **Safari**
-2. **Sdílet** → **Přidat na plochu**
-3. Spouštěj z ikony Folio
+1. Open Folio in **Safari**
+2. **Share** → **Add to Home Screen**
+3. Launch from the Folio icon
 
-## Co běží v prohlížeči
+## In the browser
 
-- Poznámky v **IndexedDB** (zůstávají v zařízení)
-- `[[wikilinky]]` a backlinky
-- Mobilní drawer knihovny a panel odkazů
-- Offline shell přes service worker
-- **Export ZIP** / **Import .md** v levém panelu
+- Notes in **IndexedDB** (stay on device)
+- `[[wiki links]]` and backlinks
+- Mobile library drawer and links sheet
+- Offline shell via service worker
+- **Export ZIP** / **Import .md** in the sidebar
 
-## Poznámky ↔ Soubory (iPhone)
+## Notes ↔ Files (iPhone)
 
-Safari neumí tiše zapisovat do složky Soubory. Doporučený postup:
+Safari cannot silently write to the Files app. Recommended flow:
 
-1. Otevři knihovnu (☰)
-2. **Export ZIP** nebo **Export .md**
-3. V share sheetu **Uložit do Souborů** (iCloud Drive, …)
+1. Open the library (☰)
+2. **Export ZIP** or **Export .md**
+3. In the share sheet, **Save to Files** (iCloud Drive, …)
 
-Zpět: **Import .md** načte soubory ze Souborů.
+Back: **Import .md** loads files from Files.
 
-Na desktop Chrome/Edge je navíc **Uložit do složky** (File System Access API).
+On desktop Chrome/Edge you also get **Save to folder** (File System Access API).
 
-## Ovládání
+## Controls
 
-- Otevření wiki odkazu: **dlouhý stisk** (mobil)
-- Knihovna a odkazy: spodní lišta / drawer
+- Open a wiki link: **long-press** (mobile)
+- Library and links: bottom bar / drawer
 
-## Offline a aktualizace
+## Offline & updates
 
-- Pro PWA na iPhonu je potřeba **HTTPS** (localhost na vývoj stačí)
-- Použij `npm run web:build` — service worker se na dev serveru neregistruje
-- Nová verze se aktivuje po **zavření všech karet** Folia
-- Import stejnojmenného souboru vytvoří kopii s číselným suffixem
+- iPhone PWA needs **HTTPS** (localhost is fine for development)
+- Use `npm run web:build` — the dev server does not register a service worker
+- A new version applies after you **close all Folio tabs**
+- Importing the same filename creates a numbered copy
 
-## Oddělení od Windows
+## Separate from Windows
 
-Knihovna v prohlížeči a knihovna v desktopové aplikaci jsou **oddělené**. Mezi nimi přenášej exportem/importem `.md` nebo ZIP.
+The browser library and the desktop app library are **independent**. Move notes with export/import (`.md` or ZIP).

@@ -1,21 +1,21 @@
-# Vývoj a testy
+# Development & testing
 
-## Struktura repozitáře
+## Repository layout
 
 ```text
-src/           UI, editor (CodeMirror), logika knihovny
+src/           UI, editor (CodeMirror), library logic
 src-tauri/     Tauri 2 / Rust (Windows, iOS)
-tests/         Regresní testy (Node), Playwright e2e, desktop smoke (Windows CI)
-docs/          Dokumentace a screenshoty pro README
-public/        Ikony PWA, manifest
+tests/         Node regression tests, Playwright e2e, desktop smoke (Windows CI)
+docs/          Documentation and README screenshots
+public/        PWA icons, manifest
 ```
 
-## Lokální kontrola
+## Local checks
 
 ```bash
 npm ci
 npm run check      # tsc --noEmit
-npm test           # 22 regresních scénářů
+npm test           # 22 regression scenarios
 npm run build
 npm run test:offline
 npx playwright install chromium
@@ -27,25 +27,25 @@ npm audit --omit=dev
 
 Workflow [`.github/workflows/folio.yml`](../.github/workflows/folio.yml):
 
-| Job | Co dělá |
-|-----|---------|
+| Job | What it does |
+|-----|----------------|
 | **web** | check, test, build, offline, Playwright (desktop + mobile Chromium) |
-| **windows** | NSIS build, instalace, smoke test reálného WebView2, publikace release |
+| **windows** | NSIS build, install, real WebView2 smoke tests, release upload |
 
-Screenshoty pro README: `npm run build && node scripts/capture-readme-assets.cjs`
+Refresh README screenshots: `npm run docs:screenshots`
 
-## Verze
+## Version bumps
 
-Synchronizuj v těchto souborech:
+Keep these in sync:
 
 - `package.json`
 - `src-tauri/tauri.conf.json`
 - `src-tauri/Cargo.toml`
-- `src-tauri/Cargo.lock` (po bumpu `cargo update` / build)
+- `src-tauri/Cargo.lock` (after bump / build)
 
 ## Stack
 
 - **Frontend:** Vite 6, TypeScript, CodeMirror 6
 - **Desktop:** Tauri 2, WebView2
 - **Preview:** Marked + DOMPurify ^3.4.17
-- **UI:** česky, světlý/tmavý režim (viz `src/styles.css`, `src/editor/theme.ts`)
+- **UI:** Czech labels, light/dark themes (`src/styles.css`, `src/editor/theme.ts`)
