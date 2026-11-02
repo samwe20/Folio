@@ -51,7 +51,7 @@ jobs:
           New-Item "$policyRoot\AdditionalBrowserArguments" -Force | Out-Null
           $debugArgs = '--remote-debugging-port=9224 --remote-allow-origins=*'
           New-ItemProperty "$policyRoot\AdditionalBrowserArguments" -Name 'folio.exe' -PropertyType String -Value $debugArgs -Force | Out-Null
-          $configured = (Get-ItemProperty "$policyRoot\AdditionalBrowserArguments" -Name 'folio.exe').folio.exe
+          $configured = (Get-ItemProperty "$policyRoot\AdditionalBrowserArguments").'folio.exe'
           if ($configured -ne $debugArgs) { throw "WebView2 debugging policy not applied: $configured" }
           New-Item "$policyRoot\UserDataFolder" -Force | Out-Null
           New-ItemProperty "$policyRoot\UserDataFolder" -Name 'folio.exe' -PropertyType String -Value (Join-Path (Get-Location) 'test-results/desktop/webview-profile') -Force | Out-Null
