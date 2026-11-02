@@ -1,3 +1,3 @@
 # Web / PWA
 
-Dokumentace se přestěhovala do **[docs/web-pwa.md](docs/web-pwa.md)**.
+Documentation moved to **[docs/web-pwa.md](docs/web-pwa.md)**.

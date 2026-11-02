@@ -1,23 +1,23 @@
-# Folio pro Windows
+# Folio for Windows
 
-Nativní aplikace pro **Windows 10/11** (Tauri 2, WebView2, instalátor NSIS).
+Native app for **Windows 10/11** (Tauri 2, WebView2, NSIS installer).
 
-## Stáhnout
+## Download
 
-Nejnovější release: [GitHub Releases](https://github.com/samwe20/Folio/releases/latest)
+Latest release: [GitHub Releases](https://github.com/samwe20/Folio/releases/latest)
 
-Soubor `Folio_*_x64-setup.exe` je samostatný instalátor (ne zip). Po instalaci běží Folio offline; knihovna jsou běžné `.md` soubory na disku.
+`Folio_*_x64-setup.exe` is a standalone installer (not a zip). After install, Folio runs offline; your library is ordinary `.md` files on disk.
 
-## Požadavky pro vývoj
+## Development requirements
 
-| Nástroj | Poznámka |
-|--------|----------|
+| Tool | Notes |
+|------|--------|
 | **Node.js** 22 LTS | `npm ci` |
 | **Rust** | [rustup](https://rustup.rs/) |
-| **WebView2** | Na Windows 11 obvykle už nainstalované |
-| **Visual Studio Build Tools** | C++ workload, `link.exe` — ideálně **Developer PowerShell for VS** |
+| **WebView2** | Usually preinstalled on Windows 11 |
+| **Visual Studio Build Tools** | C++ workload, `link.exe` — use **Developer PowerShell for VS** |
 
-## Spuštění z kódu
+## Run from source
 
 ```bash
 git clone https://github.com/samwe20/Folio.git
@@ -26,28 +26,28 @@ npm ci
 npm run desktop:dev
 ```
 
-## Sestavení instalátoru
+## Build the installer
 
 ```bash
 npm run desktop:build -- --bundles nsis
 ```
 
-Výstup: `src-tauri/target/release/bundle/nsis/*-setup.exe`
+Output: `src-tauri/target/release/bundle/nsis/*-setup.exe`
 
-## Knihovna
+## Library
 
-- Výchozí cesta: `Dokumenty/Folio/Library`
-- **Otevřít knihovnu** — libovolná složka (včetně OneDrive / iCloud Drive na Windows); přístup se pamatuje mezi restarty
-- Export / import jednotlivých `.md` nebo celé knihovny (ZIP) v webové vrstvě UI
+- Default path: `Documents/Folio/Library`
+- **Open library** — any folder (including OneDrive / iCloud Drive on Windows); access persists across restarts
+- Export / import single `.md` files or the whole library (ZIP) from the web layer in the UI
 
-## Klávesové zkratky
+## Keyboard shortcuts
 
-| Zkratka | Akce |
-|--------|------|
-| `Ctrl+N` | Nová poznámka |
-| `Ctrl+S` | Uložit |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+N` | New note |
+| `Ctrl+S` | Save |
 | `Ctrl+D` | Focus Mode |
-| `Esc` | Opustit Focus / zavřít vrstvy |
-| `Ctrl+E` | Náhled |
-| `Ctrl+P` | Rychlé otevření |
-| `Ctrl+B` | Knihovna |
+| `Esc` | Exit Focus / close overlays |
+| `Ctrl+E` | Preview |
+| `Ctrl+P` | Quick open |
+| `Ctrl+B` | Toggle library |

@@ -2,114 +2,115 @@
 
 # Folio
 
-**Soustředěné psaní v Markdownu** — typografie jako v iA Writer, propojené poznámky jako v Obsidianu.
+**Distraction-free Markdown writing** — iA Writer typography, Obsidian-style linked notes.
 
-[![Verze](https://img.shields.io/github/v/release/samwe20/Folio?display_name=tag&filter=folio-*&label=verze&color=f3efe4&logoColor=1a1a1a)](https://github.com/samwe20/Folio/releases/latest)
+[![Release](https://img.shields.io/github/v/release/samwe20/Folio?display_name=tag&filter=folio-*&label=release&color=f3efe4&logoColor=1a1a1a)](https://github.com/samwe20/Folio/releases/latest)
 [![Windows CI](https://github.com/samwe20/Folio/actions/workflows/folio.yml/badge.svg?branch=main)](https://github.com/samwe20/Folio/actions/workflows/folio.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Stack](https://img.shields.io/badge/stack-Tauri%202%20%C2%B7%20Vite%20%C2%B7%20TypeScript-333)](docs/development.md)
 
-[Stáhnout pro Windows](#stáhnout) · [Rychlý start](#rychlý-start) · [Dokumentace](#dokumentace) · [Náhled](#náhled)
+[Download for Windows](#download) · [Quick start](#quick-start) · [Docs](#documentation) · [Screenshots](#screenshots)
 
 </div>
 
 <video src="docs/assets/folio-demo.mp4" controls width="100%" muted loop playsinline>
-  <a href="docs/assets/folio-demo.mp4">Stáhnout demo video</a>
+  <a href="docs/assets/folio-demo.mp4">Download demo video</a>
 </video>
 
 ---
 
-## Náhled
+## Screenshots
 
 <table>
   <tr>
     <td width="50%">
-      <img src="docs/assets/folio-light-library.png" alt="Folio — světlý režim, strom knihovny" />
-      <br /><sub>Světlý režim · úzký strom souborů</sub>
+      <img src="docs/assets/folio-light-library.png" alt="Folio — light theme, file tree" />
+      <br /><sub>Light theme · compact file tree</sub>
     </td>
     <td width="50%">
-      <img src="docs/assets/folio-dark-library.png" alt="Folio — tmavý režim" />
-      <br /><sub>Tmavý režim · plocha #000000, panel #070707</sub>
+      <img src="docs/assets/folio-dark-library.png" alt="Folio — dark theme" />
+      <br /><sub>Dark theme · canvas #000000, sidebar #070707</sub>
     </td>
   </tr>
   <tr>
     <td>
       <img src="docs/assets/folio-focus-mode.png" alt="Focus Mode" />
-      <br /><sub>Focus Mode · celá obrazovka, typewriter</sub>
+      <br /><sub>Focus Mode · fullscreen, typewriter</sub>
     </td>
     <td>
-      <img src="docs/assets/folio-preview.png" alt="Náhled Markdownu a backlinky" />
-      <br /><sub>Náhled · sanitizovaný HTML, wiki odkazy</sub>
+      <img src="docs/assets/folio-preview.png" alt="Markdown preview and links" />
+      <br /><sub>Preview · sanitized HTML, wiki links</sub>
     </td>
   </tr>
   <tr>
     <td colspan="2" align="center">
-      <img src="docs/assets/folio-mobile-library.png" alt="Folio na iPhonu — knihovna" width="360" />
-      <br /><sub>PWA v Safari · mobilní drawer, české UI</sub>
+      <img src="docs/assets/folio-mobile-library.png" alt="Folio on iPhone — library" width="360" />
+      <br /><sub>PWA in Safari · mobile drawer (UI in Czech)</sub>
     </td>
   </tr>
 </table>
 
-
 ---
 
-## Proč Folio
+## Why Folio
 
 | | |
 |---|---|
-| ✍️ **Psaní bez rušení** | Typografie na prvním místě, Focus Mode, volitelný typewriter |
-| 🔗 **[[Wikilinky]]** | Autocomplete, dvojklik (desktop), dlouhý stisk (mobil) |
-| ↩️ **Backlinky** | Živý panel zpětných a odchozích odkazů |
-| 📁 **Tvoje data** | Knihovna = složka `.md` na disku (Windows); export/import pro web |
-| 🌓 **Světlý / tmavý** | Teplý papír ve světle, téměř černá v tmavém režimu |
-| 🇨🇿 **UI česky** | Řazení podle české abecedy, české popisky |
+| ✍️ **Calm writing** | Typography-first editor, Focus Mode, optional typewriter |
+| 🔗 **`[[Wiki links]]`** | Autocomplete, double-click (desktop), long-press (mobile) |
+| ↩️ **Backlinks** | Live panel of incoming and outgoing links |
+| 📁 **Your files** | Library = a folder of `.md` on disk (Windows); export/import on web |
+| 🌓 **Light / dark** | Warm paper in light mode, near-black in dark mode |
+| 🇨🇿 **Czech UI** | Labels and library sorting follow Czech locale rules |
 
-Technicky: **Tauri 2** (Windows, NSIS + WebView2), **Vite + CodeMirror 6**, náhled přes **DOMPurify**, offline **PWA** pro iPhone.
-
----
-
-## Stáhnout
-
-| Platforma | Jak |
-|-----------|-----|
-| **Windows 10/11** | [Nejnovější release](https://github.com/samwe20/Folio/releases/latest) → `Folio_*_x64-setup.exe` (samostatný instalátor) |
-| **iPhone (bez Macu)** | Web / PWA — [návod](docs/web-pwa.md) |
-| **iOS nativní** | Mac + Xcode — [návod](docs/ios-native.md) |
+Built with **Tauri 2** (Windows, NSIS + WebView2), **Vite + CodeMirror 6**, **DOMPurify** preview, offline **PWA** for iPhone.
 
 ---
 
-## Rychlý start
+## Download
+
+| Platform | How |
+|----------|-----|
+| **Windows 10/11** | [Latest release](https://github.com/samwe20/Folio/releases/latest) → `Folio_*_x64-setup.exe` (standalone installer) |
+| **iPhone (no Mac)** | Web / PWA — [guide](docs/web-pwa.md) |
+| **Native iOS** | Mac + Xcode — [guide](docs/ios-native.md) |
+
+---
+
+## Quick start
 
 ```bash
 git clone https://github.com/samwe20/Folio.git
 cd Folio
 npm ci
 npm run desktop:dev    # Windows desktop
-# npm run web:dev      # prohlížeč / vývoj PWA
+# npm run web:dev      # browser / PWA development
 ```
 
-Podrobnosti: [Windows](docs/windows.md) · [Web / PWA](docs/web-pwa.md)
+Details: [Windows](docs/windows.md) · [Web / PWA](docs/web-pwa.md)
 
 ---
 
-## Dokumentace
+## Documentation
 
-| Dokument | Obsah |
-|----------|--------|
-| [docs/windows.md](docs/windows.md) | Instalace, vývoj, zkratky, knihovna |
+| Doc | Topics |
+|-----|--------|
+| [docs/windows.md](docs/windows.md) | Install, development, shortcuts, library |
 | [docs/web-pwa.md](docs/web-pwa.md) | iPhone, offline, export/import |
-| [docs/ios-native.md](docs/ios-native.md) | Tauri iOS na Macu |
-| [docs/development.md](docs/development.md) | Testy, CI, struktura repa |
-| [docs/reliability.md](docs/reliability.md) | Ukládání, undo, preview, limity |
+| [docs/ios-native.md](docs/ios-native.md) | Tauri iOS on Mac |
+| [docs/development.md](docs/development.md) | Tests, CI, repo layout |
+| [docs/reliability.md](docs/reliability.md) | Saving, undo, preview, limits |
 
 ---
 
-## Přispívání
+## Contributing
 
-Issues a pull requesty jsou vítány. Před větší změnou projdi [vývojářskou příručku](docs/development.md) a spusť `npm test` + `npm run check`.
+Issues and pull requests are welcome. For larger changes, read [docs/development.md](docs/development.md) and run `npm test` + `npm run check`.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-## Licence
+## License
 
 [MIT](LICENSE) — © 2026 [samwe20](https://github.com/samwe20).
