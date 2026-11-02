@@ -1,131 +1,115 @@
+<div align="center">
+
 # Folio
 
-Distraction-free markdown writing app inspired by **iA Writer**, with Obsidian-style `[[wiki links]]` and live **backlinks**.
+**Soustředěné psaní v Markdownu** — typografie jako v iA Writer, propojené poznámky jako v Obsidianu.
 
-Built with [Tauri 2](https://tauri.app/) as a **native Windows** app, plus:
+[![Verze](https://img.shields.io/github/v/release/samwe20/Folio?display_name=tag&filter=folio-*&label=verze&color=f3efe4&logoColor=1a1a1a)](https://github.com/samwe20/Folio/releases/latest)
+[![Windows CI](https://github.com/samwe20/Folio/actions/workflows/folio.yml/badge.svg?branch=main)](https://github.com/samwe20/Folio/actions/workflows/folio.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Stack](https://img.shields.io/badge/stack-Tauri%202%20%C2%B7%20Vite%20%C2%B7%20TypeScript-333)](docs/development.md)
 
-- **PWA / web** version for iPhone Safari (no Mac needed) — see [`PWA.md`](./PWA.md)
-- **iOS native** target (Mac + Xcode) — see [`IOS.md`](./IOS.md)
+[Stáhnout pro Windows](#stáhnout) · [Rychlý start](#rychlý-start) · [Dokumentace](#dokumentace) · [Náhled](#náhled)
 
-## Features
+</div>
 
-- Clean, typography-first writing surface
-- Focus Mode (celá obrazovka + skryté UI) a nezávislý Typewriter; Focus respektuje jeho zapnutí i vypnutí.
-- Markdown syntax highlighting + Preview
-- Local library of `.md` files
-- `[[Wiki links]]` with autocomplete
-  - Desktop: double-click to open
-  - iPhone: long-press to open
-- Backlinks + outgoing links
-- Autosave, quick open (`Ctrl+P` / `Cmd+P`), light/dark theme
-- Library sorting by name or creation date, ascending or descending; the choice survives restart.
-- Mobile UI: library drawer + links bottom sheet + safe areas
+<video src="docs/assets/folio-demo.mp4" controls width="100%" muted loop playsinline>
+  <a href="docs/assets/folio-demo.mp4">Stáhnout demo video</a>
+</video>
 
-## Windows
+---
 
-### Requirements
+## Náhled
 
-- Windows 10/11
-- Node.js 22.13+ (22 LTS recommended; the test runner uses modern jsdom)
-- Rust
-- WebView2
-- Visual Studio Build Tools with C++ (`link.exe`)
-  - Run from **Developer PowerShell for VS**
+<table>
+  <tr>
+    <td width="50%">
+      <img src="docs/assets/folio-light-library.png" alt="Folio — světlý režim, strom knihovny" />
+      <br /><sub>Světlý režim · úzký strom souborů</sub>
+    </td>
+    <td width="50%">
+      <img src="docs/assets/folio-dark-library.png" alt="Folio — tmavý režim" />
+      <br /><sub>Tmavý režim · plocha #000000, panel #070707</sub>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="docs/assets/folio-focus-mode.png" alt="Focus Mode" />
+      <br /><sub>Focus Mode · celá obrazovka, typewriter</sub>
+    </td>
+    <td>
+      <img src="docs/assets/folio-preview.png" alt="Náhled Markdownu a backlinky" />
+      <br /><sub>Náhled · sanitizovaný HTML, wiki odkazy</sub>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <img src="docs/assets/folio-mobile-library.png" alt="Folio na iPhonu — knihovna" width="360" />
+      <br /><sub>PWA v Safari · mobilní drawer, české UI</sub>
+    </td>
+  </tr>
+</table>
 
-### Run
 
-```bash
-cd folio
-npm install
-npm run desktop:dev
-```
+---
 
-### Installer
+## Proč Folio
 
-```bash
-npm run desktop:build
-```
-
-Artifacts:
-
-- `src-tauri/target/release/bundle/nsis/`
-- `src-tauri/target/release/bundle/msi/`
-
-## PWA (iPhone bez Macu)
-
-```bash
-cd folio
-npm install
-npm run web:dev        # vývoj
-# nebo
-npm run web:build && npm run web:preview
-```
-
-Na iPhonu: Safari → **Sdílet → Přidat na plochu**.  
-Details: [`PWA.md`](./PWA.md)
-
-## iOS native
-
-> Apple allows native iOS builds only on **macOS + Xcode**.  
-> Full step-by-step guide: [`IOS.md`](./IOS.md)
-
-```bash
-cd folio
-npm install
-rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
-brew install cocoapods
-
-npm run ios:init   # once — generates Xcode project
-npm run ios:dev    # simulator / device
-npm run ios:build  # release / IPA
-```
-
-On iPhone, Folio stores the library under the app Documents folder and opens with a mobile-first layout.
-
-## Shortcuts (desktop)
-
-| Shortcut | Action |
+| | |
 |---|---|
-| `Ctrl/Cmd+N` | New note |
-| `Ctrl/Cmd+S` | Save |
-| `Ctrl/Cmd+D` | Focus Mode (immersive) |
-| `Esc` | Exit Focus / close overlays |
-| `Ctrl/Cmd+E` | Preview |
-| `Ctrl/Cmd+P` | Quick open |
-| `Ctrl/Cmd+B` | Toggle library |
+| ✍️ **Psaní bez rušení** | Typografie na prvním místě, Focus Mode, volitelný typewriter |
+| 🔗 **[[Wikilinky]]** | Autocomplete, dvojklik (desktop), dlouhý stisk (mobil) |
+| ↩️ **Backlinky** | Živý panel zpětných a odchozích odkazů |
+| 📁 **Tvoje data** | Knihovna = složka `.md` na disku (Windows); export/import pro web |
+| 🌓 **Světlý / tmavý** | Teplý papír ve světle, téměř černá v tmavém režimu |
+| 🇨🇿 **UI česky** | Řazení podle české abecedy, české popisky |
 
-## Project layout
+Technicky: **Tauri 2** (Windows, NSIS + WebView2), **Vite + CodeMirror 6**, náhled přes **DOMPurify**, offline **PWA** pro iPhone.
 
-```
-src/                 # UI + editor
-src-tauri/           # Native shell (Tauri / Rust)
-IOS.md               # iOS build instructions
-```
+---
 
-## Reliability and verification
+## Stáhnout
 
-The library's **Řadit podle** controls sort by name (Czech alphabet, natural number order) or creation date. Ascending creation order shows oldest notes first; descending shows newest first. Saving or renaming a note preserves its recorded creation date. Native files initially use the filesystem creation date; Folio preserves it in its application data when atomically replacing a file. Old browser notes without a recorded creation date, or files on filesystems without one, stay at the end in either direction.
+| Platforma | Jak |
+|-----------|-----|
+| **Windows 10/11** | [Nejnovější release](https://github.com/samwe20/Folio/releases/latest) → `Folio_*_x64-setup.exe` (samostatný instalátor) |
+| **iPhone (bez Macu)** | Web / PWA — [návod](docs/web-pwa.md) |
+| **iOS nativní** | Mac + Xcode — [návod](docs/ios-native.md) |
 
-- Undo history is isolated per loaded note. Theme changes and index refreshes preserve the active history.
-- Saves are serialized and only mark the exact saved revision as clean. Navigation waits for edits to commit.
-- A local recovery journal restores edits interrupted before autosave. If localStorage is unavailable or full, the editor reports that recovery is unavailable; normal saves still work.
-- Browser writes and renames wait for the IndexedDB transaction to commit. Native writes replace the file through a temporary file in the same directory.
-- Import creates a numbered copy when a filename already exists. Folder exports preserve subfolders.
-- Markdown preview is sanitized, and wiki examples in code remain literal.
-- Production builds precache all scripts, styles and fonts, including when hosted below a subpath. Close all Folio tabs to activate an available new version.
+---
+
+## Rychlý start
 
 ```bash
+git clone https://github.com/samwe20/Folio.git
+cd Folio
 npm ci
-npm run check
-npm test
-npm run build
-npm run test:offline
-npx playwright install chromium
-npm run test:e2e
+npm run desktop:dev    # Windows desktop
+# npm run web:dev      # prohlížeč / vývoj PWA
 ```
 
-GitHub Actions runs these checks and browser scenarios for desktop and mobile Chromium. The Windows job builds the release application and NSIS installer, installs it (including WebView2 when needed), and drives the installed application's real WebView2 and filesystem. Its smoke scenarios cover startup, note creation/rename/autosave, isolated Undo, theme changes, native fullscreen, wiki navigation, saving on close and reopening the saved note. The executable, installer and test diagnostics are uploaded as `folio-windows`. Desktop tests deliberately require an ephemeral Windows GitHub Actions runner so they cannot modify a developer's personal library.
+Podrobnosti: [Windows](docs/windows.md) · [Web / PWA](docs/web-pwa.md)
 
-Folders selected with the native library picker grant access to their subfolders, and that access is persisted across restarts. iOS still requires a Mac, Xcode and a physical-device check.
+---
 
-Browser and desktop libraries remain separate; there is no cloud synchronization. Export important notes regularly. A recovery journal is not a version history or a backup, and simultaneous editing from multiple applications should be avoided. Renaming a note does not yet rewrite references in other notes.
+## Dokumentace
+
+| Dokument | Obsah |
+|----------|--------|
+| [docs/windows.md](docs/windows.md) | Instalace, vývoj, zkratky, knihovna |
+| [docs/web-pwa.md](docs/web-pwa.md) | iPhone, offline, export/import |
+| [docs/ios-native.md](docs/ios-native.md) | Tauri iOS na Macu |
+| [docs/development.md](docs/development.md) | Testy, CI, struktura repa |
+| [docs/reliability.md](docs/reliability.md) | Ukládání, undo, preview, limity |
+
+---
+
+## Přispívání
+
+Issues a pull requesty jsou vítány. Před větší změnou projdi [vývojářskou příručku](docs/development.md) a spusť `npm test` + `npm run check`.
+
+---
+
+## Licence
+
+[MIT](LICENSE) — © 2026 [samwe20](https://github.com/samwe20).
