@@ -49,11 +49,24 @@ jobs:
           # https://learn.microsoft.com/microsoft-edge/webview2/concepts/security
           $policyRoot = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2'
           New-Item "$policyRoot\AdditionalBrowserArguments" -Force | Out-Null
-          New-ItemProperty "$policyRoot\AdditionalBrowserArguments" -Name 'folio.exe' -PropertyType String -Value '--remote-debugging-port=9224' -Force | Out-Null
+          $debugArgs = '--remote-debugging-port=9224 --remote-allow-origins=*'
+          New-ItemProperty "$policyRoot\AdditionalBrowserArguments" -Name 'folio.exe' -PropertyType String -Value $debugArgs -Force | Out-Null
+          $configured = (Get-ItemProperty "$policyRoot\AdditionalBrowserArguments" -Name 'folio.exe').folio.exe
+          if ($configured -ne $debugArgs) { throw "WebView2 debugging policy not applied: $configured" }
           New-Item "$policyRoot\UserDataFolder" -Force | Out-Null
           New-ItemProperty "$policyRoot\UserDataFolder" -Name 'folio.exe' -PropertyType String -Value (Join-Path (Get-Location) 'test-results/desktop/webview-profile') -Force | Out-Null
+      - name: Prepare desktop smoke test
+        shell: pwsh
+        run: |
+          Get-Process folio -ErrorAction SilentlyContinue | Stop-Process -Force
+          Start-Sleep -Seconds 2
       - name: Test the actual Windows application
-        run: npm run test:desktop
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 15
+          max_attempts: 2
+          retry_on: error
+          command: npm run test:desktop
       - name: Read Folio version
         id: folio_version
         run: |
