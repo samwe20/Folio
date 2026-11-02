@@ -2,7 +2,7 @@
   "name": "folio",
   "private": true,
   "version": "1.0.4",
-  "description": "Distraction-free Markdown editor — iA Writer typography, Obsidian-style wiki links. Tauri 2, Windows, PWA.",
+  "description": "Merge iA Writer minimalism with Obsidian backlinks — Markdown editor (Tauri 2, Windows, PWA).",
   "repository": {
     "type": "git",
     "url": "https://github.com/samwe20/Folio.git"
