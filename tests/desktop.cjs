@@ -19,18 +19,20 @@ const errors=[],checks=[];
 const processLog=[];
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const editor=()=>page.locator('.cm-content');
+const WEBVIEW2_DEBUG_ARGS='--remote-debugging-port=9224 --remote-allow-origins=*';
+const CDP_URL='http://127.0.0.1:9224';
 async function launch() {
   browser=null;page=null;
   processLog.push(`Launching ${executable}`);
-  child=spawn(executable,[],{windowsHide:true,env:{...process.env,WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:'--remote-debugging-port=9224',WEBVIEW2_USER_DATA_FOLDER:path.join(output,'webview-profile')}});
+  child=spawn(executable,[],{windowsHide:true,env:{...process.env,WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS:WEBVIEW2_DEBUG_ARGS,WEBVIEW2_USER_DATA_FOLDER:path.join(output,'webview-profile')}});
   child.on('error',error=>errors.push(String(error)));
   child.stdout.on('data',data=>processLog.push(`stdout: ${data}`));
   child.stderr.on('data',data=>processLog.push(`stderr: ${data}`));
   child.on('exit',(code,signal)=>processLog.push(`Exit: code=${code}, signal=${signal}`));
   let lastError;
-  for(let i=0;i<90;i++) {
+  for(let i=0;i<120;i++) {
     if(child.exitCode!==null||child.signalCode!==null)throw new Error(`Native process exited before WebView2 connected: ${processLog.join('\n')}`);
-    try{browser=await chromium.connectOverCDP('http://127.0.0.1:9224',{timeout:1000});break;}catch(error){lastError=error;await pause(500);}
+    try{browser=await chromium.connectOverCDP(CDP_URL,{timeout:2000});break;}catch(error){lastError=error;await pause(750);}
   }
   if(!browser)throw lastError;
   for(let i=0;i<50;i++) {
