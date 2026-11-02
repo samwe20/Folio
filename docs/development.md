@@ -30,7 +30,7 @@ Workflow [`.github/workflows/folio.yml`](../.github/workflows/folio.yml):
 | Job | What it does |
 |-----|----------------|
 | **web** | check, test, build, offline, Playwright (desktop + mobile Chromium) |
-| **windows** | NSIS build, install, real WebView2 smoke tests, release upload |
+| **windows** | NSIS build, install, real WebView2 smoke tests, release upload (`docs/release-latest.md` → GitHub release body) |
 
 Refresh README screenshots: `npm run docs:screenshots`
 

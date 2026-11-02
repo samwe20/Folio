@@ -64,6 +64,7 @@ jobs:
         with:
           tag_name: folio-${{ steps.folio_version.outputs.version }}
           name: Folio ${{ steps.folio_version.outputs.version }} pro Windows
+          body_path: docs/release-latest.md
           prerelease: false
           files: src-tauri/target/release/bundle/nsis/*-setup.exe
       - name: Remove Folio automation configuration

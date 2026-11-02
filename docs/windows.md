@@ -4,7 +4,13 @@ Native app for **Windows 10/11** (Tauri 2, WebView2, NSIS installer).
 
 ## Download
 
-Latest release: [GitHub Releases](https://github.com/samwe20/Folio/releases/latest)
+**Current version: 1.0.5**
+
+| | |
+|---|---|
+| Installer | [Folio_1.0.5_x64-setup.exe](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe) |
+| Release page | [folio-1.0.5](https://github.com/samwe20/Folio/releases/tag/folio-1.0.5) |
+| User notes (Czech + English) | [release-latest.md](release-latest.md) |
 
 `Folio_*_x64-setup.exe` is a standalone installer (not a zip). After install, Folio runs offline; your library is ordinary `.md` files on disk.
 
