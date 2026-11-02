@@ -4,7 +4,7 @@
 
 **Combine iA Writer minimalism with Obsidian backlinks** — a calm Markdown surface for writing, plus `[[wiki links]]` and live backlink panels when you need context.
 
-[![Release](https://img.shields.io/github/v/release/samwe20/Folio?display_name=tag&filter=folio-*&label=release&color=f3efe4&logoColor=1a1a1a)](https://github.com/samwe20/Folio/releases/latest)
+[![Release](https://badgen.net/github/release/samwe20/Folio?label=release&color=f3efe4&icon=github)](https://github.com/samwe20/Folio/releases/latest)
 [![Windows CI](https://github.com/samwe20/Folio/actions/workflows/folio.yml/badge.svg?branch=main)](https://github.com/samwe20/Folio/actions/workflows/folio.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Stack](https://img.shields.io/badge/stack-Tauri%202%20%C2%B7%20Vite%20%C2%B7%20TypeScript-333)](docs/development.md)
