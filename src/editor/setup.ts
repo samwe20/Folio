@@ -28,6 +28,7 @@ export interface FolioEditor {
   setFocusMode: (enabled: boolean) => void;
   setTypewriter: (enabled: boolean) => void;
   reconfigureWiki: () => void;
+  setPlaceholder: (text: string) => void;
   destroy: () => void;
 }
 
@@ -41,6 +42,7 @@ export function createEditor(
   index: NoteIndex,
   hooks: EditorHooks,
   theme: "light" | "dark" = "light",
+  editorPlaceholder = "",
 ): FolioEditor {
   let currentTheme = theme;
   let typewriterOn = false;
@@ -68,6 +70,8 @@ export function createEditor(
   const themeConfig = new Compartment();
   const wikiConfig = new Compartment();
   const editableConfig = new Compartment();
+  const placeholderConfig = new Compartment();
+  let placeholderText = editorPlaceholder;
   const editable = () => [EditorState.readOnly.of(readOnly), EditorView.editable.of(!readOnly)];
 
   const buildExtensions = () => [
@@ -75,7 +79,7 @@ export function createEditor(
     drawSelection(),
     highlightActiveLine(),
     markdown({ base: markdownLanguage }),
-    placeholder("Začněte psát…  [[odkaz]] propojí poznámky"),
+    placeholderConfig.of(placeholder(placeholderText)),
     keymap.of([indentWithTab, ...defaultKeymap, ...historyKeymap]),
     themeConfig.of(createEditorTheme(currentTheme)),
     editableConfig.of(editable()),
@@ -136,6 +140,10 @@ export function createEditor(
     },
     reconfigureWiki() {
       view.dispatch({ effects: wikiConfig.reconfigure(wikiExtension(index, hooks.onOpenWiki)) });
+    },
+    setPlaceholder(text) {
+      placeholderText = text;
+      view.dispatch({ effects: placeholderConfig.reconfigure(placeholder(placeholderText)) });
     },
     destroy() {
       cancelCenter();

@@ -1,6 +1,8 @@
 import type { NoteMeta } from "../types";
 import { noteIdFromRelative, titleFromPath } from "./paths";
 import { safeNoteTitle } from "./names";
+import { demoNotes } from "./demoContent";
+import type { UiLocale } from "./i18n";
 import { WEB_LIBRARY_PATH } from "./runtime";
 
 const DB_NAME = "folio-notes";
@@ -101,68 +103,18 @@ export async function deleteNote(path: string): Promise<void> {
   await transaction<void>("readwrite", store => { store.delete(relativeOf(path)); });
 }
 
-export async function createDemoLibrary(_libraryPath: string): Promise<string> {
+export async function createDemoLibrary(_libraryPath: string, locale: UiLocale = "cs"): Promise<string> {
   const existing = await listNotes(WEB_LIBRARY_PATH);
   if (existing.length) {
     return (
-      existing.find((n) => n.title === "Vítejte ve Folio")?.path ?? existing[0].path
+      existing.find((n) => n.title === "Vítejte ve Folio" || n.title === "Welcome to Folio")?.path ??
+      existing[0].path
     );
   }
 
-  const welcome = `# Vítejte ve Folio
-
-Folio web je soustředěný markdown editor inspirovaný **iA Writer** — s propojenými poznámkami jako v Obsidianu.
-
-## Na iPhonu
-
-1. Pište přímo tady v Safari
-2. Přidejte Folio na plochu: **Sdílet → Přidat na plochu**
-3. Propojte myšlenky přes wikilinky
-
-Zkuste otevřít [[Jak psát wikilinky]] nebo [[Focus Mode]].
-
-> Tip: na telefonu otevřete \`[[odkaz]]\` **dlouhým stiskem**.
-`;
-
-  const wiki = `# Jak psát wikilinky
-
-Odkazy mezi poznámkami:
-
-\`\`\`
-[[Název poznámky]]
-[[Název poznámky|zobrazený text]]
-\`\`\`
-
-- autocomplete po napsání \`[[\`
-- dlouhý stisk otevře poznámku
-- pokud cíl neexistuje, Folio ho nabídne vytvořit
-- panel **Links** ukáže backlinky
-
-Související: [[Vítejte ve Folio]], [[Backlinky]].
-`;
-
-  const focus = `# Focus Mode
-
-Focus Mode spustí immersivní psaní:
-- zachová vaše nastavení Typewriteru
-- fullscreen
-- skryje UI (zůstane **Opustit Focus**)
-
-Zapnete ho tlačítkem **Focus** (na širší obrazovce) nebo \`Ctrl+D\`. Esc režim ukončí.
-
-Další tipy: [[Vítejte ve Folio]].
-`;
-
-  const backlinks = `# Backlinky
-
-Když jiná poznámka odkazuje sem přes \`[[Backlinky]]\`, objeví se v panelu **Links**.
-
-Tato poznámka je odkazovaná z [[Jak psát wikilinky]].
-`;
-
-  await writeNote(`${WEB_LIBRARY_PATH}/Vítejte ve Folio.md`, welcome);
-  await writeNote(`${WEB_LIBRARY_PATH}/Jak psát wikilinky.md`, wiki);
-  await writeNote(`${WEB_LIBRARY_PATH}/Focus Mode.md`, focus);
-  await writeNote(`${WEB_LIBRARY_PATH}/Backlinky.md`, backlinks);
-  return `${WEB_LIBRARY_PATH}/Vítejte ve Folio.md`;
+  const notes = demoNotes(locale);
+  for (const note of notes) {
+    await writeNote(`${WEB_LIBRARY_PATH}/${note.fileName}`, note.content);
+  }
+  return `${WEB_LIBRARY_PATH}/${notes[0].fileName}`;
 }

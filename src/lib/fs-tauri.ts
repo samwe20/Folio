@@ -12,6 +12,8 @@ import {
 import { appDataDir, dirname, documentDir, join } from "@tauri-apps/api/path";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import type { NoteMeta } from "../types";
+import { demoNotes } from "./demoContent";
+import type { UiLocale } from "./i18n";
 import { noteIdFromRelative, titleFromPath } from "./paths";
 
 const MD_EXT = /\.md$/i;
@@ -151,81 +153,16 @@ export async function deleteNote(path: string): Promise<void> {
   await creationDates.save();
 }
 
-export async function createDemoLibrary(libraryPath: string): Promise<string> {
+export async function createDemoLibrary(libraryPath: string, locale: UiLocale = "cs"): Promise<string> {
   await ensureDir(libraryPath);
   const existing = await listNotes(libraryPath);
   if (existing.length) return existing[0].path;
 
-  const welcome = `---
-title: Vítejte ve Folio
----
-
-# Vítejte ve Folio
-
-Folio je soustředěný markdown editor inspirovaný **iA Writer** — s propojenými poznámkami jako v Obsidianu.
-
-## Začněte tady
-
-1. Pište v čistém markdownu
-2. Zapněte **Focus** a nechte zbytek textu ustoupit
-3. Propojte myšlenky přes wikilinky
-
-Zkuste otevřít [[Jak psát wikilinky]] nebo [[Focus Mode]].
-
-> Tip: stiskněte \`Ctrl+P\` pro rychlé otevření poznámky.
-`;
-
-  const wiki = `# Jak psát wikilinky
-
-Odkazy mezi poznámkami píšete stejně jako v Obsidianu:
-
-\`\`\`
-[[Název poznámky]]
-[[Název poznámky|zobrazený text]]
-\`\`\`
-
-## Co Folio umí
-
-- autocomplete po napsání \`[[\`
-- dvojklikem otevřete existující poznámku
-- pokud cíl neexistuje, Folio ho nabídne vytvořit
-- panel **Backlinky** ukáže, kdo odkazuje sem
-
-Související: [[Vítejte ve Folio]], [[Backlinky]].
-`;
-
-  const focus = `# Focus Mode
-
-Focus Mode spustí immersivní psaní:
-- zachová vaše nastavení Typewriteru
-- přepne okno do fullscreen
-- skryje sidebar, toolbar i status bar
-- nechá jen text a tlačítko **Opustit Focus**
-- zesvětlí okolní věty (jako iA Writer)
-
-Zapnete ho tlačítkem **Focus** nebo zkratkou \`Ctrl+D\`. Odejdete přes Esc / **Opustit Focus**.
-
-Další tipy najdete v [[Vítejte ve Folio]].
-`;
-
-  const backlinks = `# Backlinky
-
-Backlink je zpětný odkaz: když poznámka A obsahuje odkaz na tuto stránku, Folio ho sem vypíše automaticky.
-
-Folio indexuje celou knihovnu a panel vpravo živě aktualizuje:
-
-- **Backlinky** — kdo odkazuje na aktuální poznámku
-- **Odchozí odkazy** — kam odkazujete vy
-
-Tato poznámka je odkazovaná z [[Jak psát wikilinky]].
-`;
-
-  await writeNote(await join(libraryPath, "Vítejte ve Folio.md"), welcome);
-  await writeNote(await join(libraryPath, "Jak psát wikilinky.md"), wiki);
-  await writeNote(await join(libraryPath, "Focus Mode.md"), focus);
-  await writeNote(await join(libraryPath, "Backlinky.md"), backlinks);
-
-  return await join(libraryPath, "Vítejte ve Folio.md");
+  const notes = demoNotes(locale);
+  for (const note of notes) {
+    await writeNote(await join(libraryPath, note.fileName), note.content);
+  }
+  return await join(libraryPath, notes[0].fileName);
 }
 
 export { join };

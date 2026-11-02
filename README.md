@@ -72,7 +72,7 @@ You get one editor: minimal while you write, connected when you explore — with
 | ↩️ **Backlinks** | Live panel of incoming and outgoing links |
 | 📁 **Your files** | Library = a folder of `.md` on disk (Windows); export/import on web |
 | 🌓 **Light / dark** | Warm paper in light mode, near-black in dark mode |
-| 🇨🇿 **Czech UI** | Labels and library sorting follow Czech locale rules |
+| 🌐 **Czech or English UI** | Toolbar chip **English / Čeština** — app chrome, not your note text |
 
 Built with **Tauri 2** (Windows, NSIS + WebView2), **Vite + CodeMirror 6**, **DOMPurify** preview, offline **PWA** for iPhone.
 
