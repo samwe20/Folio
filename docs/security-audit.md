@@ -1,7 +1,7 @@
 # Bezpečnostní audit Folio
 
 **Datum auditu:** 7. listopadu 2026  
-**Verze aplikace:** 1.0.5  
+**Verze aplikace:** 1.0.6  
 **Rozsah:** desktop (Tauri 2 + WebView2), PWA (Vite build + service worker), CI/release, závislosti  
 **Metodika:** adversariální přezkum zdrojů, statická analýza, `npm audit`, ruční PoC v Node/jsdom, automatizované testy v `tests/security.cjs`
 
