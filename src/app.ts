@@ -35,7 +35,13 @@ import {
 } from "./lib/i18n";
 import { loadSettings, saveSettings } from "./lib/settings";
 import { sortNotes } from "./lib/sortNotes";
+import { openFolioReleaseUrl } from "./lib/openRelease";
 import { createSidebarMenu, type SidebarMenuController } from "./lib/sidebarMenu";
+import {
+  dismissUpdateVersion,
+  scheduleDesktopUpdateCheck,
+  type UpdateOffer,
+} from "./lib/updateNotice";
 import type { AppSettings, NoteMeta } from "./types";
 
 type FolderNode = {
@@ -73,6 +79,7 @@ export class FolioApp {
   private webOnly = !isTauri();
   /** Snapshot restored when leaving immersive Focus. */
   private sidebarMenu: SidebarMenuController | null = null;
+  private updateOffer: UpdateOffer | null = null;
   private focusSnapshot: {
     showBacklinks: boolean;
     sidebarCollapsed: boolean;
@@ -158,6 +165,7 @@ export class FolioApp {
     } else {
       this.showWelcome(true);
     }
+    this.setupUpdateNotice();
   }
 
   private reportError(error: unknown) {
@@ -251,6 +259,37 @@ export class FolioApp {
   private async flushCurrent() {
     await this.saveQueue.catch(() => undefined);
     while (this.current && this.dirty) await this.saveCurrent(true);
+  }
+
+  private setupUpdateNotice() {
+    if (!this.native) return;
+    const bar = document.getElementById("update-notice");
+    const text = document.getElementById("update-notice-text");
+    const download = document.getElementById("btn-update-download");
+    const later = document.getElementById("btn-update-later");
+    if (!bar || !text || !download || !later) return;
+
+    const hide = () => {
+      this.updateOffer = null;
+      bar.classList.add("hidden");
+    };
+
+    download.addEventListener("click", () => {
+      const url = this.updateOffer?.url;
+      if (url) void openFolioReleaseUrl(url);
+    });
+    later.addEventListener("click", () => {
+      if (this.updateOffer) dismissUpdateVersion(this.updateOffer.version);
+      hide();
+    });
+
+    scheduleDesktopUpdateCheck({
+      show: (offer) => {
+        this.updateOffer = offer;
+        text.textContent = t("update.available", { version: offer.version });
+        bar.classList.remove("hidden");
+      },
+    });
   }
 
   private setupMobileShell() {

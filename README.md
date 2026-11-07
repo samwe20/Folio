@@ -6,12 +6,12 @@
 
 <img src="docs/assets/folio-demo.gif" alt="Folio — writing, preview, and wiki links" width="720" />
 
-[![Download latest release](https://badgen.net/github/release/samwe20/Folio?label=download&key=1.0.5&color=3d5a73&icon=github)](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe)
+[![Download latest release](https://badgen.net/github/release/samwe20/Folio?label=download&key=1.0.6&color=3d5a73&icon=github)](https://github.com/samwe20/Folio/releases/download/folio-1.0.6/Folio_1.0.6_x64-setup.exe)
 [![Windows CI](https://github.com/samwe20/Folio/actions/workflows/folio.yml/badge.svg?branch=main)](https://github.com/samwe20/Folio/actions/workflows/folio.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Stack](https://img.shields.io/badge/stack-Tauri%202%20%C2%B7%20Vite%20%C2%B7%20TypeScript-333)](docs/development.md)
 
-**[Windows installer (folio-1.0.5)](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe)** · [All releases](https://github.com/samwe20/Folio/releases) · [Project site](https://samwe20.github.io/Folio/) · [Quick start](#quick-start)
+**[Windows installer (folio-1.0.6)](https://github.com/samwe20/Folio/releases/download/folio-1.0.6/Folio_1.0.6_x64-setup.exe)** · [All releases](https://github.com/samwe20/Folio/releases) · [Project site](https://samwe20.github.io/Folio/) · [Quick start](#quick-start)
 
 </div>
 
@@ -19,12 +19,12 @@
 
 | | |
 |---|---|
-| **Version** | [**Folio 1.0.5**](https://github.com/samwe20/Folio/releases/tag/folio-1.0.5) ([`folio-1.0.5`](https://github.com/samwe20/Folio/releases/tag/folio-1.0.5)) |
-| **Installer** | [**Folio_1.0.5_x64-setup.exe**](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe) (NSIS, ~3 MB) |
+| **Version** | [**Folio 1.0.6**](https://github.com/samwe20/Folio/releases/tag/folio-1.0.6) ([`folio-1.0.6`](https://github.com/samwe20/Folio/releases/tag/folio-1.0.6)) |
+| **Installer** | [**Folio_1.0.6_x64-setup.exe**](https://github.com/samwe20/Folio/releases/download/folio-1.0.6/Folio_1.0.6_x64-setup.exe) (NSIS, ~3 MB) |
 | **Platform** | Windows 10/11 (WebView2) |
 | **User guide (CS + EN)** | [docs/release-latest.md](docs/release-latest.md) |
 
-Published on GitHub Releases with tag **`folio-1.0.5`**.
+Published on GitHub Releases with tag **`folio-1.0.6`**.
 
 **What's new for users**
 
@@ -81,7 +81,7 @@ Folio is its own app. **iA Writer** and **Obsidian** are inspirations we credit�
 
 | Platform | How |
 |----------|-----|
-| **Windows 10/11** | **Current:** [Folio 1.0.5 installer](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe) · [release notes](docs/release-latest.md) · [all releases](https://github.com/samwe20/Folio/releases) |
+| **Windows 10/11** | **Current:** [Folio 1.0.6 installer](https://github.com/samwe20/Folio/releases/download/folio-1.0.6/Folio_1.0.6_x64-setup.exe) · [release notes](docs/release-latest.md) · [all releases](https://github.com/samwe20/Folio/releases) |
 
 ---
 

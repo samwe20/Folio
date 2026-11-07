@@ -1,7 +1,7 @@
 {
   "name": "folio",
   "private": true,
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Merge iA Writer minimalism with Obsidian backlinks — Markdown editor (Tauri 2, Windows, PWA).",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
   "homepage": "https://github.com/samwe20/Folio#readme",
   "type": "module",
   "scripts": {
-    "test": "node tests/regression.cjs && node tests/security.cjs",
+    "test": "node tests/regression.cjs && node tests/security.cjs && node tests/update-check.cjs",
     "test:offline": "node tests/offline.cjs",
     "test:e2e": "playwright test",
     "test:desktop": "node tests/desktop.cjs",
@@ -44,9 +44,10 @@
     "@fontsource-variable/plus-jakarta-sans": "^5.2.5",
     "@fontsource/jetbrains-mono": "^5.2.5",
     "@lezer/highlight": "^1.2.1",
-    "@tauri-apps/api": "^2",
+    "@tauri-apps/api": "^2.12.0",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2",
+    "@tauri-apps/plugin-opener": "2.7.2",
     "@tauri-apps/plugin-store": "^2",
     "dompurify": "^3.4.17",
     "fflate": "^0.8.3",

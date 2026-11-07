@@ -2,6 +2,8 @@ import { defineConfig } from "vite";
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 
+const appVersion = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")).version as string;
+
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 // @ts-expect-error process is a nodejs global
@@ -46,5 +48,8 @@ export default defineConfig(async () => ({
   },
   build: {
     target: "es2020",
+  },
+  define: {
+    __FOLIO_VERSION__: JSON.stringify(appVersion),
   },
 }));
