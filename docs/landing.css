@@ -134,8 +134,9 @@ h2 {
   padding: 1.15rem 1.25rem;
   border: 1px solid rgba(60, 50, 30, 0.1);
 }
-.features strong {
+.feature-title {
   display: block;
+  font-weight: 600;
   margin-bottom: 0.35rem;
 }
 .shots {

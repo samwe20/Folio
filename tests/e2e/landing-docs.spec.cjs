@@ -57,4 +57,46 @@ for (const locale of locales) {
     await page.screenshot({ path: out, fullPage: true });
     await context.close();
   });
+
+  test(`landing ${locale.id} sync card inline strong desktop`, async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 1280, height: 900 },
+      baseURL,
+    });
+    const page = await context.newPage();
+    await page.goto(locale.path, { waitUntil: "networkidle" });
+    const syncCard = page.locator(".features li").nth(2);
+    const oneDrive = syncCard.locator("strong").filter({ hasText: "OneDrive" });
+    const iCloud = syncCard.locator("strong").filter({ hasText: "iCloud" });
+    await expect(oneDrive).toBeVisible();
+    await expect(iCloud).toBeVisible();
+    await expect(oneDrive).toHaveCSS("display", "inline");
+    await expect(iCloud).toHaveCSS("display", "inline");
+    await expect(syncCard.locator(".feature-title")).toHaveCSS("display", "block");
+    await syncCard.screenshot({
+      path: path.join("test-results", "landing", `${locale.id}-sync-card-desktop.png`),
+    });
+    await context.close();
+  });
+
+  test(`landing ${locale.id} sync card inline strong mobile 390x844`, async ({ browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      baseURL,
+      isMobile: true,
+    });
+    const page = await context.newPage();
+    await page.goto(locale.path, { waitUntil: "networkidle" });
+    const syncCard = page.locator(".features li").nth(2);
+    const oneDrive = syncCard.locator("strong").filter({ hasText: "OneDrive" });
+    const iCloud = syncCard.locator("strong").filter({ hasText: "iCloud" });
+    await expect(oneDrive).toHaveCSS("display", "inline");
+    const oneBox = await oneDrive.boundingBox();
+    const iCloudBox = await iCloud.boundingBox();
+    expect(Math.abs(oneBox.y - iCloudBox.y)).toBeLessThan(2);
+    await syncCard.screenshot({
+      path: path.join("test-results", "landing", `${locale.id}-sync-card-mobile-390x844.png`),
+    });
+    await context.close();
+  });
 }
