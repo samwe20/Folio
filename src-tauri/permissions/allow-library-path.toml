@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "allow-library-path"
+description = "Extend the filesystem scope to the user-chosen Folio library folder."
+commands.allow = ["allow_library_path"]

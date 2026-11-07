@@ -5,21 +5,21 @@ on:
 permissions:
   contents: read
 jobs:
-  windows:
+  windows-build:
     if: github.event_name == 'pull_request' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: windows-latest
     timeout-minutes: 30
     permissions:
-      contents: write
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@e9d7b9f1e587218970671bac74e5511ed9506e6a # v2
         with:
           workspaces: src-tauri
           cache-on-failure: true
@@ -34,8 +34,6 @@ jobs:
           if ($installation.ExitCode -ne 0) { throw "Installer failed: $($installation.ExitCode)" }
           $executable = Join-Path $installDirectory 'folio.exe'
           if (!(Test-Path -LiteralPath $executable)) { throw 'Installed executable is missing' }
-          # Tauri patches bundle metadata (UNK -> NSS) in the packaged executable.
-          # Compare with the actual installer payload, not the standalone binary.
           $payloadDirectory = Join-Path $env:RUNNER_TEMP 'Folio Payload'
           & 7z e $installer.FullName folio.exe "-o$payloadDirectory" -y
           if ($LASTEXITCODE -ne 0) { throw 'Could not inspect installer payload' }
@@ -44,9 +42,6 @@ jobs:
       - name: Enable Folio automation on the ephemeral runner
         shell: pwsh
         run: |
-          # Hosted Windows runners are elevated. Recent WebView2 ignores
-          # WEBVIEW2_* environment overrides in elevated processes.
-          # https://learn.microsoft.com/microsoft-edge/webview2/concepts/security
           $policyRoot = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2'
           New-Item "$policyRoot\AdditionalBrowserArguments" -Force | Out-Null
           $debugArgs = '--remote-debugging-port=9224 --remote-allow-origins=*'
@@ -61,25 +56,12 @@ jobs:
           Get-Process folio -ErrorAction SilentlyContinue | Stop-Process -Force
           Start-Sleep -Seconds 2
       - name: Test the actual Windows application
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3
         with:
           timeout_minutes: 15
           max_attempts: 2
           retry_on: error
           command: npm run test:desktop
-      - name: Read Folio version
-        id: folio_version
-        run: |
-          $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version
-          "version=$version" >> $env:GITHUB_OUTPUT
-      - name: Publish the installer as a single file
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: folio-${{ steps.folio_version.outputs.version }}
-          name: Folio ${{ steps.folio_version.outputs.version }} pro Windows
-          body_path: docs/release-latest.md
-          prerelease: false
-          files: src-tauri/target/release/bundle/nsis/*-setup.exe
       - name: Remove Folio automation configuration
         if: always()
         shell: pwsh
@@ -87,7 +69,7 @@ jobs:
           $policyRoot = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge\WebView2'
           Remove-ItemProperty "$policyRoot\AdditionalBrowserArguments" -Name 'folio.exe' -ErrorAction SilentlyContinue
           Remove-ItemProperty "$policyRoot\UserDataFolder" -Name 'folio.exe' -ErrorAction SilentlyContinue
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: folio-windows
@@ -99,12 +81,40 @@ jobs:
             test-results/desktop/*.html
             test-results/desktop/*.log
             src-tauri/Cargo.lock
+  windows-release:
+    if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    needs: windows-build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: folio-windows
+          path: artifacts
+      - name: Read Folio version
+        id: folio_version
+        shell: pwsh
+        run: |
+          $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version
+          "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Publish the installer as a single file
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          tag_name: folio-${{ steps.folio_version.outputs.version }}
+          name: Folio ${{ steps.folio_version.outputs.version }} pro Windows
+          body_path: docs/release-latest.md
+          prerelease: false
+          files: artifacts/src-tauri/target/release/bundle/nsis/*.exe
   web:
     if: github.event_name == 'pull_request' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -112,12 +122,29 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm test
+      - run: npm audit --audit-level=high
       - run: npm run build
       - run: npm run test:offline
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: folio-browser-results
           path: test-results
+  cargo-audit:
+    if: github.event_name == 'pull_request' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: Swatinem/rust-cache@e9d7b9f1e587218970671bac74e5511ed9506e6a # v2
+        with:
+          workspaces: src-tauri
+          cache-on-failure: true
+      - name: Install cargo-audit
+        run: cargo install cargo-audit --locked
+      - name: Audit Rust dependencies
+        working-directory: src-tauri
+        run: cargo audit

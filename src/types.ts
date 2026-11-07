@@ -21,6 +21,10 @@ export interface AppSettings {
   sortBy: "title" | "createdAt";
   sortDirection: "asc" | "desc";
   uiLocale: UiLocale;
+  /** Default: remote http(s) images in preview are blocked (tracking-pixel mitigation). */
+  previewRemoteImagesGlobal: boolean;
+  /** Per-note override for remote images in preview (path → allow). */
+  previewRemoteImagesNotes: Record<string, boolean>;
 }
 
 export interface WikiTarget {
@@ -40,4 +44,6 @@ export const DEFAULT_SETTINGS: AppSettings = {
   sortBy: "title",
   sortDirection: "asc",
   uiLocale: "cs",
+  previewRemoteImagesGlobal: false,
+  previewRemoteImagesNotes: {},
 };

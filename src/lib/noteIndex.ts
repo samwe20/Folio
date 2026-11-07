@@ -1,7 +1,7 @@
 import type { NoteMeta, WikiTarget } from "../types";
 import { markdownLanguage } from "@codemirror/lang-markdown";
 
-const WIKI_RE = /\[\[([^\]|#]+)(?:\|([^\]]+))?\]\]/g;
+const WIKI_RE = /\[\[([^\]|#<>"&\n]+)(?:\|([^\]<>"&\n]+))?\]\]/g;
 
 /** Strip fenced/inline code so example [[links]] inside code are ignored. */
 export function stripCodeForLinks(text: string): string {

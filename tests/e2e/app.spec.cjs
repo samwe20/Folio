@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+const {openLibrary,openOverflowMenu}=require('./helpers.cjs');
 const {focusLayout,expectLineNavigation}=require('../focus-layout.cjs');
 const {previewDocument,expectPreviewScrolling,expectEditingRestored}=require('../preview-layout.cjs');
 const editor=page=>page.locator('.cm-content');
@@ -42,8 +43,12 @@ test('the first installed visit can reload offline',async({page,context})=>{
 });
 test('importing the same file twice retains both notes',async({page})=>{
   const input=page.locator('#import-files');
+  await openOverflowMenu(page);
+  await page.locator('#menu-import-md').click();
   await input.setInputFiles({name:'Imported.md',mimeType:'text/markdown',buffer:Buffer.from('first copy')});
   await expect(editor(page)).toHaveText('first copy');
+  await openOverflowMenu(page);
+  await page.locator('#menu-import-md').click();
   await input.setInputFiles({name:'Imported.md',mimeType:'text/markdown',buffer:Buffer.from('second copy')});
   await expect(editor(page)).toHaveText('second copy');
   await expect(page.locator('#note-title')).toHaveValue('Imported 2');

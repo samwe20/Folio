@@ -251,43 +251,58 @@ input {
   transform: translateY(-1px);
 }
 
-.disk-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.25rem;
-  padding: 0 0.35rem;
+.sidebar-overflow {
+  position: relative;
 }
 
-.disk-actions #btn-import-files {
-  grid-column: 1 / -1;
-}
-
-.disk-actions.hidden {
+.sidebar-overflow.hidden {
   display: none !important;
 }
 
-.disk-btn {
+.sidebar-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  min-width: 11.5rem;
+  padding: 0.35rem;
+  border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: 0 12px 40px rgba(16, 14, 10, 0.14);
+}
+
+.app[data-theme="dark"] .sidebar-menu {
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45);
+}
+
+.sidebar-menu.hidden {
+  display: none !important;
+}
+
+.sidebar-menu-item {
+  display: block;
+  width: 100%;
+  border: 0;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink);
+  text-align: left;
+  padding: 0.55rem 0.65rem;
   border-radius: var(--radius-sm);
-  padding: 0.28rem 0.35rem;
-  font-size: 0.68rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
 }
 
-.disk-btn:hover {
+.sidebar-menu-item:hover,
+.sidebar-menu-item:focus-visible {
   background: var(--accent-soft);
   color: var(--accent);
-}
-
-.disk-btn.desktop-chromium {
-  grid-column: 1 / -1;
+  outline: none;
 }
 
 .app:not(.is-web) .web-only,
-.app.is-web .disk-btn.desktop-chromium.is-unsupported {
+.app.is-web #menu-save-folder.is-unsupported {
   display: none !important;
 }
 
@@ -768,6 +783,31 @@ input {
   font-size: 19px;
   line-height: 1.75;
   overflow-wrap: anywhere;
+}
+
+.preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem 0;
+}
+
+.preview-remote-btn[data-active="true"] {
+  color: var(--accent);
+}
+
+.preview-img-placeholder {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
 }
 
 .preview-root img {

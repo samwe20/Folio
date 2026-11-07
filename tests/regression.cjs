@@ -88,7 +88,7 @@ test('failed saves preserve dirty state, recovery journal and current note', asy
   try {
     await assert.rejects(app.openNote(note(b)),/disk full/);
     assert.equal(app.current.path,a); assert.equal(app.dirty,true);
-    assert.equal(require('../src/lib/drafts.ts').readDraft(a),'must survive');
+    assert.equal(await require('../src/lib/drafts.ts').readDraft(a),'must survive');
   } finally {web.writeNote=original;}
   await app.saveCurrent(true); assert.equal(await web.readNote(a),'must survive');
 });
