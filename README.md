@@ -2,7 +2,7 @@
 
 # Folio
 
-**Where iA Writer meets Obsidian** — calm Markdown writing, `[[wiki links]]`, and live backlinks in one lightweight editor.
+**A calm Markdown editor** — focused writing inspired by **iA Writer**, `[[wiki links]]` and a **backlinks** panel inspired by the linking idea in **Obsidian**.
 
 <img src="docs/assets/folio-demo.gif" alt="Folio — writing, preview, and wiki links" width="720" />
 
@@ -40,11 +40,12 @@ Older releases: [GitHub Releases](https://github.com/samwe20/Folio/releases).
 
 ## Why Folio?
 
-Folio merges two apps you might otherwise run side by side:
+Folio is its own app. **iA Writer** and **Obsidian** are inspirations we credit—not products Folio tries to replace.
 
-- **vs iA Writer** — same calm, typography-first surface (Focus Mode, typewriter, paper themes), **plus** `[[wiki links]]`, autocomplete, and a **backlinks** panel so notes stay connected.
-- **vs Obsidian** — wiki-style linking without a heavy graph UI or plugin stack; the library is a **plain folder of Markdown** on disk with a minimal chrome.
-- **Your data** — native Windows app (Tauri 2) and an **offline PWA** for iPhone; no mandatory account or proprietary vault format.
+- **Writing feel** *(inspired by iA Writer)* — typography-first editing, Focus Mode, optional typewriter, and light/dark paper themes for calm drafting.
+- **Backlinks** *(inspired by Obsidian)* — Folio takes the **idea of backlinks**: `[[wiki links]]`, autocomplete, and a panel of incoming/outgoing links. Not a plugin ecosystem or graph canvas.
+- **Your folder, your sync** — the library is a **plain folder of `.md` files`**. Folio has **no built-in cloud sync**; store the library in **OneDrive**, **iCloud Drive**, or any synced folder and your files follow your usual sync.
+- **Windows + web** — Tauri 2 on desktop and an offline **PWA** on iPhone (separate libraries unless you move notes via export/import).
 - **Bilingual app chrome** — toolbar **English / Čeština** for UI labels; your note text stays whatever language you write in.
 
 ---
