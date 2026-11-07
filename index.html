@@ -41,19 +41,35 @@
             <button class="icon-btn" id="btn-refresh" data-i18n-title="action.refreshLibrary" data-i18n-aria-label="action.refreshLibrary" title="Obnovit" aria-label="Obnovit knihovnu">
               <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
             </button>
+            <div class="sidebar-overflow web-only hidden" id="sidebar-overflow">
+              <button
+                type="button"
+                class="icon-btn"
+                id="btn-sidebar-menu"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="sidebar-menu"
+                data-i18n-title="action.libraryOverflowTitle"
+                data-i18n-aria-label="action.libraryOverflow"
+                title="Export, import a uložení"
+                aria-label="Další akce knihovny"
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+              </button>
+              <div class="sidebar-menu hidden" id="sidebar-menu" role="menu" data-i18n-aria-label="action.libraryOverflow" aria-label="Další akce knihovny">
+                <button type="button" role="menuitem" class="sidebar-menu-item" id="menu-export-library" data-i18n="disk.exportZip">Export ZIP</button>
+                <button type="button" role="menuitem" class="sidebar-menu-item" id="menu-export-note" data-i18n="disk.exportNote">Export .md</button>
+                <button type="button" role="menuitem" class="sidebar-menu-item" id="menu-import-md" data-i18n="disk.importMd">Import .md</button>
+                <button type="button" role="menuitem" class="sidebar-menu-item desktop-chromium" id="menu-save-folder" data-i18n="disk.saveFolder">Uložit do složky</button>
+              </div>
+            </div>
           </div>
           <button class="icon-btn mobile-only" id="btn-close-sidebar" data-i18n-title="action.closeLibrary" data-i18n-aria-label="action.closeLibrary" title="Zavřít" aria-label="Zavřít knihovnu">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg>
           </button>
         </div>
 
-        <div class="disk-actions web-only hidden" id="disk-actions">
-          <button class="disk-btn" id="btn-export-library" type="button">Export ZIP</button>
-          <button class="disk-btn" id="btn-export-note" type="button">Export .md</button>
-          <button class="disk-btn" id="btn-import-files" type="button">Import .md</button>
-          <button class="disk-btn desktop-chromium" id="btn-save-folder" type="button" data-i18n="disk.saveFolder">Uložit do složky</button>
-          <input id="import-files" class="hidden" type="file" accept=".md,text/markdown,text/plain" multiple />
-        </div>
+        <input id="import-files" class="hidden" type="file" accept=".md,text/markdown" multiple aria-hidden="true" tabindex="-1" />
 
         <div class="library-path" id="library-path" title="" data-i18n="library.none">Žádná knihovna</div>
         <div class="library-sort" role="group" data-i18n-aria-label="sort.group" aria-label="Řazení souborů">

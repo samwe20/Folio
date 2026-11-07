@@ -35,6 +35,7 @@ import {
 } from "./lib/i18n";
 import { loadSettings, saveSettings } from "./lib/settings";
 import { sortNotes } from "./lib/sortNotes";
+import { createSidebarMenu, type SidebarMenuController } from "./lib/sidebarMenu";
 import type { AppSettings, NoteMeta } from "./types";
 
 type FolderNode = {
@@ -71,6 +72,7 @@ export class FolioApp {
   private native = isTauri();
   private webOnly = !isTauri();
   /** Snapshot restored when leaving immersive Focus. */
+  private sidebarMenu: SidebarMenuController | null = null;
   private focusSnapshot: {
     showBacklinks: boolean;
     sidebarCollapsed: boolean;
@@ -182,6 +184,7 @@ export class FolioApp {
     this.renderLinks();
     this.updateStats(this.editor.getText());
     this.syncRemoteImageChips();
+    this.sidebarMenu?.syncItems();
   }
 
   private updateLocaleChip() {
@@ -257,11 +260,12 @@ export class FolioApp {
     if (this.webOnly) {
       document.getElementById("btn-open-library")?.classList.add("mobile-hide");
       document.getElementById("welcome-open")?.classList.add("mobile-hide");
-      document.getElementById("disk-actions")?.classList.remove("hidden");
-      const folderBtn = document.getElementById("btn-save-folder");
-      if (folderBtn && !canUseDirectoryPicker()) {
-        folderBtn.classList.add("is-unsupported");
+      document.getElementById("sidebar-overflow")?.classList.remove("hidden");
+      const folderItem = document.getElementById("menu-save-folder");
+      if (folderItem && !canUseDirectoryPicker()) {
+        folderItem.classList.add("is-unsupported");
       }
+      this.sidebarMenu?.syncItems();
     }
 
     if (!this.mobile) return;
@@ -276,6 +280,7 @@ export class FolioApp {
 
   private setLibraryOpen(open: boolean) {
     this.els.app.classList.toggle("sidebar-collapsed", !open);
+    if (!open) this.sidebarMenu?.close();
     this.syncScrim();
   }
 
@@ -321,9 +326,14 @@ export class FolioApp {
     document.getElementById("welcome-open")!.addEventListener("click", () => void this.runAction(() => this.pickLibrary()));
     document.getElementById("welcome-demo")!.addEventListener("click", () => void this.runAction(() => this.createDemo()));
 
-    document.getElementById("btn-export-library")?.addEventListener("click", () => void this.runAction(() => this.exportLibrary()));
-    document.getElementById("btn-export-note")?.addEventListener("click", () => void this.runAction(() => this.exportCurrentNote()));
-    document.getElementById("btn-import-files")?.addEventListener("click", () => {
+    const menuTrigger = document.getElementById("btn-sidebar-menu") as HTMLButtonElement | null;
+    const menuPanel = document.getElementById("sidebar-menu");
+    if (menuTrigger && menuPanel) {
+      this.sidebarMenu = createSidebarMenu(menuTrigger, menuPanel);
+    }
+    document.getElementById("menu-export-library")?.addEventListener("click", () => void this.runAction(() => this.exportLibrary()));
+    document.getElementById("menu-export-note")?.addEventListener("click", () => void this.runAction(() => this.exportCurrentNote()));
+    document.getElementById("menu-import-md")?.addEventListener("click", () => {
       document.getElementById("import-files")?.dispatchEvent(new MouseEvent("click"));
     });
     document.getElementById("import-files")?.addEventListener("change", (e) => {
@@ -332,7 +342,7 @@ export class FolioApp {
       if (files.length) void this.runAction(() => this.importFiles(files));
       input.value = "";
     });
-    document.getElementById("btn-save-folder")?.addEventListener("click", () => void this.runAction(() => this.saveToFolder()));
+    document.getElementById("menu-save-folder")?.addEventListener("click", () => void this.runAction(() => this.saveToFolder()));
 
     const changeSort = () => {
       this.settings.sortBy = this.els.sortBy.value === "createdAt" ? "createdAt" : "title";
