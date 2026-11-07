@@ -11,11 +11,13 @@ import {
 import type { NoteIndex } from "../lib/noteIndex";
 import { focusExtension, setFocusMode } from "./focusExtension";
 import { createEditorTheme } from "./theme";
+import { imageDropExtension, type ImageFileHandler } from "./imageDropExtension";
 import { wikiExtension, WikiOpenHandler } from "./wikiExtension";
 
 export interface EditorHooks {
   onChange: (text: string) => void;
   onOpenWiki: WikiOpenHandler;
+  onImageFile?: ImageFileHandler;
 }
 
 export interface FolioEditor {
@@ -69,6 +71,7 @@ export function createEditor(
   };
   const themeConfig = new Compartment();
   const wikiConfig = new Compartment();
+  const imageDropConfig = new Compartment();
   const editableConfig = new Compartment();
   const placeholderConfig = new Compartment();
   let placeholderText = editorPlaceholder;
@@ -85,6 +88,7 @@ export function createEditor(
     editableConfig.of(editable()),
     focusExtension(),
     wikiConfig.of(wikiExtension(index, hooks.onOpenWiki)),
+    imageDropConfig.of(hooks.onImageFile ? imageDropExtension(hooks.onImageFile) : []),
     EditorView.updateListener.of((update) => {
       if (update.docChanged) hooks.onChange(update.state.doc.toString());
       if (!typewriterOn || centering) return;

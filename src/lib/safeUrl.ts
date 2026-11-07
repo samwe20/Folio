@@ -1,3 +1,5 @@
+import { isLocalPreviewImageSrc } from "./imageAssets";
+
 /** Allowed schemes for user-visible links in Markdown preview. */
 const LINK_RE = /^(https?:|mailto:|#)/i;
 
@@ -31,5 +33,6 @@ export function isSafePreviewImageSrc(src: string): boolean {
     return false;
   }
   if (lower.startsWith("data:")) return SAFE_DATA_IMAGE_RE.test(trimmed);
+  if (isLocalPreviewImageSrc(trimmed)) return true;
   return /^https?:/i.test(trimmed);
 }

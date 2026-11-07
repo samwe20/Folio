@@ -74,18 +74,29 @@ export async function fetchLatestGitHubRelease(
   }
 }
 
+export type ResolveUpdateOfferOptions = {
+  /** When true, still offer an update the user previously dismissed (manual check). */
+  ignoreDismiss?: boolean;
+};
+
 export function resolveUpdateOffer(
   currentVersion: string,
   release: GitHubLatestRelease | null,
+  options?: ResolveUpdateOfferOptions,
 ): UpdateOffer | null {
   if (!release) return null;
   const latest = parseFolioReleaseTag(release.tag_name);
   if (!latest) return null;
   if (!isSafeFolioReleaseUrl(release.html_url)) return null;
   if (compareSemver(latest, currentVersion) <= 0) return null;
-  if (isUpdateDismissed(latest)) return null;
+  if (!options?.ignoreDismiss && isUpdateDismissed(latest)) return null;
   return { version: latest, url: release.html_url };
 }
+
+export type ManualUpdateResult =
+  | { status: "offer"; offer: UpdateOffer; current: string }
+  | { status: "current"; current: string; latestTag: string | null }
+  | { status: "error" };
 
 export type UpdateNoticeUi = {
   show(offer: UpdateOffer): void;
@@ -108,6 +119,28 @@ export async function runDesktopUpdateCheck(ui: UpdateNoticeUi): Promise<void> {
     const current = await getAppVersion();
     const offer = resolveUpdateOffer(current, release);
     if (offer) ui.show(offer);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/** User-initiated check (ignores 24h cooldown and dismissed versions). */
+export async function runManualUpdateCheck(ui?: UpdateNoticeUi): Promise<ManualUpdateResult> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), UPDATE_FETCH_TIMEOUT_MS);
+  try {
+    const release = await fetchLatestGitHubRelease(controller.signal);
+    const current = await getAppVersion();
+    markUpdateChecked();
+    const offer = resolveUpdateOffer(current, release, { ignoreDismiss: true });
+    if (offer) {
+      ui?.show(offer);
+      return { status: "offer", offer, current };
+    }
+    const latestTag = release ? parseFolioReleaseTag(release.tag_name) : null;
+    return { status: "current", current, latestTag };
+  } catch {
+    return { status: "error" };
   } finally {
     clearTimeout(timeout);
   }

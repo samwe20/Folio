@@ -110,6 +110,80 @@
             <button class="chip-btn" id="btn-locale" type="button" title="Language">English</button>
             <button class="chip-btn" id="btn-theme" data-i18n-title="chip.themeToggle" title="Přepnout motiv">Dark</button>
             <button class="chip-btn" id="btn-backlinks" data-active="false" data-i18n="chip.links" data-i18n-title="chip.linksTitle" title="Backlinky">Links</button>
+            <div class="toolbar-overflow">
+              <button
+                type="button"
+                class="ghost-btn"
+                id="btn-app-menu"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="app-menu"
+                data-i18n-title="menu.appTitle"
+                data-i18n-aria-label="menu.app"
+                title="Nastavení a informace"
+                aria-label="Menu"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>
+              </button>
+              <div class="popup-menu hidden" id="app-menu" role="menu" data-i18n-aria-label="menu.app" aria-label="Menu">
+                <div class="popup-menu-about" role="presentation">
+                  <span class="popup-menu-app-name">Folio</span>
+                  <span class="popup-menu-version" id="app-menu-version"></span>
+                </div>
+                <div class="popup-menu-sep" role="separator" aria-hidden="true"></div>
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  class="popup-menu-item popup-menu-check"
+                  id="menu-remote-images-global"
+                  aria-checked="false"
+                  data-menu-keep-open="true"
+                  data-i18n="menu.remoteImagesGlobal"
+                >
+                  Vzdálené obrázky v náhledu
+                </button>
+                <button
+                  type="button"
+                  role="menuitemcheckbox"
+                  class="popup-menu-item popup-menu-check"
+                  id="menu-remote-images-note"
+                  aria-checked="false"
+                  data-menu-keep-open="true"
+                  data-i18n="menu.remoteImagesNote"
+                >
+                  Tato poznámka: obrázky
+                </button>
+                <div class="popup-menu-sep" role="separator" aria-hidden="true"></div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="popup-menu-item"
+                  id="app-menu-export-library"
+                  data-i18n="disk.exportZip"
+                >
+                  Export ZIP
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="popup-menu-item"
+                  id="app-menu-export-note"
+                  data-i18n="disk.exportNote"
+                >
+                  Export .md
+                </button>
+                <div class="popup-menu-sep" role="separator" aria-hidden="true"></div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  class="popup-menu-item"
+                  id="menu-check-updates"
+                  data-i18n="menu.checkUpdates"
+                >
+                  Zkontrolovat aktualizace
+                </button>
+              </div>
+            </div>
           </div>
         </header>
 
@@ -117,30 +191,6 @@
           <main class="editor-pane">
             <div id="editor-root" class="editor-root"></div>
             <div id="preview-pane" class="preview-pane hidden" tabindex="0" data-i18n-aria-label="preview.aria" aria-label="Náhled poznámky">
-              <div class="preview-toolbar" id="preview-toolbar">
-                <button
-                  type="button"
-                  class="chip-btn preview-remote-btn"
-                  id="btn-remote-images-global"
-                  data-active="false"
-                  data-i18n="preview.remoteGlobalOff"
-                  data-i18n-title="preview.remoteGlobalTitle"
-                  title="Povolit nebo zakázat načítání http(s) obrázků ve všech poznámkách"
-                >
-                  Vzdálené obrázky: vyp
-                </button>
-                <button
-                  type="button"
-                  class="chip-btn preview-remote-btn"
-                  id="btn-remote-images-note"
-                  data-active="false"
-                  data-i18n="preview.remoteNoteOff"
-                  data-i18n-title="preview.remoteNoteTitle"
-                  title="Přepsat nastavení pro aktuální poznámku"
-                >
-                  Tato poznámka: obrázky vyp
-                </button>
-              </div>
               <article id="preview-root" class="preview-root"></article>
             </div>
           </main>

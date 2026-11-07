@@ -10,8 +10,16 @@ import {
   listNotes,
   readNote,
   renameNote,
+  writeLibraryImage,
   writeNote,
 } from "./lib/fs";
+import {
+  altTextFromFileName,
+  imageMarkdown,
+  isAllowedImageFile,
+  isLocalPreviewImageSrc,
+  joinLibraryRelativePath,
+} from "./lib/imageAssets";
 import {
   canUseDirectoryPicker,
   exportLibraryToDisk,
@@ -40,11 +48,14 @@ import {
 } from "./lib/i18n";
 import { loadSettings, saveSettings } from "./lib/settings";
 import { sortNotes } from "./lib/sortNotes";
+import { getAppVersion } from "./lib/appVersion";
 import { openFolioReleaseUrl } from "./lib/openRelease";
 import { createSidebarMenu, type SidebarMenuController } from "./lib/sidebarMenu";
 import {
   dismissUpdateVersion,
+  runManualUpdateCheck,
   scheduleDesktopUpdateCheck,
+  type UpdateNoticeUi,
   type UpdateOffer,
 } from "./lib/updateNotice";
 import type { AppSettings, NoteMeta } from "./types";
@@ -84,7 +95,9 @@ export class FolioApp {
   private webOnly = !isDesktopUi();
   /** Snapshot restored when leaving immersive Focus. */
   private sidebarMenu: SidebarMenuController | null = null;
+  private appMenu: SidebarMenuController | null = null;
   private updateOffer: UpdateOffer | null = null;
+  private updateNoticeUi: UpdateNoticeUi | null = null;
   private focusSnapshot: {
     showBacklinks: boolean;
     sidebarCollapsed: boolean;
@@ -103,8 +116,9 @@ export class FolioApp {
     editorRoot: document.getElementById("editor-root")!,
     previewRoot: document.getElementById("preview-root")!,
     previewPane: document.getElementById("preview-pane")!,
-    btnRemoteImagesGlobal: document.getElementById("btn-remote-images-global")!,
-    btnRemoteImagesNote: document.getElementById("btn-remote-images-note")!,
+    menuRemoteImagesGlobal: document.getElementById("menu-remote-images-global")!,
+    menuRemoteImagesNote: document.getElementById("menu-remote-images-note")!,
+    appMenuVersion: document.getElementById("app-menu-version")!,
     backlinksPane: document.getElementById("backlinks-pane")!,
     backlinksList: document.getElementById("backlinks-list")!,
     outgoingList: document.getElementById("outgoing-list")!,
@@ -146,6 +160,7 @@ export class FolioApp {
       {
         onChange: (text) => this.handleEditorChange(text),
         onOpenWiki: (title, createIfMissing) => void this.runAction(() => this.openWiki(title, createIfMissing)),
+        onImageFile: (file) => this.insertImageFromFile(file),
       },
       this.settings.theme,
       t("editor.placeholder"),
@@ -170,6 +185,8 @@ export class FolioApp {
       this.showWelcome(true);
     }
     this.setupUpdateNotice();
+    void this.syncAppMenuVersion();
+    if (this.native) void this.previewAssetReady;
   }
 
   private reportError(error: unknown) {
@@ -197,6 +214,7 @@ export class FolioApp {
     this.updateStats(this.editor.getText());
     this.syncRemoteImageChips();
     this.sidebarMenu?.syncItems();
+    void this.syncAppMenuVersion();
   }
 
   private updateLocaleChip() {
@@ -266,7 +284,6 @@ export class FolioApp {
   }
 
   private setupUpdateNotice() {
-    if (!this.native) return;
     const bar = document.getElementById("update-notice");
     const text = document.getElementById("update-notice-text");
     const download = document.getElementById("btn-update-download");
@@ -287,13 +304,44 @@ export class FolioApp {
       hide();
     });
 
-    scheduleDesktopUpdateCheck({
+    this.updateNoticeUi = {
       show: (offer) => {
         this.updateOffer = offer;
         text.textContent = t("update.available", { version: offer.version });
         bar.classList.remove("hidden");
       },
-    });
+    };
+    if (this.native) scheduleDesktopUpdateCheck(this.updateNoticeUi);
+  }
+
+  private async syncAppMenuVersion() {
+    const version = await getAppVersion();
+    this.els.appMenuVersion.textContent = t("menu.versionLabel", { version });
+  }
+
+  private async checkUpdatesManually() {
+    const btn = document.getElementById("menu-check-updates") as HTMLButtonElement | null;
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = t("menu.checkingUpdates");
+    }
+    this.els.statusSave.textContent = t("menu.checkingUpdates");
+    try {
+      const result = await runManualUpdateCheck(this.updateNoticeUi ?? undefined);
+      if (result.status === "offer") {
+        this.els.statusSave.textContent = t("update.available", { version: result.offer.version });
+      } else if (result.status === "current") {
+        const label = result.latestTag ?? result.current;
+        this.els.statusSave.textContent = t("menu.upToDate", { version: label });
+      } else {
+        this.els.statusSave.textContent = t("menu.updateCheckFailed");
+      }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = t("menu.checkUpdates");
+      }
+    }
   }
 
   private setupMobileShell() {
@@ -387,6 +435,24 @@ export class FolioApp {
     });
     document.getElementById("menu-save-folder")?.addEventListener("click", () => void this.runAction(() => this.saveToFolder()));
 
+    const appMenuTrigger = document.getElementById("btn-app-menu") as HTMLButtonElement | null;
+    const appMenuPanel = document.getElementById("app-menu");
+    if (appMenuTrigger && appMenuPanel) {
+      this.appMenu = createSidebarMenu(appMenuTrigger, appMenuPanel);
+      appMenuTrigger.addEventListener("click", () => {
+        if (!this.appMenu?.isOpen()) void this.syncAppMenuVersion();
+      });
+    }
+    document.getElementById("menu-check-updates")?.addEventListener("click", () => {
+      void this.checkUpdatesManually();
+    });
+    document.getElementById("app-menu-export-library")?.addEventListener("click", () => {
+      void this.runAction(() => this.exportLibrary());
+    });
+    document.getElementById("app-menu-export-note")?.addEventListener("click", () => {
+      void this.runAction(() => this.exportCurrentNote());
+    });
+
     const changeSort = () => {
       this.settings.sortBy = this.els.sortBy.value === "createdAt" ? "createdAt" : "title";
       this.settings.sortDirection = this.els.sortDirection.value === "desc" ? "desc" : "asc";
@@ -420,13 +486,13 @@ export class FolioApp {
       void saveSettings(this.settings);
     });
 
-    this.els.btnRemoteImagesGlobal.addEventListener("click", () => {
+    this.els.menuRemoteImagesGlobal.addEventListener("click", () => {
       this.settings.previewRemoteImagesGlobal = !this.settings.previewRemoteImagesGlobal;
       void saveSettings(this.settings);
       this.syncRemoteImageChips();
       if (this.previewOn) this.renderPreview(this.editor.getText());
     });
-    this.els.btnRemoteImagesNote.addEventListener("click", () => {
+    this.els.menuRemoteImagesNote.addEventListener("click", () => {
       if (!this.current) return;
       const path = this.current.path;
       const overrides = { ...this.settings.previewRemoteImagesNotes };
@@ -688,7 +754,7 @@ export class FolioApp {
   private async createDemo() {
     const path = await getDefaultLibraryPath();
     if (this.native) await ensureLibraryFsScope(path);
-    const first = await createDemoLibrary(path, this.settings.uiLocale);
+    const first = await createDemoLibrary(path);
     await this.openLibrary(path, first);
   }
 
@@ -1147,18 +1213,13 @@ export class FolioApp {
 
   private syncRemoteImageChips() {
     const globalOn = this.settings.previewRemoteImagesGlobal;
-    this.syncChip(this.els.btnRemoteImagesGlobal, globalOn);
-    this.els.btnRemoteImagesGlobal.textContent = t(globalOn ? "preview.remoteGlobalOn" : "preview.remoteGlobalOff");
-    this.els.btnRemoteImagesGlobal.title = t("preview.remoteGlobalTitle");
-
+    this.els.menuRemoteImagesGlobal.setAttribute("aria-checked", String(globalOn));
     const noteOn = this.allowRemoteImagesForCurrent();
-    const hasOverride = Boolean(this.current && this.current.path in this.settings.previewRemoteImagesNotes);
-    this.syncChip(this.els.btnRemoteImagesNote, noteOn);
-    this.els.btnRemoteImagesNote.textContent = t(
-      hasOverride ? (noteOn ? "preview.remoteNoteOn" : "preview.remoteNoteOff") : (noteOn ? "preview.remoteNoteOn" : "preview.remoteNoteOff"),
-    );
-    this.els.btnRemoteImagesNote.title = t("preview.remoteNoteTitle");
-    this.els.btnRemoteImagesNote.toggleAttribute("disabled", !this.current);
+    this.els.menuRemoteImagesNote.setAttribute("aria-checked", String(noteOn));
+    this.els.menuRemoteImagesNote.toggleAttribute("disabled", !this.current);
+    const hasLibrary = Boolean(this.settings.libraryPath);
+    document.getElementById("app-menu-export-library")?.toggleAttribute("disabled", !hasLibrary);
+    document.getElementById("app-menu-export-note")?.toggleAttribute("disabled", !this.current);
   }
 
   private togglePreview() {
@@ -1174,10 +1235,45 @@ export class FolioApp {
     else this.editor.focus();
   }
 
+  private convertFileSrcFn: ((path: string) => string) | null = null;
+  private previewAssetReady: Promise<void> = this.native
+    ? import("@tauri-apps/api/core").then(({ convertFileSrc }) => {
+        this.convertFileSrcFn = convertFileSrc;
+      })
+    : Promise.resolve();
+
+  private resolvePreviewAssetSrc(src: string): string {
+    if (!isLocalPreviewImageSrc(src) || !this.settings.libraryPath || !this.convertFileSrcFn) return src;
+    try {
+      return this.convertFileSrcFn(joinLibraryRelativePath(this.settings.libraryPath, src));
+    } catch {
+      return src;
+    }
+  }
+
+  private async insertImageFromFile(file: File): Promise<string | null> {
+    if (!this.settings.libraryPath || !this.current) return null;
+    if (this.editor.view.state.readOnly) return null;
+    if (!isAllowedImageFile(file)) {
+      this.els.statusSave.textContent = t("status.imageUnsupported");
+      return null;
+    }
+    try {
+      const src = await writeLibraryImage(this.settings.libraryPath, file);
+      this.els.statusSave.textContent = t("status.imageInserted");
+      return imageMarkdown(src, altTextFromFileName(file.name));
+    } catch (error) {
+      console.error(error);
+      this.els.statusSave.textContent = t("status.imageInsertFailed");
+      return null;
+    }
+  }
+
   private renderPreview(text: string) {
     this.els.previewRoot.innerHTML = renderMarkdown(text, this.index, {
       allowRemoteImages: this.allowRemoteImagesForCurrent(),
       blockedImageLabel: t("preview.remoteBlocked"),
+      resolveAssetSrc: (src) => this.resolvePreviewAssetSrc(src),
     });
     this.els.previewRoot.querySelectorAll("a").forEach((a) => {
       const href = a.getAttribute("href") ?? "";
