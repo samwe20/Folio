@@ -1,8 +1,15 @@
 import type { UiLocale } from "./i18n";
 
+/** Post-install sample library is always English (UI locale may still be Czech). */
+export const TUTORIAL_LOCALE: UiLocale = "en";
+
 export interface DemoNote {
   fileName: string;
   content: string;
+}
+
+export function tutorialNotes(): DemoNote[] {
+  return demoNotes(TUTORIAL_LOCALE);
 }
 
 export function demoNotes(locale: UiLocale): DemoNote[] {

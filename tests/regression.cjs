@@ -224,3 +224,9 @@ test('sorting changes only the list and saves both preferences',async()=>{
   const {loadSettings}=require('../src/lib/settings.ts');
   const saved=await loadSettings();assert.equal(saved.sortBy,'createdAt');assert.equal(saved.sortDirection,'desc');
 });
+
+test('post-install tutorial library is always English',()=>{
+  const {tutorialNotes,TUTORIAL_LOCALE}=require('../src/lib/demoContent.ts');
+  assert.equal(TUTORIAL_LOCALE,'en');
+  assert.equal(tutorialNotes()[0].fileName,'Welcome to Folio.md');
+});

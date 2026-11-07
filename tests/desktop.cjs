@@ -73,7 +73,7 @@ async function main() {
   await expect(editor()).toHaveAttribute('contenteditable','true');
   library=(await page.locator('#library-path').textContent()).trim();
   assert.ok(path.resolve(library).toLowerCase().startsWith(path.resolve(process.env.USERPROFILE).toLowerCase()+path.sep));
-  assert.match(await fs.readFile(path.join(library,'Vítejte ve Folio.md'),'utf8'),/Vítejte/);
+  assert.match(await fs.readFile(path.join(library,'Welcome to Folio.md'),'utf8'),/Welcome to Folio/);
   checks.push('Native startup, real Documents library and demo files');
 
   await create('Desktop QA A','Original desktop A');

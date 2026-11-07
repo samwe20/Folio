@@ -12,8 +12,7 @@ import {
 import { appDataDir, dirname, documentDir, join } from "@tauri-apps/api/path";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import type { NoteMeta } from "../types";
-import { demoNotes } from "./demoContent";
-import type { UiLocale } from "./i18n";
+import { tutorialNotes } from "./demoContent";
 import { noteIdFromRelative, titleFromPath } from "./paths";
 
 const MD_EXT = /\.md$/i;
@@ -153,12 +152,12 @@ export async function deleteNote(path: string): Promise<void> {
   await creationDates.save();
 }
 
-export async function createDemoLibrary(libraryPath: string, locale: UiLocale = "cs"): Promise<string> {
+export async function createDemoLibrary(libraryPath: string): Promise<string> {
   await ensureDir(libraryPath);
   const existing = await listNotes(libraryPath);
   if (existing.length) return existing[0].path;
 
-  const notes = demoNotes(locale);
+  const notes = tutorialNotes();
   for (const note of notes) {
     await writeNote(await join(libraryPath, note.fileName), note.content);
   }
