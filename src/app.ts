@@ -436,6 +436,12 @@ export class FolioApp {
     document.getElementById("menu-check-updates")?.addEventListener("click", () => {
       void this.checkUpdatesManually();
     });
+    document.getElementById("app-menu-export-library")?.addEventListener("click", () => {
+      void this.runAction(() => this.exportLibrary());
+    });
+    document.getElementById("app-menu-export-note")?.addEventListener("click", () => {
+      void this.runAction(() => this.exportCurrentNote());
+    });
 
     const changeSort = () => {
       this.settings.sortBy = this.els.sortBy.value === "createdAt" ? "createdAt" : "title";
@@ -1201,6 +1207,9 @@ export class FolioApp {
     const noteOn = this.allowRemoteImagesForCurrent();
     this.els.menuRemoteImagesNote.setAttribute("aria-checked", String(noteOn));
     this.els.menuRemoteImagesNote.toggleAttribute("disabled", !this.current);
+    const hasLibrary = Boolean(this.settings.libraryPath);
+    document.getElementById("app-menu-export-library")?.toggleAttribute("disabled", !hasLibrary);
+    document.getElementById("app-menu-export-note")?.toggleAttribute("disabled", !this.current);
   }
 
   private togglePreview() {
