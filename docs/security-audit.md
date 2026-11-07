@@ -345,7 +345,7 @@ Job `web` nemá write.
 | Oblast | Závěr |
 |--------|--------|
 | **XSS / náhled** | DOMPurify + URL hooky; **vzdálené obrázky default off**; testy OWASP. |
-| **Webview → nativ** | FS scope jen app data + **runtime knihovna**; odstraněn opener. |
+| **Webview → nativ** | FS scope jen app data + **runtime knihovna**; `opener` jen na `https://github.com/samwe20/Folio/releases/**`. |
 | **Filesystem** | Atomic save OK; traversal v relativních cestách kontrolován při zápisu do složky. |
 | **PWA** | CSP meta v `index.html`; SW jen same-origin GET; IndexedDB plaintext. |
 | **ZIP** | Pouze export; připraveny validátory pro budoucí import. |
@@ -353,10 +353,17 @@ Job `web` nemá write.
 
 ---
 
+### INFO-09 — Kontrola aktualizací (1.0.6+)
+
+Desktop **max. jednou za 24 h** načte `GET https://api.github.com/repos/samwe20/Folio/releases/latest` (CSP `connect-src` + stejná doména v Tauri CSP). Žádná autentizace, krátký timeout, při chybě tichý návrat. Zobrazí jen porovnání tagu `folio-X.Y.Z` s lokální verzí; tlačítko **Stáhnout** otevře ověřené `html_url` release v systémovém prohlížeči. Žádná automatická instalace ani další síťová telemetrie.
+
+---
+
 ## 5. Automatizované testy
 
 - `tests/security.cjs` — XSS, blokace vzdálených obrázků, journal, zip-slip, CSP.
-- `npm test` spouští `regression.cjs` + `security.cjs` (CI job `web`).
+- `tests/update-check.cjs` — semver, URL validace, logika update nabídky.
+- `npm test` spouští `regression.cjs` + `security.cjs` + `update-check.cjs` (CI job `web`).
 
 ---
 

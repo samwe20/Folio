@@ -13,7 +13,7 @@
     <meta name="theme-color" content="#f3efe4" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https: http:; connect-src 'self' ipc: http://ipc.localhost;"
+      content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; form-action 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https: http:; connect-src 'self' ipc: http://ipc.localhost https://api.github.com;"
     />
     <title>Folio</title>
     <link rel="manifest" href="./manifest.webmanifest" />
@@ -161,6 +161,14 @@
             </div>
             <div class="outgoing-list" id="outgoing-list"></div>
           </aside>
+        </div>
+
+        <div class="update-notice hidden desktop-only" id="update-notice" role="region" aria-live="polite" data-i18n-aria-label="update.region" aria-label="Dostupná aktualizace">
+          <p class="update-notice-text" id="update-notice-text"></p>
+          <div class="update-notice-actions">
+            <button type="button" class="ghost-btn solid" id="btn-update-download" data-i18n="update.download">Stáhnout</button>
+            <button type="button" class="ghost-btn" id="btn-update-later" data-i18n="update.later">Později</button>
+          </div>
         </div>
 
         <footer class="status-bar">

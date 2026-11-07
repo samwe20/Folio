@@ -204,4 +204,5 @@ test("index.html ships a Content-Security-Policy for the PWA shell", () => {
   assert.match(html, /base-uri 'self'/);
   assert.match(html, /object-src 'none'/);
   assert.match(html, /connect-src[^;]*ipc:/);
+  assert.match(html, /connect-src[^;]*https:\/\/api\.github\.com/);
 });

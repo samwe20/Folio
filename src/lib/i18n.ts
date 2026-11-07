@@ -100,6 +100,10 @@ const cs = {
   "editor.placeholder": "Začněte psát…  [[odkaz]] propojí poznámky",
   "startup.failed":
     "Knihovnu se nepodařilo otevřít. Zkuste obnovit stránku nebo vybrat složku znovu.",
+  "update.region": "Dostupná aktualizace",
+  "update.available": "Je k dispozici Folio {version}",
+  "update.download": "Stáhnout",
+  "update.later": "Později",
   "defaultNoteTitle": "Bez názvu",
 } as const;
 
@@ -200,6 +204,10 @@ const en: Record<MessageKey, string> = {
   "welcome.openFolder": "Open another folder",
   "editor.placeholder": "Start writing…  [[link]] connects notes",
   "startup.failed": "Could not open the library. Refresh the page or pick a folder again.",
+  "update.region": "Update available",
+  "update.available": "Folio {version} is available",
+  "update.download": "Download",
+  "update.later": "Later",
   "defaultNoteTitle": "Untitled",
 };
 

@@ -10,6 +10,7 @@
 - **Import a export** — ochrana proti zip-slip a nadměrně velkým archivům; import souborů jen s příponou `.md`; kontrola relativních cest při ukládání knihovny do složky.
 - **Menu knihovny ⋯** — export ZIP, export poznámky, import `.md` a (kde prohlížeč podporuje) uložení do složky jsou v přetečeném menu u stromu souborů místo řady tlačítek v postranním panelu.
 - **Stránka projektu** — vícejazyčná landing page (čeština, angličtina, němčina) na GitHub Pages pro stažení a přehled funkcí.
+- **Upozornění na novou verzi (Windows)** — desktop jednou za 24 hodin (max.) zkontroluje GitHub Releases; pokud je dostupnější verze, zobrazí klidný pruh s odkazem ke stažení (bez automatické instalace, bez telemetrie).
 
 ### Instalace
 
@@ -37,6 +38,7 @@
 - **Import and export** — zip-slip and oversized-archive guards; file import limited to `.md` extensions; path validation when saving the library to a folder.
 - **Library ⋯ menu** — export ZIP, export note, import `.md`, and (where the browser supports it) save to folder live in the sidebar overflow menu by the file tree instead of a long button row.
 - **Project site** — trilingual landing page (Czech, English, German) on GitHub Pages for downloads and overview.
+- **Update notice (Windows)** — the desktop app checks GitHub Releases at most once per 24 hours; when a newer version exists, a calm bar offers a download link (no auto-install, no telemetry).
 
 ### Install
 
