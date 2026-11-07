@@ -38,10 +38,14 @@ export const PREVIEW_SANITIZE = {
 export type PreviewOptions = {
   allowRemoteImages?: boolean;
   blockedImageLabel?: string;
+  /** Rewrite local asset paths (e.g. library files) to displayable URLs. */
+  resolveAssetSrc?: (src: string) => string;
 };
 
 let previewHooksInstalled = false;
-let previewHookOptions: Required<Pick<PreviewOptions, "allowRemoteImages" | "blockedImageLabel">> = {
+let previewHookOptions: Required<Pick<PreviewOptions, "allowRemoteImages" | "blockedImageLabel">> & {
+  resolveAssetSrc?: (src: string) => string;
+} = {
   allowRemoteImages: false,
   blockedImageLabel: "",
 };
@@ -67,7 +71,11 @@ function ensurePreviewSanitizeHooks(): void {
       node.setAttribute("rel", "noreferrer noopener");
     }
     if (node.tagName === "IMG") {
-      const src = node.getAttribute("src") ?? "";
+      let src = node.getAttribute("src") ?? "";
+      if (src && previewHookOptions.resolveAssetSrc) {
+        src = previewHookOptions.resolveAssetSrc(src);
+        node.setAttribute("src", src);
+      }
       if (!previewHookOptions.allowRemoteImages && src && isRemotePreviewImageSrc(src)) {
         const placeholder = blockedImagePlaceholder(src, previewHookOptions.blockedImageLabel);
         const template = document.createElement("template");
@@ -88,6 +96,7 @@ export function renderMarkdown(text: string, index: NoteIndex, options: PreviewO
   previewHookOptions = {
     allowRemoteImages: options.allowRemoteImages ?? false,
     blockedImageLabel: options.blockedImageLabel ?? "",
+    resolveAssetSrc: options.resolveAssetSrc,
   };
   const parser = new Marked({ gfm: true, breaks: true });
   parser.use({ extensions: [{

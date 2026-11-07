@@ -7,8 +7,10 @@ import {
   remove,
   rename,
   stat,
+  writeFile,
   writeTextFile,
 } from "@tauri-apps/plugin-fs";
+import { extensionForImageMime, LIBRARY_ASSETS_DIR, safeImageBaseName } from "./imageAssets";
 import { appDataDir, dirname, documentDir, join } from "@tauri-apps/api/path";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import type { NoteMeta } from "../types";
@@ -150,6 +152,30 @@ export async function deleteNote(path: string): Promise<void> {
   await remove(path);
   await creationDates.delete(path);
   await creationDates.save();
+}
+
+const MAX_LIBRARY_IMAGE_BYTES = 25 * 1024 * 1024;
+
+export async function writeLibraryImage(libraryPath: string, file: File): Promise<string> {
+  if (file.size > MAX_LIBRARY_IMAGE_BYTES) {
+    throw new Error("Image is too large.");
+  }
+  const ext = extensionForImageMime(file.type);
+  if (!ext) throw new Error("Unsupported image type.");
+  const assetsDir = await join(libraryPath, LIBRARY_ASSETS_DIR);
+  await ensureDir(assetsDir);
+  const stem = safeImageBaseName(file.name);
+  let fileName = `${stem}.${ext}`;
+  let dest = await join(assetsDir, fileName);
+  let suffix = 2;
+  while (await exists(dest)) {
+    fileName = `${stem}-${suffix}.${ext}`;
+    dest = await join(assetsDir, fileName);
+    suffix += 1;
+  }
+  const data = new Uint8Array(await file.arrayBuffer());
+  await writeFile(dest, data);
+  return `${LIBRARY_ASSETS_DIR}/${fileName}`;
 }
 
 export async function createDemoLibrary(libraryPath: string): Promise<string> {

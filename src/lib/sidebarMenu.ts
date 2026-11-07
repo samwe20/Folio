@@ -87,7 +87,8 @@ export function createSidebarMenu(
       focusItem(index < 0 ? 0 : index + (event.shiftKey ? -1 : 1));
     } else if (event.key === "Enter" || event.key === " ") {
       const active = document.activeElement as HTMLElement | null;
-      const role = active?.getAttribute("role");
+      if (!active) return;
+      const role = active.getAttribute("role");
       if (role === "menuitem" || role === "menuitemcheckbox") {
         event.preventDefault();
         active.click();

@@ -10,8 +10,16 @@ import {
   listNotes,
   readNote,
   renameNote,
+  writeLibraryImage,
   writeNote,
 } from "./lib/fs";
+import {
+  altTextFromFileName,
+  imageMarkdown,
+  isAllowedImageFile,
+  isLocalPreviewImageSrc,
+  joinLibraryRelativePath,
+} from "./lib/imageAssets";
 import {
   canUseDirectoryPicker,
   exportLibraryToDisk,
@@ -152,6 +160,7 @@ export class FolioApp {
       {
         onChange: (text) => this.handleEditorChange(text),
         onOpenWiki: (title, createIfMissing) => void this.runAction(() => this.openWiki(title, createIfMissing)),
+        onImageFile: (file) => this.insertImageFromFile(file),
       },
       this.settings.theme,
       t("editor.placeholder"),
@@ -177,6 +186,7 @@ export class FolioApp {
     }
     this.setupUpdateNotice();
     void this.syncAppMenuVersion();
+    if (this.native) void this.previewAssetReady;
   }
 
   private reportError(error: unknown) {
@@ -1225,10 +1235,45 @@ export class FolioApp {
     else this.editor.focus();
   }
 
+  private convertFileSrcFn: ((path: string) => string) | null = null;
+  private previewAssetReady: Promise<void> = this.native
+    ? import("@tauri-apps/api/core").then(({ convertFileSrc }) => {
+        this.convertFileSrcFn = convertFileSrc;
+      })
+    : Promise.resolve();
+
+  private resolvePreviewAssetSrc(src: string): string {
+    if (!isLocalPreviewImageSrc(src) || !this.settings.libraryPath || !this.convertFileSrcFn) return src;
+    try {
+      return this.convertFileSrcFn(joinLibraryRelativePath(this.settings.libraryPath, src));
+    } catch {
+      return src;
+    }
+  }
+
+  private async insertImageFromFile(file: File): Promise<string | null> {
+    if (!this.settings.libraryPath || !this.current) return null;
+    if (this.editor.view.state.readOnly) return null;
+    if (!isAllowedImageFile(file)) {
+      this.els.statusSave.textContent = t("status.imageUnsupported");
+      return null;
+    }
+    try {
+      const src = await writeLibraryImage(this.settings.libraryPath, file);
+      this.els.statusSave.textContent = t("status.imageInserted");
+      return imageMarkdown(src, altTextFromFileName(file.name));
+    } catch (error) {
+      console.error(error);
+      this.els.statusSave.textContent = t("status.imageInsertFailed");
+      return null;
+    }
+  }
+
   private renderPreview(text: string) {
     this.els.previewRoot.innerHTML = renderMarkdown(text, this.index, {
       allowRemoteImages: this.allowRemoteImagesForCurrent(),
       blockedImageLabel: t("preview.remoteBlocked"),
+      resolveAssetSrc: (src) => this.resolvePreviewAssetSrc(src),
     });
     this.els.previewRoot.querySelectorAll("a").forEach((a) => {
       const href = a.getAttribute("href") ?? "";

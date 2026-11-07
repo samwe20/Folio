@@ -1,6 +1,7 @@
 import type { NoteMeta } from "../types";
 import { noteIdFromRelative, titleFromPath } from "./paths";
 import { safeNoteTitle } from "./names";
+import { extensionForImageMime } from "./imageAssets";
 import { tutorialNotes } from "./demoContent";
 import { WEB_LIBRARY_PATH, isMarketingDesktopCapture, MARKETING_DESKTOP_LIBRARY_LABEL } from "./runtime";
 
@@ -109,6 +110,21 @@ export async function renameNote(oldPath: string, newTitle: string): Promise<str
 }
 export async function deleteNote(path: string): Promise<void> {
   await transaction<void>("readwrite", store => { store.delete(relativeOf(path)); });
+}
+
+const MAX_WEB_IMAGE_DATA_URL_BYTES = 2 * 1024 * 1024;
+
+export async function writeLibraryImage(_libraryPath: string, file: File): Promise<string> {
+  if (file.size > MAX_WEB_IMAGE_DATA_URL_BYTES) {
+    throw new Error("Image is too large for browser storage.");
+  }
+  const ext = extensionForImageMime(file.type);
+  if (!ext) throw new Error("Unsupported image type.");
+  const data = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  for (const byte of data) binary += String.fromCharCode(byte);
+  const b64 = btoa(binary);
+  return `data:image/${ext === "jpg" ? "jpeg" : ext};base64,${b64}`;
 }
 
 export async function createDemoLibrary(_libraryPath: string): Promise<string> {

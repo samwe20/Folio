@@ -139,6 +139,8 @@ test("safeUrl helpers reject dangerous schemes", () => {
   assert.equal(isSafePreviewImageSrc("file:///etc/passwd"), false);
   assert.equal(isSafePreviewImageSrc("data:image/svg+xml,<svg/>"), false);
   assert.equal(isSafePreviewImageSrc("data:image/png;base64,aaaa"), true);
+  assert.equal(isSafePreviewImageSrc("assets/screenshot.png"), true);
+  assert.equal(isSafePreviewImageSrc("../outside.png"), false);
   assert.equal(isSafePreviewImageSrc("https://cdn.example/x.png"), true);
 });
 
