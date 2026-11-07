@@ -2,6 +2,13 @@ import { strToU8, zipSync } from "fflate";
 import { createNote, listNotes, readNote } from "./fs";
 import { WEB_LIBRARY_PATH } from "./runtime";
 
+export function assertSafeRelativeNotePath(relativePath: string): void {
+  const segments = relativePath.replace(/\\/g, "/").split("/");
+  if (segments.some((s) => !s || s === "." || s === "..")) {
+    throw new Error("Neplatná cesta poznámky.");
+  }
+}
+
 export async function buildLibraryZip(libraryPath: string): Promise<Blob> {
   const notes = await listNotes(libraryPath);
   const files: Record<string, Uint8Array> = {};
@@ -88,7 +95,7 @@ export async function importMarkdownFiles(
   libraryPath = WEB_LIBRARY_PATH,
 ): Promise<string[]> {
   const imported: string[] = [];
-  const files = Array.from(fileList).filter((f) => /\.md$/i.test(f.name) || f.type.startsWith("text/"));
+  const files = Array.from(fileList).filter((f) => /\.md$/i.test(f.name));
 
   for (const file of files) {
     const text = await file.text();
@@ -119,8 +126,8 @@ export async function saveLibraryToDirectory(libraryPath: string): Promise<numbe
   let count = 0;
   for (const note of notes) {
     const content = await readNote(note.path);
+    assertSafeRelativeNotePath(note.relativePath);
     const segments = note.relativePath.replace(/\\/g, "/").split("/");
-    if (segments.some((s) => !s || s === "." || s === "..")) throw new Error("Neplatná cesta poznámky.");
     const name = segments.pop()!;
     let parent = dir;
     for (const segment of segments) parent = await parent.getDirectoryHandle(segment, { create: true });

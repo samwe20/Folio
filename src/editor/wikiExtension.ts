@@ -12,7 +12,7 @@ import { isTouchPrimary } from "../lib/platform";
 
 export type WikiOpenHandler = (title: string, createIfMissing: boolean) => void;
 
-const WIKI_RE = /\[\[([^\]|#]+)(?:\|([^\]]+))?\]\]/g;
+const WIKI_RE = /\[\[([^\]|#<>"&\n]+)(?:\|([^\]<>"&\n]+))?\]\]/g;
 const LONG_PRESS_MS = 420;
 
 function wikiCompletions(index: NoteIndex) {

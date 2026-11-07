@@ -10,7 +10,7 @@
   "homepage": "https://github.com/samwe20/Folio#readme",
   "type": "module",
   "scripts": {
-    "test": "node tests/regression.cjs",
+    "test": "node tests/regression.cjs && node tests/security.cjs",
     "test:offline": "node tests/offline.cjs",
     "test:e2e": "playwright test",
     "test:desktop": "node tests/desktop.cjs",
@@ -46,7 +46,6 @@
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
     "@tauri-apps/plugin-fs": "^2",
-    "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-store": "^2",
     "dompurify": "^3.4.17",
     "fflate": "^0.8.3",
