@@ -98,3 +98,32 @@ for (const locale of locales) {
     await context.close();
   });
 }
+
+test("CZ switch from EN and DE persists after reload", async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    baseURL,
+  });
+  const page = await context.newPage();
+  const csUrl = new RegExp(`${baseURL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\??$`);
+
+  await page.goto("/en/");
+  await page.locator('.lang-switch a[hreflang="cs"]').click();
+  await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(csUrl);
+  await expect(page.locator(".lang-switch a[aria-current='true']")).toHaveText("CZ");
+  await expect(page.locator(".tagline")).toContainText("Klidný");
+
+  await page.goto("/de/");
+  await page.locator('.lang-switch a[hreflang="cs"]').click();
+  await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL(csUrl);
+  await expect(page.locator(".lang-switch a[aria-current='true']")).toHaveText("CZ");
+
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page).toHaveURL(csUrl);
+  await expect(page.locator(".lang-switch a[aria-current='true']")).toHaveText("CZ");
+  await expect(page.locator(".tagline")).toContainText("Klidný");
+
+  await context.close();
+});

@@ -28,9 +28,9 @@
   <body data-landing-home>
     <div class="wrap">
       <nav class="lang-switch" aria-label="Jazyk">
-        <a href="./" hreflang="cs" aria-current="true">CZ</a>
-        <a href="./en/" hreflang="en">EN</a>
-        <a href="./de/" hreflang="de">DE</a>
+        <a href="./?lang=cs" hreflang="cs" aria-current="true">CZ</a>
+        <a href="./en/?lang=en" hreflang="en">EN</a>
+        <a href="./de/?lang=de" hreflang="de">DE</a>
       </nav>
       <header>
         <h1>Folio</h1>
@@ -113,9 +113,17 @@
           try {
             localStorage.setItem(KEY, forced);
           } catch (e) {}
-          if (forced !== "cs") {
-            location.replace((forced === "en" ? "./en/" : "./de/") + location.hash);
+          if (forced === "en") {
+            location.replace("./en/?lang=en" + location.hash);
+            return;
           }
+          if (forced === "de") {
+            location.replace("./de/?lang=de" + location.hash);
+            return;
+          }
+          try {
+            history.replaceState(null, "", location.pathname + location.hash);
+          } catch (e) {}
           return;
         }
         var saved;

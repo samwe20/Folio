@@ -28,9 +28,9 @@
   <body>
     <div class="wrap">
       <nav class="lang-switch" aria-label="Language">
-        <a href="../" hreflang="cs">CZ</a>
-        <a href="./" hreflang="en" aria-current="true">EN</a>
-        <a href="../de/" hreflang="de">DE</a>
+        <a href="../?lang=cs" hreflang="cs">CZ</a>
+        <a href="./?lang=en" hreflang="en" aria-current="true">EN</a>
+        <a href="../de/?lang=de" hreflang="de">DE</a>
       </nav>
       <header>
         <h1>Folio</h1>
@@ -119,9 +119,20 @@
       </footer>
     </div>
     <script>
-      try {
-        localStorage.setItem("folio-landing-lang", "en");
-      } catch (e) {}
+      (function () {
+        var KEY = "folio-landing-lang";
+        var pageLang = "en";
+        var forced = new URLSearchParams(location.search).get("lang");
+        var chosen = forced === "cs" || forced === "en" || forced === "de" ? forced : pageLang;
+        try {
+          localStorage.setItem(KEY, chosen);
+        } catch (e) {}
+        if (forced === pageLang) {
+          try {
+            history.replaceState(null, "", location.pathname + location.hash);
+          } catch (e) {}
+        }
+      })();
     </script>
   </body>
 </html>
