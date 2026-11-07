@@ -1,5 +1,6 @@
 import { renderMarkdown } from "./lib/preview";
-import { forgetDraft, readDraft, rememberDraft } from "./lib/drafts";
+import { forgetDraft, migrateLegacyDrafts, readDraft, rememberDraft } from "./lib/drafts";
+import { ensureLibraryFsScope } from "./lib/libraryScope";
 import { createEditor, FolioEditor } from "./editor/setup";
 import {
   createDemoLibrary,
@@ -88,6 +89,8 @@ export class FolioApp {
     editorRoot: document.getElementById("editor-root")!,
     previewRoot: document.getElementById("preview-root")!,
     previewPane: document.getElementById("preview-pane")!,
+    btnRemoteImagesGlobal: document.getElementById("btn-remote-images-global")!,
+    btnRemoteImagesNote: document.getElementById("btn-remote-images-note")!,
     backlinksPane: document.getElementById("backlinks-pane")!,
     backlinksList: document.getElementById("backlinks-list")!,
     outgoingList: document.getElementById("outgoing-list")!,
@@ -114,6 +117,7 @@ export class FolioApp {
   };
 
   async init() {
+    await migrateLegacyDrafts();
     this.settings = await loadSettings();
     if (!this.settings.uiLocale) this.settings.uiLocale = "cs";
     setUiLocale(this.settings.uiLocale);
@@ -142,6 +146,7 @@ export class FolioApp {
     this.bindLifecycle();
     this.applyWelcomeTexts();
     this.updateLocaleChip();
+    this.syncRemoteImageChips();
 
     if (this.settings.libraryPath) {
       await this.openLibrary(this.settings.libraryPath, this.settings.lastOpenPath);
@@ -176,6 +181,7 @@ export class FolioApp {
     this.renderNoteList();
     this.renderLinks();
     this.updateStats(this.editor.getText());
+    this.syncRemoteImageChips();
   }
 
   private updateLocaleChip() {
@@ -359,6 +365,24 @@ export class FolioApp {
       this.applyTheme(next);
       this.editor.setTheme(next);
       void saveSettings(this.settings);
+    });
+
+    this.els.btnRemoteImagesGlobal.addEventListener("click", () => {
+      this.settings.previewRemoteImagesGlobal = !this.settings.previewRemoteImagesGlobal;
+      void saveSettings(this.settings);
+      this.syncRemoteImageChips();
+      if (this.previewOn) this.renderPreview(this.editor.getText());
+    });
+    this.els.btnRemoteImagesNote.addEventListener("click", () => {
+      if (!this.current) return;
+      const path = this.current.path;
+      const overrides = { ...this.settings.previewRemoteImagesNotes };
+      if (path in overrides) delete overrides[path];
+      else overrides[path] = !this.allowRemoteImagesForCurrent();
+      this.settings.previewRemoteImagesNotes = overrides;
+      void saveSettings(this.settings);
+      this.syncRemoteImageChips();
+      if (this.previewOn) this.renderPreview(this.editor.getText());
     });
 
     this.els.btnLocale.addEventListener("click", () => {
@@ -679,6 +703,7 @@ export class FolioApp {
 
   private async openLibrary(path: string, openPath?: string | null) {
     await this.flushCurrent();
+    if (this.native) await ensureLibraryFsScope(path);
     this.settings.libraryPath = path;
     const label = this.webOnly ? t("library.browserLabel") : path;
     this.els.libraryPath.textContent = label;
@@ -829,7 +854,7 @@ export class FolioApp {
   private async openNote(note: NoteMeta) {
     await this.flushCurrent();
     const stored = await readNote(note.path);
-    const draft = readDraft(note.path);
+    const draft = await readDraft(note.path);
     const text = draft ?? stored;
     const sameDocument = this.current?.path === note.path && this.editor.getText() === text;
     this.current = note;
@@ -848,11 +873,12 @@ export class FolioApp {
     this.revision += 1;
     this.els.statusSave.textContent = this.dirty ? t("status.draftRecovering") : t("status.ready");
     if (this.dirty) this.scheduleSave();
-    else forgetDraft(note.path, stored);
+    else await forgetDraft(note.path, stored);
     this.renderNoteList();
     this.renderLinks();
     this.updateStats(text);
     if (this.previewOn) this.renderPreview(text);
+    this.syncRemoteImageChips();
     this.closeMobileOverlays();
     if (!this.busy) this.editor.setReadOnly(false);
     if (this.previewOn) this.els.previewPane.focus({ preventScroll: true });
@@ -886,7 +912,7 @@ export class FolioApp {
     await this.flushCurrent();
     this.clearSaveTimer();
     await deleteNote(note.path);
-    forgetDraft(note.path);
+    await forgetDraft(note.path);
     this.index.removeNote(note.path);
     if (this.current?.path === note.path) {
       this.current = null;
@@ -919,7 +945,7 @@ export class FolioApp {
       await this.flushCurrent();
       this.clearSaveTimer();
       const newPath = await renameNote(previous.path, nextTitle);
-      forgetDraft(previous.path);
+      await forgetDraft(previous.path);
       const renamedTitle = newPath.split(/[/\\]/).pop()?.replace(/\.md$/i, "") || nextTitle;
 
       // Update in-memory list immediately so the sidebar never lags.
@@ -954,8 +980,10 @@ export class FolioApp {
     if (this.suppressChange || !this.current) return;
     this.dirty = true;
     this.revision += 1;
-    const journaled = rememberDraft(this.current.path, text);
-    this.els.statusSave.textContent = journaled ? t("status.unsaved") : t("status.unsavedNoJournal");
+    void rememberDraft(this.current.path, text).then((journaled) => {
+      if (!this.current || this.suppressChange) return;
+      this.els.statusSave.textContent = journaled ? t("status.unsaved") : t("status.unsavedNoJournal");
+    });
     this.index.setContent(this.current.path, text);
     this.renderLinks();
     this.updateStats(text);
@@ -985,7 +1013,7 @@ export class FolioApp {
     const revision = this.revision;
     const save = this.saveQueue.catch(() => undefined).then(async () => {
       await writeNote(path, text);
-      forgetDraft(path, text);
+      await forgetDraft(path, text);
       if (this.current?.path === path && this.revision === revision) {
         this.index.setContent(path, text);
         this.dirty = false;
@@ -1052,12 +1080,36 @@ export class FolioApp {
     this.els.statusChars.textContent = formatCharCount(text.length);
   }
 
+  private allowRemoteImagesForCurrent(): boolean {
+    if (!this.current) return this.settings.previewRemoteImagesGlobal;
+    const override = this.settings.previewRemoteImagesNotes[this.current.path];
+    if (override !== undefined) return override;
+    return this.settings.previewRemoteImagesGlobal;
+  }
+
+  private syncRemoteImageChips() {
+    const globalOn = this.settings.previewRemoteImagesGlobal;
+    this.syncChip(this.els.btnRemoteImagesGlobal, globalOn);
+    this.els.btnRemoteImagesGlobal.textContent = t(globalOn ? "preview.remoteGlobalOn" : "preview.remoteGlobalOff");
+    this.els.btnRemoteImagesGlobal.title = t("preview.remoteGlobalTitle");
+
+    const noteOn = this.allowRemoteImagesForCurrent();
+    const hasOverride = Boolean(this.current && this.current.path in this.settings.previewRemoteImagesNotes);
+    this.syncChip(this.els.btnRemoteImagesNote, noteOn);
+    this.els.btnRemoteImagesNote.textContent = t(
+      hasOverride ? (noteOn ? "preview.remoteNoteOn" : "preview.remoteNoteOff") : (noteOn ? "preview.remoteNoteOn" : "preview.remoteNoteOff"),
+    );
+    this.els.btnRemoteImagesNote.title = t("preview.remoteNoteTitle");
+    this.els.btnRemoteImagesNote.toggleAttribute("disabled", !this.current);
+  }
+
   private togglePreview() {
     this.previewOn = !this.previewOn;
     this.syncChip(this.els.btnPreview, this.previewOn);
     this.els.editorRoot.classList.toggle("hidden", this.previewOn);
     this.els.previewPane.classList.toggle("hidden", !this.previewOn);
     if (this.previewOn) {
+      this.syncRemoteImageChips();
       this.renderPreview(this.editor.getText());
       this.els.previewPane.focus({ preventScroll: true });
     }
@@ -1065,7 +1117,10 @@ export class FolioApp {
   }
 
   private renderPreview(text: string) {
-    this.els.previewRoot.innerHTML = renderMarkdown(text, this.index);
+    this.els.previewRoot.innerHTML = renderMarkdown(text, this.index, {
+      allowRemoteImages: this.allowRemoteImagesForCurrent(),
+      blockedImageLabel: t("preview.remoteBlocked"),
+    });
     this.els.previewRoot.querySelectorAll("a").forEach((a) => {
       const href = a.getAttribute("href") ?? "";
       if (a.dataset.wikiTitle) {

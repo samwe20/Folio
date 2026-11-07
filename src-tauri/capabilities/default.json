@@ -13,6 +13,7 @@
     "core:window:allow-set-fullscreen",
     "core:window:allow-is-fullscreen",
     "core:window:allow-start-dragging",
+    "allow-library-path",
     "dialog:default",
     "store:default",
     "fs:default",
@@ -28,9 +29,6 @@
     "fs:allow-read-dir",
     "fs:allow-read-text-file",
     "fs:allow-write-text-file",
-    "fs:allow-document-read-recursive",
-    "fs:allow-document-write-recursive",
-    "fs:allow-document-meta-recursive",
     "fs:allow-appdata-read-recursive",
     "fs:allow-appdata-write-recursive",
     "fs:allow-appdata-meta-recursive",
@@ -46,7 +44,6 @@
     {
       "identifier": "fs:scope",
       "allow": [
-        { "path": "$DOCUMENT/**" },
         { "path": "$APPDATA/**" },
         { "path": "$APPLOCALDATA/**" },
         { "path": "$APPCONFIG/**" },

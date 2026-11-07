@@ -770,6 +770,31 @@ input {
   overflow-wrap: anywhere;
 }
 
+.preview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 0.75rem 1.5rem 0;
+}
+
+.preview-remote-btn[data-active="true"] {
+  color: var(--accent);
+}
+
+.preview-img-placeholder {
+  display: inline-block;
+  max-width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+}
+
 .preview-root img {
   max-width: 100%;
   height: auto;

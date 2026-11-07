@@ -11,6 +11,12 @@ export function isSafePreviewLinkHref(href: string): boolean {
   return LINK_RE.test(trimmed);
 }
 
+export function isRemotePreviewImageSrc(src: string): boolean {
+  const trimmed = src.trim();
+  if (!trimmed) return false;
+  return /^https?:\/\//i.test(trimmed);
+}
+
 export function isSafePreviewImageSrc(src: string): boolean {
   const trimmed = src.trim();
   if (!trimmed) return true;

@@ -1,13 +1,36 @@
-// A synchronous recovery journal covers tab closure before the async save commits.
-const PREFIX = "folio.draft.v1:";
-export function rememberDraft(path: string, text: string): boolean {
-  try { localStorage.setItem(PREFIX + path, text); return true; } catch { return false; }
+import { isTauri } from "./runtime";
+import { clearLegacyWebDraftKeys, forgetDraftWeb, purgeLegacyWebDraftKeys, readDraftWeb, rememberDraftWeb } from "./drafts-web";
+
+let migrationDone = false;
+
+async function tauriDrafts() {
+  return import("./drafts-tauri.ts");
 }
-export function readDraft(path: string): string | null {
-  try { return localStorage.getItem(PREFIX + path); } catch { return null; }
+
+/** One-time migration of browser localStorage journals into Tauri app data (desktop only). */
+export async function migrateLegacyDrafts(): Promise<void> {
+  if (migrationDone) return;
+  migrationDone = true;
+  if (!isTauri()) return;
+  const migrated = clearLegacyWebDraftKeys();
+  if (!migrated.length) return;
+  const tauri = await tauriDrafts();
+  await tauri.importTauriJournal(migrated);
+  purgeLegacyWebDraftKeys();
 }
-export function forgetDraft(path: string, savedText?: string): void {
-  try {
-    if (savedText === undefined || readDraft(path) === savedText) localStorage.removeItem(PREFIX + path);
-  } catch { /* The normal file/database save still remains available. */ }
+
+export async function rememberDraft(path: string, text: string): Promise<boolean> {
+  if (isTauri()) return (await tauriDrafts()).rememberDraftTauri(path, text);
+  return rememberDraftWeb(path, text);
+}
+
+export async function readDraft(path: string): Promise<string | null> {
+  if (isTauri()) return (await tauriDrafts()).readDraftTauri(path);
+  return readDraftWeb(path);
+}
+
+/** Drop a journal entry. Omit `savedText` to remove unconditionally (e.g. after a confirmed save). */
+export async function forgetDraft(path: string, savedText?: string): Promise<void> {
+  if (isTauri()) return (await tauriDrafts()).forgetDraftTauri(path, savedText);
+  forgetDraftWeb(path, savedText);
 }

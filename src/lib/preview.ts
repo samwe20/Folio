@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 import { Marked } from "marked";
 import type { NoteIndex } from "./noteIndex";
-import { isSafePreviewImageSrc, isSafePreviewLinkHref } from "./safeUrl";
+import { isRemotePreviewImageSrc, isSafePreviewImageSrc, isSafePreviewLinkHref } from "./safeUrl";
 
 const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;")
   .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -32,10 +32,25 @@ export const PREVIEW_SANITIZE = {
   FORBID_TAGS: [...PREVIEW_FORBID_TAGS],
   FORBID_ATTR: ["style", "id", "name", "srcdoc", "formaction"],
   ALLOW_DATA_ATTR: false,
-  ADD_ATTR: ["data-wiki-title", "referrerpolicy", "loading"],
+  ADD_ATTR: ["data-wiki-title", "referrerpolicy", "loading", "data-remote-blocked"],
+};
+
+export type PreviewOptions = {
+  allowRemoteImages?: boolean;
+  blockedImageLabel?: string;
 };
 
 let previewHooksInstalled = false;
+let previewHookOptions: Required<Pick<PreviewOptions, "allowRemoteImages" | "blockedImageLabel">> = {
+  allowRemoteImages: false,
+  blockedImageLabel: "",
+};
+
+function blockedImagePlaceholder(src: string, label: string): string {
+  const safeSrc = escape(src);
+  const safeLabel = escape(label || "Image blocked");
+  return `<span class="preview-img-placeholder" data-remote-blocked="1" title="${safeSrc}">${safeLabel}</span>`;
+}
 
 function ensurePreviewSanitizeHooks(): void {
   if (previewHooksInstalled) return;
@@ -53,6 +68,14 @@ function ensurePreviewSanitizeHooks(): void {
     }
     if (node.tagName === "IMG") {
       const src = node.getAttribute("src") ?? "";
+      if (!previewHookOptions.allowRemoteImages && src && isRemotePreviewImageSrc(src)) {
+        const placeholder = blockedImagePlaceholder(src, previewHookOptions.blockedImageLabel);
+        const template = document.createElement("template");
+        template.innerHTML = placeholder;
+        const replacement = template.content.firstElementChild;
+        if (replacement) node.replaceWith(replacement);
+        return;
+      }
       if (src && !isSafePreviewImageSrc(src)) node.removeAttribute("src");
       node.setAttribute("referrerpolicy", "no-referrer");
       node.setAttribute("loading", "lazy");
@@ -60,9 +83,12 @@ function ensurePreviewSanitizeHooks(): void {
   });
 }
 
-export function renderMarkdown(text: string, index: NoteIndex): string {
+export function renderMarkdown(text: string, index: NoteIndex, options: PreviewOptions = {}): string {
   ensurePreviewSanitizeHooks();
-  // An inline tokenizer leaves fenced code, inline code and HTML attributes intact.
+  previewHookOptions = {
+    allowRemoteImages: options.allowRemoteImages ?? false,
+    blockedImageLabel: options.blockedImageLabel ?? "",
+  };
   const parser = new Marked({ gfm: true, breaks: true });
   parser.use({ extensions: [{
     name: "wikilink",

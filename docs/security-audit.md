@@ -13,7 +13,7 @@
 
 - Obsah poznámek (`.md`) v knihovně na disku, v IndexedDB (PWA) nebo v synchronizované složce (OneDrive/iCloud).
 - Nastavení aplikace (`folio-settings.json`, `localStorage`).
-- Recovery journal (`localStorage`, prefix `folio.draft.v1:`).
+- Recovery journal (desktop: `$APPLOCALDATA/folio-recovery-journal.json`; PWA: omezený `localStorage`).
 - Metadata vytvoření (`folio-creation-dates.json`, Tauri store).
 
 ### Aktéři
@@ -41,12 +41,12 @@
 
 ## 2. Přehled nálezů podle závažnosti
 
-| Závažnost | Počet | Opraveno v tomto PR |
-|-----------|------|---------------------|
+| Závažnost | Počet | Stav v PR #11 |
+|-----------|------|----------------|
 | Critical | 0 | — |
-| High | 6 | 4 |
-| Medium | 7 | 3 |
-| Low | 6 | 1 |
+| High | 6 | 5 opraveno; 1 dokumentováno (code signing záměrně mimo PR) |
+| Medium | 7 | 6 opraveno / zmírněno; 1 otevřeno (`unsafe-inline` CSS) |
+| Low | 6 | 2 opraveno; zbytek informační |
 | Info | 8 | — |
 
 ---
@@ -64,9 +64,9 @@
 
 **Dopad:** Únik citlivých souborů, přepis dat mimo knihovnu poznámek.
 
-**Oprava:** Scope zúžen na `$DOCUMENT/**`, `$APPDATA/**`, `$APPLOCALDATA/**`, `$APPCONFIG/**`, `$TEMP/**` + **persisted scope** z dialogu výběru knihovny (`tauri-plugin-persisted-scope`). Odebrány `HOME`, `DESKTOP`, `DOWNLOAD`.
+**Oprava (2. kolo):** Statický scope pouze `$APPDATA/**`, `$APPLOCALDATA/**`, `$APPCONFIG/**`, `$TEMP/**`. Přístup ke knihovně výhradně přes **`allow_library_path`** (Tauri command + `fs_scope().allow_directory`) volaný z `ensureLibraryFsScope()` při `openLibrary`, plus **persisted scope** po dialogu.
 
-**Zbývá:** `$DOCUMENT/**` je stále širší než samotná knihovna — rozhodnutí vlastníka, zda ponechat kvůli výchozí cestě `Documents/Folio/Library`.
+**Stav:** **Opraveno** (viz LOW-02).
 
 ---
 
@@ -86,8 +86,10 @@ Po opravě DOMPurify nechá `<img src="https://...">` — síťový požadavek p
 
 **Dopad:** Únik IP, času čtení, fingerprintu klienta; korelace s identitou při opakovaném čtení.
 
-**Oprava (částečná):** `referrerpolicy="no-referrer"`, `loading="lazy"` na `<img>`; CSP v `index.html` omezuje `connect-src` (neblokuje samotné `<img>`).  
-**Doporučení (otevřeno):** volitelné „náhled bez vzdálených médií“, nebo `img-src` bez `https:` v PWA (zlomí legitimní obrázky z URL).
+**Oprava:** Vzdálené `http(s)` obrázky v náhledu jsou **ve výchozím stavu zablokované** (placeholder + `preview-img-placeholder`). Uživatel může zapnout načítání **globálně** nebo **pro aktuální poznámku** (tlačítka v liště náhledu, nastavení v `AppSettings`).  
+**Test:** `tests/security.cjs` — blokace vs. `allowRemoteImages: true`.
+
+**Stav:** **Opraveno** (uživatelsky volitelné zapnutí).
 
 ---
 
@@ -133,9 +135,10 @@ Po opravě DOMPurify nechá `<img src="https://...">` — síťový požadavek p
 
 **Dopad:** Čtení poznámek bez otevření souboru; perzistence po zavření aplikace.
 
-**Stav:** **Otevřeno** — záměrná funkce obnovy po pádu; náprava vyžaduje produktové rozhodnutí (šifrování, session-only journal, OS keychain).
+**Oprava:** Desktop journal v `$APPLOCALDATA/folio-recovery-journal.json` (limity `MAX_DRAFT_BYTES` / `MAX_DRAFTS_TOTAL_BYTES`); migrace z `localStorage` při startu; po úspěšném uložení `forgetDraft(path, text)` journal smaže. PWA zůstává v `localStorage` s limity.  
+**Test:** `tests/security.cjs` — limity a migrace.
 
-**Doporučení:** Varování v dokumentaci; na citlivých stanicích rušit journal po uložení; zvážit `sessionStorage` s omezeným UX.
+**Stav:** **Opraveno** na desktopu; PWA journal stále v prohlížeči (viz LOW-01).
 
 ---
 
@@ -150,7 +153,8 @@ Po opravě DOMPurify nechá `<img src="https://...">` — síťový požadavek p
 
 **Dopad:** Distribuce malwaru podepsaného projektem.
 
-**Stav:** **Otevřeno** — oddělit release job, použít environment s ochranou, pinned SHA akcí, code signing.
+**Oprava:** Job rozdělen na `windows-build` (`contents: read`) a `windows-release` (`contents: write`, pouze push na `main`). Akce pinned na commit SHA.  
+**Stav:** **Opraveno** (release permissions). **Code signing** zůstává **otevřeno** — mimo tento PR dle vlastníka.
 
 ---
 
@@ -205,7 +209,8 @@ Po opravě DOMPurify nechá `<img src="https://...">` — síťový požadavek p
 
 **Popis:** `npm audit` hlásí high u `nanoid`, `source-map-js` (transitivně přes Vite/jsdom). Runtime Folio v produkčním bundlu je minimální; riziko hlavně při `npm ci` / vývoji.
 
-**Stav:** **Otevřeno** — pravidelné `npm audit fix`, pin dev závislostí.
+**Oprava:** `npm audit fix` (lockfile); CI krok `npm audit --audit-level=high` v jobu `web`. K datu druhého kola: **0 high/critical** v `npm audit` po `npm ci`.  
+**Stav:** **Opraveno** (průběžný dohled v CI).
 
 ---
 
@@ -216,7 +221,8 @@ Po opravě DOMPurify nechá `<img src="https://...">` — síťový požadavek p
 
 **Popis:** `cargo audit` na agentovi není nainstalován; workflow neobsahuje audit Rust lockfile.
 
-**Stav:** **Otevřeno** — přidat `cargo install cargo-audit` + krok v CI.
+**Oprava:** Job `cargo-audit` v `.github/workflows/folio.yml`.  
+**Stav:** **Opraveno** (výsledek závisí na Rust advisories v `Cargo.lock`).
 
 ---
 
@@ -249,9 +255,10 @@ Po opravě DOMPurify nechá `<img src="https://...">` — síťový požadavek p
 - **Závažnost:** Low (po HIGH-01)  
 - **Oblast:** Tauri FS
 
-**Popis:** Stále širší než jedna knihovna.
+**Popis:** Dříve statické `$DOCUMENT/**`.
 
-**Doporučení:** Scope pouze na vybranou složku + appdata.
+**Oprava:** Odebráno z capabilities; runtime `allow_library_path` + persisted scope při výběru složky.  
+**Stav:** **Opraveno**.
 
 ---
 
@@ -337,29 +344,28 @@ Job `web` nemá write.
 
 | Oblast | Závěr |
 |--------|--------|
-| **XSS / náhled** | Posílen DOMPurify, hooky URL, wiki tokenizer, testy OWASP. |
-| **Webview → nativ** | Zúžen FS scope; odstraněn opener; CSP doplněna o `base-uri`, `object-src`, `frame-src`. |
+| **XSS / náhled** | DOMPurify + URL hooky; **vzdálené obrázky default off**; testy OWASP. |
+| **Webview → nativ** | FS scope jen app data + **runtime knihovna**; odstraněn opener. |
 | **Filesystem** | Atomic save OK; traversal v relativních cestách kontrolován při zápisu do složky. |
 | **PWA** | CSP meta v `index.html`; SW jen same-origin GET; IndexedDB plaintext. |
 | **ZIP** | Pouze export; připraveny validátory pro budoucí import. |
-| **Supply chain** | npm audit nálezy dokumentovány; cargo audit chybí v CI. |
+| **Supply chain** | `npm audit --audit-level=high` + job `cargo-audit` v CI. |
 
 ---
 
 ## 5. Automatizované testy
 
-- `tests/security.cjs` — XSS vektory, URL helpery, zip-slip, import `.md` only, CSP v HTML.
+- `tests/security.cjs` — XSS, blokace vzdálených obrázků, journal, zip-slip, CSP.
 - `npm test` spouští `regression.cjs` + `security.cjs` (CI job `web`).
 
 ---
 
 ## 6. Co zůstává na rozhodnutí vlastníka
 
-1. Sledovací pixely / vzdálené obrázky v náhledu (HIGH-02).  
-2. Recovery journal v `localStorage` (HIGH-05).  
-3. CI release permissions a code signing (HIGH-06, MEDIUM-07).  
-4. `cargo audit` a řešení npm advisories v CI (MEDIUM-05/06).  
-5. Další zúžení Tauri scope jen na vybranou knihovnu (LOW-02).
+1. **MEDIUM-07** — Authenticode / code signing instalátoru (záměrně mimo tento PR).  
+2. **MEDIUM-04** — odstranění `style-src 'unsafe-inline'` v CSP.  
+3. **LOW-01** — šifrování knihovny v IndexedDB (PWA).  
+4. Recovery journal v **PWA** `localStorage` (desktop již v app data).
 
 ---
 

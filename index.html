@@ -101,6 +101,30 @@
           <main class="editor-pane">
             <div id="editor-root" class="editor-root"></div>
             <div id="preview-pane" class="preview-pane hidden" tabindex="0" data-i18n-aria-label="preview.aria" aria-label="Náhled poznámky">
+              <div class="preview-toolbar" id="preview-toolbar">
+                <button
+                  type="button"
+                  class="chip-btn preview-remote-btn"
+                  id="btn-remote-images-global"
+                  data-active="false"
+                  data-i18n="preview.remoteGlobalOff"
+                  data-i18n-title="preview.remoteGlobalTitle"
+                  title="Povolit nebo zakázat načítání http(s) obrázků ve všech poznámkách"
+                >
+                  Vzdálené obrázky: vyp
+                </button>
+                <button
+                  type="button"
+                  class="chip-btn preview-remote-btn"
+                  id="btn-remote-images-note"
+                  data-active="false"
+                  data-i18n="preview.remoteNoteOff"
+                  data-i18n-title="preview.remoteNoteTitle"
+                  title="Přepsat nastavení pro aktuální poznámku"
+                >
+                  Tato poznámka: obrázky vyp
+                </button>
+              </div>
               <article id="preview-root" class="preview-root"></article>
             </div>
           </main>

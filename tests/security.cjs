@@ -103,14 +103,20 @@ test("preview sanitizes OWASP-style XSS vectors", () => {
   }
 });
 
-test("preview blocks protocol-relative and file image URLs", () => {
+test("preview blocks protocol-relative links and remote images by default", () => {
   const { renderMarkdown } = require("../src/lib/preview.ts");
   const { NoteIndex } = require("../src/lib/noteIndex.ts");
   const index = new NoteIndex();
   index.setNotes([]);
-  const html = renderMarkdown('<a href="//evil.example">x</a>\n![t](https://allowed.example/i.png)', index);
-  assert.equal(/href="\/\/evil/.test(html), false);
-  assert.match(html, /https:\/\/allowed\.example\/i\.png/);
+  const blocked = renderMarkdown('<a href="//evil.example">x</a>\n![t](https://allowed.example/i.png)', index, {
+    allowRemoteImages: false,
+    blockedImageLabel: "blocked",
+  });
+  assert.equal(/href="\/\/evil/.test(blocked), false);
+  assert.match(blocked, /preview-img-placeholder/);
+  assert.equal(/<img[^>]+src="https:\/\/allowed/i.test(blocked), false);
+  const allowed = renderMarkdown("![t](https://allowed.example/i.png)", index, { allowRemoteImages: true });
+  assert.match(allowed, /https:\/\/allowed\.example\/i\.png/);
 });
 
 test("wiki titles cannot inject HTML metacharacters", () => {
@@ -167,6 +173,29 @@ test("relative note paths reject traversal segments", () => {
   for (const bad of ["../evil.md", "a/../b.md", "/abs.md", ""]) {
     assert.throws(() => assertSafeRelativeNotePath(bad), /Neplatná cesta/);
   }
+});
+
+test("draft journal enforces size limits and clears after successful save", async () => {
+  const { rememberDraft, readDraft, forgetDraft } = require("../src/lib/drafts.ts");
+  const { MAX_DRAFT_BYTES } = require("../src/lib/draftsLimits.ts");
+  const path = "web://library/size-test.md";
+  const huge = "x".repeat(MAX_DRAFT_BYTES + 1);
+  assert.equal(await rememberDraft(path, "small"), true);
+  assert.equal(await readDraft(path), "small");
+  assert.equal(await rememberDraft(path, huge), false);
+  await forgetDraft(path, "small");
+  assert.equal(await readDraft(path), null);
+});
+
+test("web draft migration exports legacy localStorage keys", () => {
+  const { DRAFT_STORAGE_PREFIX } = require("../src/lib/draftsLimits.ts");
+  const { clearLegacyWebDraftKeys, purgeLegacyWebDraftKeys } = require("../src/lib/drafts-web.ts");
+  localStorage.setItem(DRAFT_STORAGE_PREFIX + "web://library/legacy.md", "legacy text");
+  const migrated = clearLegacyWebDraftKeys();
+  assert.equal(migrated.length, 1);
+  assert.equal(migrated[0].text, "legacy text");
+  purgeLegacyWebDraftKeys();
+  assert.equal(localStorage.getItem(DRAFT_STORAGE_PREFIX + "web://library/legacy.md"), null);
 });
 
 test("index.html ships a Content-Security-Policy for the PWA shell", () => {
