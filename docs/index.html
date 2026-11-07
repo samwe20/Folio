@@ -8,153 +8,36 @@
       name="description"
       content="Klidný Markdown editor — psaní inspirované iA Writer, zpětné odkazy inspirované Obsidianem. Knihovna jako složka .md; synchronizace přes OneDrive, iCloud Drive a podobně (bez vestavěného cloudu)."
     />
+    <link rel="canonical" href="https://samwe20.github.io/Folio/" />
+    <link rel="alternate" hreflang="cs" href="https://samwe20.github.io/Folio/" />
+    <link rel="alternate" hreflang="en" href="https://samwe20.github.io/Folio/en/" />
+    <link rel="alternate" hreflang="de" href="https://samwe20.github.io/Folio/de/" />
+    <link rel="alternate" hreflang="x-default" href="https://samwe20.github.io/Folio/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="cs_CZ" />
+    <meta property="og:title" content="Folio — klidný Markdown editor pro Windows" />
+    <meta
+      property="og:description"
+      content="Klidný Markdown editor — psaní inspirované iA Writer, zpětné odkazy inspirované Obsidianem. Knihovna jako složka .md; synchronizace přes OneDrive, iCloud Drive a podobně (bez vestavěného cloudu)."
+    />
+    <meta property="og:url" content="https://samwe20.github.io/Folio/" />
     <meta property="og:image" content="https://samwe20.github.io/Folio/social-preview.png" />
     <link rel="icon" href="../public/icons/icon-192.png" />
-    <style>
-      :root {
-        --bg: #f3efe4;
-        --paper: #f7f4ea;
-        --ink: #2c2a26;
-        --muted: #6f6a60;
-        --accent: #3d5a73;
-        --radius: 14px;
-        --font-ui: "Segoe UI", system-ui, sans-serif;
-        --font-body: Georgia, "Times New Roman", serif;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        margin: 0;
-        font-family: var(--font-ui);
-        color: var(--ink);
-        background: linear-gradient(180deg, var(--bg) 0%, #e8e2d6 100%);
-        line-height: 1.55;
-      }
-      a {
-        color: var(--accent);
-      }
-      .wrap {
-        max-width: 960px;
-        margin: 0 auto;
-        padding: 2.5rem 1.25rem 4rem;
-      }
-      header {
-        text-align: center;
-        margin-bottom: 2.5rem;
-      }
-      h1 {
-        font-family: var(--font-body);
-        font-size: clamp(2.25rem, 5vw, 3rem);
-        font-weight: 600;
-        margin: 0 0 0.5rem;
-        letter-spacing: -0.02em;
-      }
-      .tagline {
-        font-size: 1.15rem;
-        color: var(--muted);
-        max-width: 36em;
-        margin: 0 auto 1.75rem;
-      }
-      .cta {
-        display: inline-flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        justify-content: center;
-        margin-bottom: 1rem;
-      }
-      .btn {
-        display: inline-block;
-        padding: 0.85rem 1.5rem;
-        border-radius: 999px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-      }
-      .btn-primary {
-        background: var(--accent);
-        color: #fff;
-        box-shadow: 0 12px 32px rgba(61, 90, 115, 0.35);
-      }
-      .btn-primary:hover {
-        transform: translateY(-1px);
-      }
-      .btn-ghost {
-        background: var(--paper);
-        color: var(--ink);
-        border: 1px solid rgba(60, 50, 30, 0.15);
-      }
-      .hero-media {
-        margin: 2rem auto 0;
-        border-radius: var(--radius);
-        overflow: hidden;
-        box-shadow: 0 24px 60px rgba(44, 42, 38, 0.15);
-        max-width: 100%;
-      }
-      .hero-media img {
-        display: block;
-        width: 100%;
-        height: auto;
-      }
-      section {
-        margin-top: 3rem;
-      }
-      h2 {
-        font-family: var(--font-body);
-        font-size: 1.65rem;
-        margin: 0 0 1rem;
-      }
-      .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1rem;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-      }
-      .features li {
-        background: var(--paper);
-        border-radius: var(--radius);
-        padding: 1.15rem 1.25rem;
-        border: 1px solid rgba(60, 50, 30, 0.1);
-      }
-      .features strong {
-        display: block;
-        margin-bottom: 0.35rem;
-      }
-      .shots {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1rem;
-      }
-      .shots figure {
-        margin: 0;
-      }
-      .shots img {
-        width: 100%;
-        border-radius: var(--radius);
-        border: 1px solid rgba(60, 50, 30, 0.12);
-      }
-      .shots figcaption {
-        font-size: 0.85rem;
-        color: var(--muted);
-        margin-top: 0.5rem;
-      }
-      footer {
-        margin-top: 3rem;
-        text-align: center;
-        font-size: 0.9rem;
-        color: var(--muted);
-      }
-    </style>
+    <link rel="stylesheet" href="landing.css" />
   </head>
-  <body>
+  <body data-landing-home>
     <div class="wrap">
+      <nav class="lang-switch" aria-label="Jazyk">
+        <a href="./" hreflang="cs" aria-current="true">CZ</a>
+        <a href="./en/" hreflang="en">EN</a>
+        <a href="./de/" hreflang="de">DE</a>
+      </nav>
       <header>
         <h1>Folio</h1>
         <p class="tagline">
           Klidný Markdown editor pro Windows (a PWA pro iPhone). Vzhled psaní čerpá z <strong>iA Writer</strong>;
-          u zpětných odkazů Folio vděčí myšlence z <strong>Obsidianu</strong> — jde o vlastní aplikaci, ne náhradu těchto nástrojů.
+          u zpětných odkazů Folio vděčí myšlence z <strong>Obsidianu</strong> — jde o vlastní aplikaci, ne náhradu těchto
+          nástrojů.
         </p>
         <div class="cta">
           <a
@@ -203,11 +86,11 @@
             <figcaption>Světlé téma · knihovna na disku</figcaption>
           </figure>
           <figure>
-            <img src="assets/folio-focus-mode.png" alt="Focus Mode" loading="lazy" />
+            <img src="assets/folio-focus-mode.png" alt="Focus Mode — celá obrazovka pro psaní" loading="lazy" />
             <figcaption>Focus Mode · celá obrazovka</figcaption>
           </figure>
           <figure>
-            <img src="assets/folio-backlinks.png" alt="Panel zpětných odkazů" loading="lazy" />
+            <img src="assets/folio-backlinks.png" alt="Panel zpětných odkazů — vstupní a odchozí" loading="lazy" />
             <figcaption>Zpětné odkazy · vstupní a odchozí</figcaption>
           </figure>
         </div>
@@ -222,5 +105,38 @@
         </p>
       </footer>
     </div>
+    <script>
+      (function () {
+        var KEY = "folio-landing-lang";
+        var forced = new URLSearchParams(location.search).get("lang");
+        if (forced === "cs" || forced === "en" || forced === "de") {
+          try {
+            localStorage.setItem(KEY, forced);
+          } catch (e) {}
+          if (forced !== "cs") {
+            location.replace((forced === "en" ? "./en/" : "./de/") + location.hash);
+          }
+          return;
+        }
+        var saved;
+        try {
+          saved = localStorage.getItem(KEY);
+        } catch (e) {}
+        if (saved === "en" || saved === "de") {
+          location.replace((saved === "en" ? "./en/" : "./de/") + location.hash);
+          return;
+        }
+        if (!saved) {
+          var nav = (navigator.language || navigator.userLanguage || "").toLowerCase();
+          var detected = nav.indexOf("cs") === 0 ? "cs" : nav.indexOf("de") === 0 ? "de" : "en";
+          try {
+            localStorage.setItem(KEY, detected);
+          } catch (e) {}
+          if (detected !== "cs") {
+            location.replace((detected === "en" ? "./en/" : "./de/") + location.hash);
+          }
+        }
+      })();
+    </script>
   </body>
 </html>

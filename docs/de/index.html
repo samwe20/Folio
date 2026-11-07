@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Folio — ruhiger Markdown-Editor für Windows</title>
+    <meta
+      name="description"
+      content="Ruhiger Markdown-Editor — Schreibgefühl inspiriert von iA Writer, Rückverweise inspiriert von Obsidian. Die Bibliothek ist ein gewöhnlicher .md-Ordner; Sync über OneDrive, iCloud Drive und ähnlich (ohne eingebaute Cloud)."
+    />
+    <link rel="canonical" href="https://samwe20.github.io/Folio/de/" />
+    <link rel="alternate" hreflang="cs" href="https://samwe20.github.io/Folio/" />
+    <link rel="alternate" hreflang="en" href="https://samwe20.github.io/Folio/en/" />
+    <link rel="alternate" hreflang="de" href="https://samwe20.github.io/Folio/de/" />
+    <link rel="alternate" hreflang="x-default" href="https://samwe20.github.io/Folio/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:title" content="Folio — ruhiger Markdown-Editor für Windows" />
+    <meta
+      property="og:description"
+      content="Ruhiger Markdown-Editor — Schreibgefühl inspiriert von iA Writer, Rückverweise inspiriert von Obsidian. Die Bibliothek ist ein gewöhnlicher .md-Ordner; Sync über OneDrive, iCloud Drive und ähnlich (ohne eingebaute Cloud)."
+    />
+    <meta property="og:url" content="https://samwe20.github.io/Folio/de/" />
+    <meta property="og:image" content="https://samwe20.github.io/Folio/social-preview.png" />
+    <link rel="icon" href="../../public/icons/icon-192.png" />
+    <link rel="stylesheet" href="../landing.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <nav class="lang-switch" aria-label="Sprache">
+        <a href="../" hreflang="cs">CZ</a>
+        <a href="../en/" hreflang="en">EN</a>
+        <a href="./" hreflang="de" aria-current="true">DE</a>
+      </nav>
+      <header>
+        <h1>Folio</h1>
+        <p class="tagline">
+          Ruhiger Markdown-Editor für Windows (und PWA fürs iPhone). Das Schreibgefühl orientiert sich an
+          <strong>iA Writer</strong>; bei Rückverweisen verdankt Folio die Idee <strong>Obsidian</strong> — eine eigene
+          App, kein Ersatz für diese Werkzeuge.
+        </p>
+        <div class="cta">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe"
+            >Folio 1.0.5 herunterladen (Windows)</a
+          >
+          <a class="btn btn-ghost" href="https://github.com/samwe20/Folio/releases/latest">Neuestes Release</a>
+          <a class="btn btn-ghost" href="https://github.com/samwe20/Folio">Quellcode</a>
+        </div>
+        <div class="hero-media">
+          <img
+            src="../assets/folio-demo.gif"
+            width="960"
+            height="540"
+            alt="Folio — Schreiben, Vorschau und Wiki-Links"
+          />
+        </div>
+      </header>
+
+      <section aria-labelledby="features-heading">
+        <h2 id="features-heading">Warum Folio</h2>
+        <ul class="features">
+          <li>
+            <strong>Inspiriert von iA Writer</strong>
+            Konzentriertes Schreiben — Focus Mode, Typewriter-Scrolling, Typografie sowie helles/dunkles Theme für ruhiges
+            Entwerfen.
+          </li>
+          <li>
+            <strong>Inspiriert von Rückverweisen</strong>
+            Von Obsidian übernimmt Folio vor allem die <em>Idee der Backlinks</em> — <code>[[Wiki-Links]]</code>,
+            Vervollständigung und Panels für eingehende und ausgehende Verweise. Kein Graph, keine Plugins.
+          </li>
+          <li>
+            <strong>Ordner auf der Platte, Ihr Sync</strong>
+            Die Bibliothek ist ein gewöhnlicher Ordner mit <code>.md</code>-Dateien (im Web Export/Import). Es gibt keine
+            eingebaute Synchronisation — legen Sie den Ordner in <strong>OneDrive</strong>, <strong>iCloud Drive</strong>
+            oder einen anderen synchronisierten Pfad, dann läuft der Sync über Ihre Cloud.
+          </li>
+          <li>
+            <strong>Windows + PWA</strong>
+            Desktop mit Tauri 2 und offlinefähige PWA. Oberfläche auf Englisch / Tschechisch — Ihre Notizen bleiben in der
+            Sprache, in der Sie schreiben.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="shots-heading">
+        <h2 id="shots-heading">Vorschau</h2>
+        <div class="shots">
+          <figure>
+            <img
+              src="../assets/folio-light-library.png"
+              alt="Folio — helles Theme, Dateibaum"
+              loading="lazy"
+            />
+            <figcaption>Helles Theme · Bibliothek auf der Platte</figcaption>
+          </figure>
+          <figure>
+            <img src="../assets/folio-focus-mode.png" alt="Focus Mode — Vollbild zum Schreiben" loading="lazy" />
+            <figcaption>Focus Mode · Vollbild</figcaption>
+          </figure>
+          <figure>
+            <img
+              src="../assets/folio-backlinks.png"
+              alt="Rückverweise-Panel — eingehend und ausgehend"
+              loading="lazy"
+            />
+            <figcaption>Rückverweise · eingehend und ausgehend</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          MIT ·
+          <a href="https://github.com/samwe20/Folio/blob/main/docs/release-latest.md">Versionshinweise</a>
+          ·
+          <a href="https://github.com/samwe20/Folio/blob/main/README.md">README</a>
+        </p>
+      </footer>
+    </div>
+    <script>
+      try {
+        localStorage.setItem("folio-landing-lang", "de");
+      } catch (e) {}
+    </script>
+  </body>
+</html>
