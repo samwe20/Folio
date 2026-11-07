@@ -1,20 +1,18 @@
-## Folio 1.0.6 — Windows
+## Folio 1.0.7 — Windows
 
-**Instalátor:** [Folio_1.0.6_x64-setup.exe](https://github.com/samwe20/Folio/releases/download/folio-1.0.6/Folio_1.0.6_x64-setup.exe)  
+**Instalátor:** [Folio_1.0.7_x64-setup.exe](https://github.com/samwe20/Folio/releases/download/folio-1.0.7/Folio_1.0.7_x64-setup.exe)  
 **Požadavky:** Windows 10 nebo 11 (WebView2 — na Windows 11 obvykle už nainstalovaný)
 
 ### Co je nového
 
-- **Bezpečnější náhled Markdownu** — přísnější sanitizace HTML (DOMPurify), blokace rizikových značek a atributů; nebezpečné odkazy se odstraní; vzdálené obrázky (`http`/`https`) jsou ve výchozím stavu vypnuté a v náhledu se zobrazí nahrazení — globální přepínač a přepis pro aktuální poznámku v liště náhledu.
-- **Desktop: přístup jen ke knihovně** — po výběru složky knihovny Folio rozšíří oprávnění filesystemu pouze na tuto cestu (bez širokého přístupu k celým Dokumentům, Ploše apod.); odebrán plugin pro otevírání libovolných URL z výchozích oprávnění.
-- **Import a export** — ochrana proti zip-slip a nadměrně velkým archivům; import souborů jen s příponou `.md`; kontrola relativních cest při ukládání knihovny do složky.
-- **Menu knihovny ⋯** — export ZIP, export poznámky, import `.md` a (kde prohlížeč podporuje) uložení do složky jsou v přetečeném menu u stromu souborů místo řady tlačítek v postranním panelu.
-- **Stránka projektu** — vícejazyčná landing page (čeština, angličtina, němčina) na GitHub Pages pro stažení a přehled funkcí.
-- **Upozornění na novou verzi (Windows)** — desktop jednou za 24 hodin (max.) zkontroluje GitHub Releases; pokud je dostupnější verze, zobrazí klidný pruh s odkazem ke stažení (bez automatické instalace, bez telemetrie).
+- **Menu v liště (☰)** — verze aplikace, ruční kontrola aktualizací, export knihovny (ZIP) a aktuální poznámky (.md), přepínače vzdálených obrázků v náhledu (globálně i pro poznámku).
+- **Obrázky v poznámkách** — přetáhněte nebo vložte PNG/JPEG/GIF/WebP do editoru; na desktopu se uloží do složky `assets/` v knihovně a vloží se Markdown odkaz; v náhledu fungují lokální cesty.
+- **Ukázkový tutoriál** — poznámky po prvním spuštění (demo knihovna) jsou vždy **anglicky**, bez ohledu na jazyk rozhraní.
+- **Upozornění na aktualizace** — ruční kontrola v menu ignoruje 24hodinové omezení i dříve odloženou verzi.
 
 ### Instalace
 
-1. Stáhněte `Folio_1.0.6_x64-setup.exe` z odkazu výše (nebo ze [stránky release](https://github.com/samwe20/Folio/releases/tag/folio-1.0.6)).
+1. Stáhněte `Folio_1.0.7_x64-setup.exe` z odkazu výše (nebo ze [stránky release](https://github.com/samwe20/Folio/releases/tag/folio-1.0.7)).
 2. Spusťte instalátor (samostatný NSIS setup, ne zip).
 3. Po spuštění Folio vytvoří knihovnu v `Dokumenty/Folio/Library` — nebo zvolte **Otevřít knihovnu** a vyberte složku s `.md` soubory (včetně OneDrive / iCloud Drive ve Windows).
 
@@ -22,27 +20,25 @@
 
 - **Focus Mode** — celá obrazovka pro psaní; volitelný typewriter.
 - **`[[Wiki odkazy]]`** — dvojklik pro otevření; panel zpětných odkazů vpravo.
-- **Menu ⋯** u knihovny — import/export najdete pod třemi tečkami vedle stromu souborů.
+- **Menu ☰** vpravo v liště — export, nastavení náhledu a informace o programu.
 
 ---
 
-## Folio 1.0.6 — Windows (English)
+## Folio 1.0.7 — Windows (English)
 
-**Installer:** [Folio_1.0.6_x64-setup.exe](https://github.com/samwe20/Folio/releases/download/folio-1.0.6/Folio_1.0.6_x64-setup.exe)  
+**Installer:** [Folio_1.0.7_x64-setup.exe](https://github.com/samwe20/Folio/releases/download/folio-1.0.7/Folio_1.0.7_x64-setup.exe)  
 **Requirements:** Windows 10 or 11 (WebView2 — usually preinstalled on Windows 11)
 
 ### What's new
 
-- **Safer Markdown preview** — stricter HTML sanitization (DOMPurify), risky tags and attributes blocked; unsafe links removed; remote images (`http`/`https`) are off by default with a placeholder in preview — global toggle and per-note override in the preview toolbar.
-- **Desktop: library-scoped access** — after you pick a library folder, Folio extends filesystem permissions only to that path (no broad access to all of Documents, Desktop, etc.); generic URL opener removed from default capabilities.
-- **Import and export** — zip-slip and oversized-archive guards; file import limited to `.md` extensions; path validation when saving the library to a folder.
-- **Library ⋯ menu** — export ZIP, export note, import `.md`, and (where the browser supports it) save to folder live in the sidebar overflow menu by the file tree instead of a long button row.
-- **Project site** — trilingual landing page (Czech, English, German) on GitHub Pages for downloads and overview.
-- **Update notice (Windows)** — the desktop app checks GitHub Releases at most once per 24 hours; when a newer version exists, a calm bar offers a download link (no auto-install, no telemetry).
+- **Toolbar app menu (☰)** — app version, manual update check, export library (ZIP) and current note (.md), remote image toggles for preview (global and per-note).
+- **Images in notes** — drag or paste PNG/JPEG/GIF/WebP into the editor; on desktop files go under `assets/` in your library with a Markdown link; local paths work in preview.
+- **Sample tutorial** — first-run demo notes are always **English**, regardless of UI language.
+- **Updates** — manual check from the menu bypasses the 24-hour limit and previously dismissed versions.
 
 ### Install
 
-1. Download `Folio_1.0.6_x64-setup.exe` from the link above (or the [release page](https://github.com/samwe20/Folio/releases/tag/folio-1.0.6)).
+1. Download `Folio_1.0.7_x64-setup.exe` from the link above (or the [release page](https://github.com/samwe20/Folio/releases/tag/folio-1.0.7)).
 2. Run the standalone NSIS installer.
 3. On first launch Folio uses `Documents/Folio/Library` by default — or use **Open library** to pick any folder of `.md` files (including OneDrive / iCloud Drive on Windows).
 
@@ -50,4 +46,4 @@
 
 - **Focus Mode** — fullscreen writing; optional typewriter scrolling.
 - **`[[Wiki links]]`** — double-click to open; backlinks panel on the right.
-- **Library ⋯ menu** — import/export is under the three-dot control next to the file tree.
+- **☰ menu** on the right of the toolbar — export, preview settings, and about.
