@@ -10,7 +10,7 @@
   "homepage": "https://github.com/samwe20/Folio#readme",
   "type": "module",
   "scripts": {
-    "test": "node tests/regression.cjs && node tests/security.cjs && node tests/update-check.cjs",
+    "test": "node tests/regression.cjs && node tests/security.cjs && node tests/update-check.cjs && node tests/marketing-desktop.cjs",
     "test:offline": "node tests/offline.cjs",
     "test:e2e": "playwright test",
     "test:desktop": "node tests/desktop.cjs",
@@ -25,7 +25,7 @@
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build",
     "desktop:build:windows": "tauri build --target x86_64-pc-windows-msvc",
-    "docs:screenshots": "npm run build && node scripts/capture-readme-assets.cjs",
+    "docs:screenshots": "npm run build && node scripts/capture-readme-assets.cjs && node scripts/capture-social-preview.cjs",
     "docs:social-preview": "npm run build && node scripts/capture-social-preview.cjs",
     "ios:init": "tauri ios init",
     "ios:dev": "tauri ios dev",

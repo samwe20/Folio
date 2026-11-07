@@ -3,85 +3,31 @@
  * Usage: node scripts/capture-social-preview.cjs
  */
 const { chromium } = require("@playwright/test");
-const { spawn } = require("node:child_process");
-const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
+const {
+  dist,
+  startDistServer,
+  prepareMarketingDesktopPage,
+  openSidebarIfCollapsed,
+} = require("./capture-marketing-helpers.cjs");
 
-const root = path.resolve(__dirname, "..");
-const dist = path.join(root, "dist");
-const outPath = path.join(root, "docs", "social-preview.png");
-const tmpBg = path.join(root, "docs", ".social-preview-bg.png");
-
-const WEB_SETTINGS = {
-  libraryPath: null,
-  theme: "light",
-  focusMode: false,
-  typewriter: false,
-  showBacklinks: true,
-  lastOpenPath: null,
-  editorFont: "literata",
-  sortBy: "title",
-  sortDirection: "asc",
-  uiLocale: "en",
-};
-
-function startServer() {
-  const types = {
-    ".html": "text/html",
-    ".js": "application/javascript",
-    ".css": "text/css",
-    ".json": "application/json",
-    ".webmanifest": "application/manifest+json",
-    ".woff2": "font/woff2",
-    ".woff": "font/woff",
-    ".png": "image/png",
-  };
-  const server = http.createServer((req, res) => {
-    try {
-      const url = new URL(req.url, "http://127.0.0.1");
-      const relative = decodeURIComponent(url.pathname).replace(/\/$/, "/index.html");
-      const target = path.resolve(dist, "." + relative);
-      if (!target.startsWith(dist + path.sep) && target !== dist) {
-        res.writeHead(403);
-        res.end();
-        return;
-      }
-      const data = fs.readFileSync(target);
-      res.setHeader("Content-Type", types[path.extname(target)] || "application/octet-stream");
-      res.setHeader("Cache-Control", "no-cache");
-      res.end(data);
-    } catch {
-      res.writeHead(404);
-      res.end();
-    }
-  });
-  return new Promise((resolve) => {
-    server.listen(4173, "127.0.0.1", () => resolve(server));
-  });
-}
+const outPath = path.join(__dirname, "..", "docs", "social-preview.png");
+const tmpBg = path.join(__dirname, "..", "docs", ".social-preview-bg.png");
+const baseUrl = "http://127.0.0.1:4173/";
 
 async function captureAppScreenshot() {
-  const server = await startServer();
+  if (!fs.existsSync(dist)) {
+    throw new Error("Missing dist/ — run npm run build first");
+  }
+  const server = await startDistServer(4173);
   const browser = await chromium.launch();
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: 1,
   });
-  await context.addInitScript((settings) => {
-    localStorage.setItem("folio.settings.v1", JSON.stringify(settings));
-  }, WEB_SETTINGS);
-  const page = await context.newPage();
-  await page.goto("http://127.0.0.1:4173/");
-  await page.waitForSelector(".cm-content[contenteditable=true]", { timeout: 30000 });
-  await page.waitForTimeout(1200);
-
-  const app = page.locator("#app");
-  if ((await app.getAttribute("class"))?.includes("sidebar-collapsed")) {
-    await page.locator("#btn-toggle-sidebar").click();
-    await page.waitForTimeout(400);
-  }
-
+  const page = await prepareMarketingDesktopPage(context, baseUrl);
+  await openSidebarIfCollapsed(page);
   await page.locator(".note-item-title", { hasText: "Welcome to Folio" }).click();
   await page.waitForTimeout(500);
 
@@ -206,9 +152,6 @@ async function composeSocialPreview() {
 }
 
 async function main() {
-  if (!fs.existsSync(dist)) {
-    throw new Error("Missing dist/ — run npm run build first");
-  }
   await captureAppScreenshot();
   await composeSocialPreview();
 }
