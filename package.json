@@ -26,6 +26,7 @@
     "desktop:build": "tauri build",
     "desktop:build:windows": "tauri build --target x86_64-pc-windows-msvc",
     "docs:screenshots": "npm run build && node scripts/capture-readme-assets.cjs",
+    "docs:social-preview": "npm run build && node scripts/capture-social-preview.cjs",
     "ios:init": "tauri ios init",
     "ios:dev": "tauri ios dev",
     "ios:build": "tauri ios build"
