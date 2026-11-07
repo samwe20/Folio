@@ -15,7 +15,7 @@
 
 ## Latest release
 
-**Folio 1.0.5** — November 2025 · Windows 10/11
+**Folio 1.0.5** — November 2026 · Windows 10/11
 
 | | |
 |---|---|
