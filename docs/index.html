@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Folio — Markdown editor, kde se potkává iA Writer s Obsidianem</title>
+    <meta
+      name="description"
+      content="Klidný Markdown editor pro Windows s wiki odkazy, zpětnými odkazy a Focus Mode. Tauri 2, lokální složka .md souborů."
+    />
+    <meta property="og:image" content="https://samwe20.github.io/Folio/social-preview.png" />
+    <link rel="icon" href="../public/icons/icon-192.png" />
+    <style>
+      :root {
+        --bg: #f3efe4;
+        --paper: #f7f4ea;
+        --ink: #2c2a26;
+        --muted: #6f6a60;
+        --accent: #3d5a73;
+        --radius: 14px;
+        --font-ui: "Segoe UI", system-ui, sans-serif;
+        --font-body: Georgia, "Times New Roman", serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font-ui);
+        color: var(--ink);
+        background: linear-gradient(180deg, var(--bg) 0%, #e8e2d6 100%);
+        line-height: 1.55;
+      }
+      a {
+        color: var(--accent);
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+      }
+      h1 {
+        font-family: var(--font-body);
+        font-size: clamp(2.25rem, 5vw, 3rem);
+        font-weight: 600;
+        margin: 0 0 0.5rem;
+        letter-spacing: -0.02em;
+      }
+      .tagline {
+        font-size: 1.15rem;
+        color: var(--muted);
+        max-width: 36em;
+        margin: 0 auto 1.75rem;
+      }
+      .cta {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+      .btn {
+        display: inline-block;
+        padding: 0.85rem 1.5rem;
+        border-radius: 999px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 12px 32px rgba(61, 90, 115, 0.35);
+      }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: var(--paper);
+        color: var(--ink);
+        border: 1px solid rgba(60, 50, 30, 0.15);
+      }
+      .hero-media {
+        margin: 2rem auto 0;
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(44, 42, 38, 0.15);
+        max-width: 100%;
+      }
+      .hero-media img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      section {
+        margin-top: 3rem;
+      }
+      h2 {
+        font-family: var(--font-body);
+        font-size: 1.65rem;
+        margin: 0 0 1rem;
+      }
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .features li {
+        background: var(--paper);
+        border-radius: var(--radius);
+        padding: 1.15rem 1.25rem;
+        border: 1px solid rgba(60, 50, 30, 0.1);
+      }
+      .features strong {
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+      }
+      .shots figure {
+        margin: 0;
+      }
+      .shots img {
+        width: 100%;
+        border-radius: var(--radius);
+        border: 1px solid rgba(60, 50, 30, 0.12);
+      }
+      .shots figcaption {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-top: 0.5rem;
+      }
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Folio</h1>
+        <p class="tagline">
+          Kde se potkává minimalismus iA Writer s wiki odkazy a zpětnými odkazy z Obsidianu — jeden klidný
+          Markdown editor pro Windows (a PWA pro iPhone).
+        </p>
+        <div class="cta">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe"
+            >Stáhnout Folio 1.0.5 (Windows)</a
+          >
+          <a class="btn btn-ghost" href="https://github.com/samwe20/Folio/releases/latest">Nejnovější release</a>
+          <a class="btn btn-ghost" href="https://github.com/samwe20/Folio">Zdrojový kód</a>
+        </div>
+        <div class="hero-media">
+          <img src="assets/folio-demo.gif" width="960" height="540" alt="Folio — psaní, náhled a wiki odkazy" />
+        </div>
+      </header>
+
+      <section aria-labelledby="features-heading">
+        <h2 id="features-heading">Proč Folio</h2>
+        <ul class="features">
+          <li>
+            <strong>Psaní bez šumu</strong>
+            Typografie jako u iA Writer — Focus Mode, typewriter, světlý/tmavý režim. Žádná přeplněná „druhá mozková“
+            aplikace.
+          </li>
+          <li>
+            <strong>Propojené poznámky</strong>
+            <code>[[Wiki odkazy]]</code>, automatické doplňování a panel zpětných odkazů jako v Obsidianu — bez pluginů a
+            složité konfigurace.
+          </li>
+          <li>
+            <strong>Vaše soubory</strong>
+            Knihovna je složka <code>.md</code> na disku (nebo export/import ve webové verzi). OneDrive / iCloud ve
+            Windows fungují jako obyčejná složka.
+          </li>
+          <li>
+            <strong>Jedna codebase</strong>
+            Desktop Tauri 2 + offline PWA. Rozhraní English / Čeština — obsah poznámek zůstává ve vašem jazyce.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="shots-heading">
+        <h2 id="shots-heading">Náhled</h2>
+        <div class="shots">
+          <figure>
+            <img src="assets/folio-light-library.png" alt="Folio — světlé téma, strom souborů" loading="lazy" />
+            <figcaption>Světlé téma · knihovna na disku</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/folio-focus-mode.png" alt="Focus Mode" loading="lazy" />
+            <figcaption>Focus Mode · celá obrazovka</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/folio-backlinks.png" alt="Panel zpětných odkazů" loading="lazy" />
+            <figcaption>Zpětné odkazy · vstupní a odchozí</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          MIT ·
+          <a href="https://github.com/samwe20/Folio/blob/main/docs/release-latest.md">Poznámky k vydání</a>
+          ·
+          <a href="https://github.com/samwe20/Folio/blob/main/README.md">README</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
