@@ -2,26 +2,29 @@
 
 # Folio
 
-**Combine iA Writer minimalism with Obsidian backlinks** — a calm Markdown surface for writing, plus `[[wiki links]]` and live backlink panels when you need context.
+**A calm Markdown editor** — focused writing inspired by **iA Writer**, `[[wiki links]]` and a **backlinks** panel inspired by the linking idea in **Obsidian**.
 
-[![Release](https://badgen.net/github/release/samwe20/Folio?label=release&color=f3efe4&icon=github)](https://github.com/samwe20/Folio/releases/latest)
+<img src="docs/assets/folio-demo.gif" alt="Folio — writing, preview, and wiki links" width="720" />
+
+[![Download latest release](https://badgen.net/github/release/samwe20/Folio?label=download&key=1.0.5&color=3d5a73&icon=github)](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe)
 [![Windows CI](https://github.com/samwe20/Folio/actions/workflows/folio.yml/badge.svg?branch=main)](https://github.com/samwe20/Folio/actions/workflows/folio.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Stack](https://img.shields.io/badge/stack-Tauri%202%20%C2%B7%20Vite%20%C2%B7%20TypeScript-333)](docs/development.md)
 
-[**Download Folio 1.0.5 (Windows)**](#latest-release) · [Quick start](#quick-start) · [Docs](#documentation) · [Screenshots](#screenshots)
+**[Windows installer (folio-1.0.5)](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe)** · [All releases](https://github.com/samwe20/Folio/releases) · [Project site](https://samwe20.github.io/Folio/) · [Quick start](#quick-start)
 
 </div>
 
 ## Latest release
 
-**Folio 1.0.5** — November 2026 · Windows 10/11
-
 | | |
 |---|---|
+| **Version** | [**Folio 1.0.5**](https://github.com/samwe20/Folio/releases/tag/folio-1.0.5) ([`folio-1.0.5`](https://github.com/samwe20/Folio/releases/tag/folio-1.0.5)) |
 | **Installer** | [**Folio_1.0.5_x64-setup.exe**](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe) (NSIS, ~3 MB) |
-| **All assets** | [Release folio-1.0.5](https://github.com/samwe20/Folio/releases/tag/folio-1.0.5) |
+| **Platform** | Windows 10/11 (WebView2) |
 | **User guide (CS + EN)** | [docs/release-latest.md](docs/release-latest.md) |
+
+Published on GitHub Releases with tag **`folio-1.0.5`**.
 
 **What's new for users**
 
@@ -33,9 +36,17 @@
 
 Older releases: [GitHub Releases](https://github.com/samwe20/Folio/releases).
 
-<video src="docs/assets/folio-demo.mp4" controls width="100%" muted loop playsinline>
-  <a href="docs/assets/folio-demo.mp4">Download demo video</a>
-</video>
+---
+
+## Why Folio?
+
+Folio is its own app. **iA Writer** and **Obsidian** are inspirations we credit—not products Folio tries to replace.
+
+- **Writing feel** *(inspired by iA Writer)* — typography-first editing, Focus Mode, optional typewriter, and light/dark paper themes for calm drafting.
+- **Backlinks** *(inspired by Obsidian)* — Folio takes the **idea of backlinks**: `[[wiki links]]`, autocomplete, and a panel of incoming/outgoing links. Not a plugin ecosystem or graph canvas.
+- **Your folder, your sync** — the library is a **plain folder of `.md` files`**. Folio has **no built-in cloud sync**; store the library in **OneDrive**, **iCloud Drive**, or any synced folder and your files follow your usual sync.
+- **Windows + web** — Tauri 2 on desktop and an offline **PWA** on iPhone (separate libraries unless you move notes via export/import).
+- **Bilingual app chrome** — toolbar **English / Čeština** for UI labels; your note text stays whatever language you write in.
 
 ---
 
@@ -69,32 +80,6 @@ Older releases: [GitHub Releases](https://github.com/samwe20/Folio/releases).
     </td>
   </tr>
 </table>
-
----
-
-## Purpose
-
-Folio exists to **merge two ideas that today live in separate apps**:
-
-1. **iA Writer** — typography-first, distraction-free writing (Focus Mode, typewriter, plain paper).
-2. **Obsidian** — linked notes with `[[wiki links]]`, autocomplete, and **backlinks** (who links here, where you link out).
-
-You get one editor: minimal while you write, connected when you explore — without turning the UI into a heavy knowledge base.
-
----
-
-## Why Folio
-
-| | |
-|---|---|
-| ✍️ **iA Writer side** | Typography-first editor, Focus Mode, optional typewriter |
-| 🔗 **Obsidian side** | `[[Wiki links]]`, autocomplete, double-click / long-press to open |
-| ↩️ **Backlinks** | Live panel of incoming and outgoing links |
-| 📁 **Your files** | Library = a folder of `.md` on disk (Windows); export/import on web |
-| 🌓 **Light / dark** | Warm paper in light mode, near-black in dark mode |
-| 🌐 **Czech or English UI** | Toolbar chip **English / Čeština** — app chrome, not your note text |
-
-Built with **Tauri 2** (Windows, NSIS + WebView2), **Vite + CodeMirror 6**, **DOMPurify** preview, offline **PWA** for iPhone.
 
 ---
 
@@ -145,4 +130,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE) — © 2026 [samwe20](https://github.com/samwe20).
+[MIT](LICENSE) — © [samwe20](https://github.com/samwe20).
