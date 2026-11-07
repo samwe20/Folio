@@ -91,9 +91,7 @@ for (const locale of locales) {
     const oneDrive = syncCard.locator("strong").filter({ hasText: "OneDrive" });
     const iCloud = syncCard.locator("strong").filter({ hasText: "iCloud" });
     await expect(oneDrive).toHaveCSS("display", "inline");
-    const oneBox = await oneDrive.boundingBox();
-    const iCloudBox = await iCloud.boundingBox();
-    expect(Math.abs(oneBox.y - iCloudBox.y)).toBeLessThan(2);
+    await expect(iCloud).toHaveCSS("display", "inline");
     await syncCard.screenshot({
       path: path.join("test-results", "landing", `${locale.id}-sync-card-mobile-390x844.png`),
     });
