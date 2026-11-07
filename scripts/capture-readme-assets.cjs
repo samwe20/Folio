@@ -1,78 +1,83 @@
 /**
- * Generates README screenshots from the production build (run after npm run build).
+ * Generates README / docs marketing screenshots from the production build.
+ * Renders desktop (Windows) UI — not web/PWA chrome.
  * Usage: node scripts/capture-readme-assets.cjs
  */
-const { chromium, devices } = require("@playwright/test");
-const { spawn } = require("node:child_process");
+const { chromium } = require("@playwright/test");
 const path = require("node:path");
 const fs = require("node:fs");
-const http = require("node:http");
+const { execFileSync } = require("node:child_process");
+const {
+  dist,
+  startDistServer,
+  prepareMarketingDesktopPage,
+  openSidebarIfCollapsed,
+} = require("./capture-marketing-helpers.cjs");
 
-const root = path.resolve(__dirname, "..");
-const dist = path.join(root, "dist");
-const outDir = path.join(root, "docs", "assets");
+const outDir = path.join(__dirname, "..", "docs", "assets");
+const baseUrl = "http://127.0.0.1:4173/";
 
-function startServer() {
-  const types = {
-    ".html": "text/html",
-    ".js": "application/javascript",
-    ".css": "text/css",
-    ".json": "application/json",
-    ".webmanifest": "application/manifest+json",
-    ".woff2": "font/woff2",
-    ".woff": "font/woff",
-    ".png": "image/png",
-  };
-  const server = http.createServer((req, res) => {
-    try {
-      const url = new URL(req.url, "http://127.0.0.1");
-      const relative = decodeURIComponent(url.pathname).replace(/\/$/, "/index.html");
-      const target = path.resolve(dist, "." + relative);
-      if (!target.startsWith(dist + path.sep) && target !== dist) {
-        res.writeHead(403);
-        res.end();
-        return;
-      }
-      const data = fs.readFileSync(target);
-      res.setHeader("Content-Type", types[path.extname(target)] || "application/octet-stream");
-      res.setHeader("Cache-Control", "no-cache");
-      res.end(data);
-    } catch {
-      res.writeHead(404);
-      res.end();
-    }
+async function recordDemoClip(outGif, outMp4) {
+  const demoDir = path.join(outDir, ".demo-capture");
+  fs.mkdirSync(demoDir, { recursive: true });
+  const videoDir = path.join(demoDir, "video");
+  fs.mkdirSync(videoDir, { recursive: true });
+
+  const browser = await chromium.launch();
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 720 },
+    deviceScaleFactor: 1,
+    recordVideo: { dir: videoDir, size: { width: 1280, height: 720 } },
   });
-  return new Promise((resolve) => {
-    server.listen(4173, "127.0.0.1", () => resolve(server));
-  });
-}
+  const vpage = await prepareMarketingDesktopPage(context, baseUrl);
+  await openSidebarIfCollapsed(vpage);
+  await vpage.locator(".note-item-title", { hasText: "Welcome to Folio" }).click();
+  await vpage.waitForTimeout(500);
+  await vpage.locator(".cm-content").click();
+  await vpage.keyboard.type(" — wiki links keep ideas connected.", { delay: 35 });
+  await vpage.waitForTimeout(400);
+  await vpage.locator("#btn-preview").click();
+  await vpage.waitForTimeout(700);
+  await vpage.locator("#btn-backlinks").click();
+  await vpage.waitForTimeout(700);
+  const video = vpage.video();
+  await context.close();
+  await browser.close();
 
-async function waitEditor(page) {
-  await page.goto("http://127.0.0.1:4173/");
-  await page.waitForSelector(".cm-content[contenteditable=true]", { timeout: 30000 });
-  await page.waitForTimeout(800);
-}
-
-async function openSidebar(page) {
-  const app = page.locator("#app");
-  if ((await app.getAttribute("class"))?.includes("sidebar-collapsed")) {
-    await page.locator("#btn-toggle-sidebar").click();
-    await page.waitForTimeout(400);
-  }
+  const webmPath = await video.path();
+  execFileSync(
+    "ffmpeg",
+    ["-y", "-i", webmPath, "-movflags", "+faststart", "-pix_fmt", "yuv420p", outMp4],
+    { stdio: "pipe" },
+  );
+  execFileSync(
+    "ffmpeg",
+    [
+      "-y",
+      "-i",
+      outMp4,
+      "-vf",
+      "fps=12,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse",
+      outGif,
+    ],
+    { stdio: "pipe" },
+  );
 }
 
 async function main() {
+  if (!fs.existsSync(dist)) {
+    throw new Error("Missing dist/ — run npm run build first");
+  }
   fs.mkdirSync(outDir, { recursive: true });
-  const server = await startServer();
+  const server = await startDistServer(4173);
   const browser = await chromium.launch();
-  const desktop = await browser.newContext({
+  const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: 2,
   });
-  const page = await desktop.newPage();
 
-  await waitEditor(page);
-  await openSidebar(page);
+  const page = await prepareMarketingDesktopPage(context, baseUrl);
+  await openSidebarIfCollapsed(page);
   await page.screenshot({ path: path.join(outDir, "folio-light-library.png") });
 
   await page.locator("#btn-theme").click();
@@ -81,7 +86,7 @@ async function main() {
 
   await page.locator("#btn-theme").click();
   await page.waitForTimeout(300);
-  await page.locator(".note-item-title").first().click();
+  await page.locator(".note-item-title", { hasText: "Welcome to Folio" }).click();
   await page.waitForTimeout(400);
   await page.screenshot({ path: path.join(outDir, "folio-writing-light.png"), fullPage: false });
 
@@ -99,22 +104,18 @@ async function main() {
   await page.waitForTimeout(600);
   await page.screenshot({ path: path.join(outDir, "folio-focus-mode.png") });
 
-  await desktop.close();
-
-  const iphone = devices["iPhone 13"];
-  const mobile = await browser.newContext({
-    ...iphone,
-    deviceScaleFactor: 2,
-  });
-  const mpage = await mobile.newPage();
-  await waitEditor(mpage);
-  await mpage.locator("#btn-toggle-sidebar").click();
-  await mpage.waitForTimeout(500);
-  await mpage.screenshot({ path: path.join(outDir, "folio-mobile-library.png") });
-
   await browser.close();
+
+  const gifPath = path.join(outDir, "folio-demo.gif");
+  const mp4Path = path.join(outDir, "folio-demo.mp4");
+  await recordDemoClip(gifPath, mp4Path);
+
   server.close();
-  console.log("Saved screenshots to", outDir);
+
+  const mobilePath = path.join(outDir, "folio-mobile-library.png");
+  if (fs.existsSync(mobilePath)) fs.unlinkSync(mobilePath);
+
+  console.log("Saved desktop marketing assets to", outDir);
 }
 
 main().catch((err) => {

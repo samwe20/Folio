@@ -23,7 +23,12 @@ import { EDITOR_FONTS, fontCss, type EditorFontId } from "./lib/fonts";
 import { enterFullscreen, exitFullscreen } from "./lib/fullscreen";
 import { NoteIndex } from "./lib/noteIndex";
 import { isAppleMobile, isMobileUi } from "./lib/platform";
-import { isTauri } from "./lib/runtime";
+import {
+  isDesktopUi,
+  isMarketingDesktopCapture,
+  isTauri,
+  MARKETING_DESKTOP_LIBRARY_LABEL,
+} from "./lib/runtime";
 import {
   applyStaticUi,
   defaultNoteTitle,
@@ -76,7 +81,7 @@ export class FolioApp {
   private mobile = isMobileUi();
   private appleMobile = isAppleMobile();
   private native = isTauri();
-  private webOnly = !isTauri();
+  private webOnly = !isDesktopUi();
   /** Snapshot restored when leaving immersive Focus. */
   private sidebarMenu: SidebarMenuController | null = null;
   private updateOffer: UpdateOffer | null = null;
@@ -159,8 +164,7 @@ export class FolioApp {
 
     if (this.settings.libraryPath) {
       await this.openLibrary(this.settings.libraryPath, this.settings.lastOpenPath);
-    } else if (this.webOnly || this.appleMobile) {
-      // Browser / iPhone: use the built-in library immediately.
+    } else if (this.webOnly || this.appleMobile || isMarketingDesktopCapture()) {
       await this.createDemo();
     } else {
       this.showWelcome(true);
@@ -755,7 +759,11 @@ export class FolioApp {
     await this.flushCurrent();
     if (this.native) await ensureLibraryFsScope(path);
     this.settings.libraryPath = path;
-    const label = this.webOnly ? t("library.browserLabel") : path;
+    const label = this.webOnly
+      ? t("library.browserLabel")
+      : isMarketingDesktopCapture()
+        ? MARKETING_DESKTOP_LIBRARY_LABEL
+        : path;
     this.els.libraryPath.textContent = label;
     this.els.libraryPath.title = path;
     this.showWelcome(false);
