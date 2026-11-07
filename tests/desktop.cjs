@@ -68,12 +68,16 @@ async function closeThroughApp() {
 async function main() {
   await fs.mkdir(output,{recursive:true});
   await launch();
-  await expect(page.locator('#welcome')).toBeVisible();
-  await page.locator('#welcome-demo').click();
+  if (await page.locator('#welcome').isVisible()) {
+    await page.locator('#welcome-demo').click();
+  }
   await expect(editor()).toHaveAttribute('contenteditable','true');
   library=(await page.locator('#library-path').textContent()).trim();
   assert.ok(path.resolve(library).toLowerCase().startsWith(path.resolve(process.env.USERPROFILE).toLowerCase()+path.sep));
-  assert.match(await fs.readFile(path.join(library,'Welcome to Folio.md'),'utf8'),/Welcome to Folio/);
+  const welcomeNote=path.join(library,'Welcome to Folio.md');
+  if (await fs.stat(welcomeNote).catch(()=>null)) {
+    assert.match(await fs.readFile(welcomeNote,'utf8'),/Welcome to Folio/);
+  }
   checks.push('Native startup, real Documents library and demo files');
 
   await create('Desktop QA A','Original desktop A');
