@@ -634,6 +634,7 @@ export class FolioApp {
 
   private async createDemo() {
     const path = await getDefaultLibraryPath();
+    if (this.native) await ensureLibraryFsScope(path);
     const first = await createDemoLibrary(path, this.settings.uiLocale);
     await this.openLibrary(path, first);
   }
