@@ -12,7 +12,7 @@ test("mocked GitHub latest release can drive resolve logic offline", async ({ pa
       tag_name: "folio-9.9.9",
       html_url: "https://github.com/samwe20/Folio/releases/tag/folio-9.9.9",
     };
-    const current = "1.0.6";
+    const current = "1.0.7";
     const parse = (tag) => {
       const m = /^folio-(\d+\.\d+\.\d+)/i.exec(tag.trim());
       return m ? m[1] : null;
