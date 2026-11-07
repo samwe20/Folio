@@ -11,8 +11,11 @@ export function createSidebarMenu(
   panel: HTMLElement,
   onClose?: () => void,
 ): SidebarMenuController {
+  const itemSelector =
+    '[role="menuitem"]:not(.hidden):not([hidden]), [role="menuitemcheckbox"]:not(.hidden):not([hidden])';
+
   const items = () =>
-    [...panel.querySelectorAll<HTMLElement>('[role="menuitem"]:not(.hidden):not([hidden])')].filter(
+    [...panel.querySelectorAll<HTMLElement>(itemSelector)].filter(
       (el) => !el.classList.contains("is-unsupported"),
     );
 
@@ -84,11 +87,14 @@ export function createSidebarMenu(
       focusItem(index < 0 ? 0 : index + (event.shiftKey ? -1 : 1));
     } else if (event.key === "Enter" || event.key === " ") {
       const active = document.activeElement as HTMLElement | null;
-      if (active?.getAttribute("role") === "menuitem") {
+      const role = active?.getAttribute("role");
+      if (role === "menuitem" || role === "menuitemcheckbox") {
         event.preventDefault();
         active.click();
-        close();
-        trigger.focus();
+        if (active.dataset.menuKeepOpen !== "true") {
+          close();
+          trigger.focus();
+        }
       }
     }
   };
@@ -111,8 +117,9 @@ export function createSidebarMenu(
   document.addEventListener("mousedown", onDocPointer);
   document.addEventListener("keydown", onDocKey);
 
-  panel.querySelectorAll('[role="menuitem"]').forEach((item) => {
+  panel.querySelectorAll(itemSelector).forEach((item) => {
     item.addEventListener("click", () => {
+      if (item instanceof HTMLElement && item.dataset.menuKeepOpen === "true") return;
       close();
       trigger.focus();
     });

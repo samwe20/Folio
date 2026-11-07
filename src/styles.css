@@ -259,12 +259,18 @@ input {
   display: none !important;
 }
 
+.toolbar-overflow {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.popup-menu,
 .sidebar-menu {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
   z-index: 40;
-  min-width: 11.5rem;
+  min-width: 12.5rem;
   padding: 0.35rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
@@ -272,14 +278,43 @@ input {
   box-shadow: 0 12px 40px rgba(16, 14, 10, 0.14);
 }
 
+.app[data-theme="dark"] .popup-menu,
 .app[data-theme="dark"] .sidebar-menu {
   box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45);
 }
 
+.popup-menu.hidden,
 .sidebar-menu.hidden {
   display: none !important;
 }
 
+.popup-menu-about {
+  padding: 0.45rem 0.65rem 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.popup-menu-app-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.popup-menu-version {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.popup-menu-sep {
+  height: 1px;
+  margin: 0.3rem 0.35rem;
+  background: var(--border);
+}
+
+.popup-menu-item,
 .sidebar-menu-item {
   display: block;
   width: 100%;
@@ -294,11 +329,47 @@ input {
   cursor: pointer;
 }
 
+.popup-menu-check {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.popup-menu-check::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1.5px solid var(--border);
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+  box-sizing: border-box;
+}
+
+.popup-menu-check[aria-checked="true"]::before {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: inset 0 0 0 2px var(--panel);
+}
+
+.popup-menu-item:hover,
+.popup-menu-item:focus-visible,
 .sidebar-menu-item:hover,
 .sidebar-menu-item:focus-visible {
   background: var(--accent-soft);
   color: var(--accent);
   outline: none;
+}
+
+.popup-menu-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.popup-menu-item:disabled:hover,
+.popup-menu-item:disabled:focus-visible {
+  background: transparent;
+  color: var(--ink);
 }
 
 .app:not(.is-web) .web-only,
@@ -783,19 +854,6 @@ input {
   font-size: 19px;
   line-height: 1.75;
   overflow-wrap: anywhere;
-}
-
-.preview-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  max-width: 42rem;
-  margin: 0 auto;
-  padding: 0.75rem 1.5rem 0;
-}
-
-.preview-remote-btn[data-active="true"] {
-  color: var(--accent);
 }
 
 .preview-img-placeholder {

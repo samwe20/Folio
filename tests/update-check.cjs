@@ -49,6 +49,20 @@ test("resolveUpdateOffer skips current, invalid, and dismissed versions", () => 
   assert.equal(resolveUpdateOffer("1.0.6", { tag_name: "broken", html_url: release.html_url }), null);
 });
 
+test("resolveUpdateOffer can ignore dismissed version for manual check", () => {
+  const dom = new (require("jsdom").JSDOM)("", { url: "http://localhost/" });
+  globalThis.localStorage = dom.window.localStorage;
+  const { dismissUpdateVersion, UPDATE_DISMISS_STORAGE_KEY } = require("../src/lib/updateNotice.ts");
+  dismissUpdateVersion("1.0.7");
+  const release = {
+    tag_name: "folio-1.0.7",
+    html_url: "https://github.com/samwe20/Folio/releases/tag/folio-1.0.7",
+  };
+  assert.equal(resolveUpdateOffer("1.0.6", release), null);
+  assert.ok(resolveUpdateOffer("1.0.6", release, { ignoreDismiss: true }));
+  localStorage.removeItem(UPDATE_DISMISS_STORAGE_KEY);
+});
+
 test("shouldCheckForUpdate respects 24h cooldown", () => {
   const dom = new (require("jsdom").JSDOM)("", { url: "http://localhost/" });
   globalThis.localStorage = dom.window.localStorage;

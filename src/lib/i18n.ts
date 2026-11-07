@@ -104,6 +104,15 @@ const cs = {
   "update.available": "Je k dispozici Folio {version}",
   "update.download": "Stáhnout",
   "update.later": "Později",
+  "menu.app": "Menu",
+  "menu.appTitle": "Nastavení a informace",
+  "menu.remoteImagesGlobal": "Vzdálené obrázky v náhledu (http/https)",
+  "menu.remoteImagesNote": "Tato poznámka: načítat obrázky",
+  "menu.checkUpdates": "Zkontrolovat aktualizace",
+  "menu.checkingUpdates": "Kontroluji aktualizace…",
+  "menu.upToDate": "Máte aktuální verzi ({version})",
+  "menu.updateCheckFailed": "Kontrolu aktualizací se nepodařilo",
+  "menu.versionLabel": "Verze {version}",
   "defaultNoteTitle": "Bez názvu",
 } as const;
 
@@ -208,6 +217,15 @@ const en: Record<MessageKey, string> = {
   "update.available": "Folio {version} is available",
   "update.download": "Download",
   "update.later": "Later",
+  "menu.app": "Menu",
+  "menu.appTitle": "Settings and info",
+  "menu.remoteImagesGlobal": "Remote images in preview (http/https)",
+  "menu.remoteImagesNote": "This note: load images",
+  "menu.checkUpdates": "Check for updates",
+  "menu.checkingUpdates": "Checking for updates…",
+  "menu.upToDate": "You are up to date ({version})",
+  "menu.updateCheckFailed": "Could not check for updates",
+  "menu.versionLabel": "Version {version}",
   "defaultNoteTitle": "Untitled",
 };
 
