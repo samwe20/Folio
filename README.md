@@ -45,7 +45,7 @@ Folio is its own app. **iA Writer** and **Obsidian** are inspirations we credit�
 - **Writing feel** *(inspired by iA Writer)* — typography-first editing, Focus Mode, optional typewriter, and light/dark paper themes for calm drafting.
 - **Backlinks** *(inspired by Obsidian)* — Folio takes the **idea of backlinks**: `[[wiki links]]`, autocomplete, and a panel of incoming/outgoing links. Not a plugin ecosystem or graph canvas.
 - **Your folder, your sync** — the library is a **plain folder of `.md` files`**. Folio has **no built-in cloud sync**; store the library in **OneDrive**, **iCloud Drive**, or any synced folder and your files follow your usual sync.
-- **Windows + web** — Tauri 2 on desktop and an offline **PWA** on iPhone (separate libraries unless you move notes via export/import).
+- **Windows desktop** — Tauri 2 app with a local library on disk.
 - **Bilingual app chrome** — toolbar **English / Čeština** for UI labels; your note text stays whatever language you write in.
 
 ---
@@ -73,12 +73,6 @@ Folio is its own app. **iA Writer** and **Obsidian** are inspirations we credit�
       <br /><sub>Preview · sanitized HTML, wiki links</sub>
     </td>
   </tr>
-  <tr>
-    <td colspan="2" align="center">
-      <img src="docs/assets/folio-mobile-library.png" alt="Folio on iPhone — library" width="360" />
-      <br /><sub>PWA in Safari · mobile drawer (UI in Czech)</sub>
-    </td>
-  </tr>
 </table>
 
 ---
@@ -88,8 +82,6 @@ Folio is its own app. **iA Writer** and **Obsidian** are inspirations we credit�
 | Platform | How |
 |----------|-----|
 | **Windows 10/11** | **Current:** [Folio 1.0.5 installer](https://github.com/samwe20/Folio/releases/download/folio-1.0.5/Folio_1.0.5_x64-setup.exe) · [release notes](docs/release-latest.md) · [all releases](https://github.com/samwe20/Folio/releases) |
-| **iPhone (no Mac)** | Web / PWA — [guide](docs/web-pwa.md) |
-| **Native iOS** | Mac + Xcode — [guide](docs/ios-native.md) |
 
 ---
 
@@ -100,10 +92,11 @@ git clone https://github.com/samwe20/Folio.git
 cd Folio
 npm ci
 npm run desktop:dev    # Windows desktop
-# npm run web:dev      # browser / PWA development
 ```
 
-Details: [Windows](docs/windows.md) · [Web / PWA](docs/web-pwa.md)
+Details: [Windows](docs/windows.md)
+
+**Experimental local web build** (not publicly hosted): `npm run web:dev` — see [docs/web-pwa.md](docs/web-pwa.md).
 
 ---
 
@@ -113,8 +106,8 @@ Details: [Windows](docs/windows.md) · [Web / PWA](docs/web-pwa.md)
 |-----|--------|
 | [docs/release-latest.md](docs/release-latest.md) | **Current release** — install steps & what's new (CS + EN) |
 | [docs/windows.md](docs/windows.md) | Install, development, shortcuts, library |
-| [docs/web-pwa.md](docs/web-pwa.md) | iPhone, offline, export/import |
-| [docs/ios-native.md](docs/ios-native.md) | Tauri iOS on Mac |
+| [docs/web-pwa.md](docs/web-pwa.md) | Experimental local web build (developers) |
+| [docs/ios-native.md](docs/ios-native.md) | Tauri iOS on Mac (developers) |
 | [docs/development.md](docs/development.md) | Tests, CI, repo layout |
 | [docs/reliability.md](docs/reliability.md) | Saving, undo, preview, limits |
 
