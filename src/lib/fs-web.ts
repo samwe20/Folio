@@ -1,7 +1,7 @@
 import type { NoteMeta } from "../types";
 import { noteIdFromRelative, titleFromPath } from "./paths";
 import { safeNoteTitle } from "./names";
-import { extensionForImageMime } from "./imageAssets";
+import { extensionForImageMime, resolveImageMime } from "./imageAssets";
 import { tutorialNotes } from "./demoContent";
 import { WEB_LIBRARY_PATH, isMarketingDesktopCapture, MARKETING_DESKTOP_LIBRARY_LABEL } from "./runtime";
 
@@ -118,13 +118,23 @@ export async function writeLibraryImage(_libraryPath: string, file: File): Promi
   if (file.size > MAX_WEB_IMAGE_DATA_URL_BYTES) {
     throw new Error("Image is too large for browser storage.");
   }
-  const ext = extensionForImageMime(file.type);
+  const ext = extensionForImageMime(resolveImageMime(file));
   if (!ext) throw new Error("Unsupported image type.");
   const data = new Uint8Array(await file.arrayBuffer());
   let binary = "";
   for (const byte of data) binary += String.fromCharCode(byte);
   const b64 = btoa(binary);
   return `data:image/${ext === "jpg" ? "jpeg" : ext};base64,${b64}`;
+}
+
+export async function writeLibraryImageBytes(
+  libraryPath: string,
+  bytes: Uint8Array,
+  originalName: string,
+  mime: string,
+): Promise<string> {
+  const file = new File([bytes], originalName || "image.png", { type: mime });
+  return writeLibraryImage(libraryPath, file);
 }
 
 export async function createDemoLibrary(_libraryPath: string): Promise<string> {

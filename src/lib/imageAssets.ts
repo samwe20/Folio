@@ -16,13 +16,60 @@ export function isLocalPreviewImageSrc(src: string): boolean {
   return /^[a-zA-Z0-9][a-zA-Z0-9_./ -]*$/.test(trimmed);
 }
 
+const EXT_TO_MIME: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+};
+
+/** Windows / WebView2 often leaves `file.type` empty — infer from extension. */
+export function resolveImageMime(file: File): string {
+  if (file.type && extensionForImageMime(file.type)) return file.type;
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return EXT_TO_MIME[ext] ?? file.type;
+}
+
+export function isImageFile(file: File): boolean {
+  return Boolean(extensionForImageMime(resolveImageMime(file)));
+}
+
 export function isAllowedImageFile(file: File): boolean {
-  if (!file.type.startsWith("image/")) return false;
-  return Boolean(extensionForImageMime(file.type));
+  return isImageFile(file);
+}
+
+const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp)$/i;
+
+export function isImagePath(path: string): boolean {
+  return IMAGE_EXT_RE.test(path.trim());
+}
+
+/** `file:///C:/…` from Explorer drag-and-drop (WebView2). */
+export function filePathFromUriList(data: DataTransfer): string | null {
+  const line = data
+    .getData("text/uri-list")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .find((l) => l && !l.startsWith("#"));
+  if (!line?.toLowerCase().startsWith("file:")) return null;
+  try {
+    let path = decodeURIComponent(new URL(line).pathname);
+    if (/^\/[A-Za-z]:/.test(path)) path = path.slice(1);
+    path = path.replace(/\//g, "\\");
+    return path;
+  } catch {
+    return null;
+  }
 }
 
 export function extensionForImageMime(mime: string): string | null {
   return IMAGE_EXT[mime.toLowerCase()] ?? null;
+}
+
+export function imageMimeFromPath(path: string): string | null {
+  const ext = path.split(/[/\\]/).pop()?.split(".").pop()?.toLowerCase() ?? "";
+  return EXT_TO_MIME[ext] ?? null;
 }
 
 export function safeImageBaseName(name: string): string {
