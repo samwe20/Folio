@@ -53,6 +53,11 @@ export async function createDemoLibrary(libraryPath: string): Promise<string> {
   return (await tauri()).createDemoLibrary(libraryPath);
 }
 
+export async function ensureEnglishTutorialIfNeeded(libraryPath: string): Promise<string | null> {
+  if (!isTauri()) return web.ensureEnglishTutorialIfNeeded(libraryPath);
+  return (await tauri()).ensureEnglishTutorialIfNeeded(libraryPath);
+}
+
 export async function writeLibraryImage(libraryPath: string, file: File): Promise<string> {
   if (!isTauri()) return web.writeLibraryImage(libraryPath, file);
   return (await tauri()).writeLibraryImage(libraryPath, file);

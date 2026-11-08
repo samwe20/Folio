@@ -231,6 +231,16 @@ test('post-install tutorial library is always English',()=>{
   assert.equal(tutorialNotes()[0].fileName,'Welcome to Folio.md');
 });
 
+test('legacy Czech starter library is detected for migration',()=>{
+  const {isLegacyCzechTutorialOnly,LEGACY_CZECH_STARTER_FILES}=require('../src/lib/tutorialLibrary.ts');
+  const czech=LEGACY_CZECH_STARTER_FILES.map((file,i)=>({path:`/lib/${file}`,title:`t${i}`,mtime:1,createdAt:1}));
+  assert.equal(isLegacyCzechTutorialOnly(czech),true);
+  const mixed=[...czech,{path:'/lib/My note.md',title:'My note',mtime:1,createdAt:1}];
+  assert.equal(isLegacyCzechTutorialOnly(mixed),false);
+  const english=[{path:'/lib/Welcome to Folio.md',title:'Welcome',mtime:1,createdAt:1}];
+  assert.equal(isLegacyCzechTutorialOnly(english),false);
+});
+
 test('image drop accepts Windows files with empty MIME type',()=>{
   const {resolveImageMime,isImageFile}=require('../src/lib/imageAssets.ts');
   const file={name:'1685716475425.png',type:''};

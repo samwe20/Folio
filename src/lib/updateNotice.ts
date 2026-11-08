@@ -100,6 +100,7 @@ export type ManualUpdateResult =
 
 export type UpdateNoticeUi = {
   show(offer: UpdateOffer): void;
+  showNoUpdate?(version: string): void;
 };
 
 export function scheduleDesktopUpdateCheck(ui: UpdateNoticeUi): void {
