@@ -250,3 +250,21 @@ test('image drop accepts Windows files with empty MIME type',()=>{
   assert.equal(resolveImageMime(file),'image/png');
   assert.equal(isImageFile(file),true);
 });
+
+test('library image refs normalize bare screenshot names',()=>{
+  const {
+    normalizeLibraryImageRef,
+    libraryImageRefCandidates,
+  }=require('../src/lib/imageAssets.ts');
+  assert.equal(
+    normalizeLibraryImageRef('Screenshot 2026 11 02 215423'),
+    'assets/Screenshot 2026 11 02 215423.png',
+  );
+  assert.equal(
+    normalizeLibraryImageRef('assets/shot.jpg'),
+    'assets/shot.jpg',
+  );
+  const candidates=libraryImageRefCandidates('Screenshot 2026 11 02 215423');
+  assert.ok(candidates.includes('assets/Screenshot-2026-11-02-215423.png'));
+  assert.ok(candidates.includes('assets/Screenshot 2026 11 02 215423.png'));
+});

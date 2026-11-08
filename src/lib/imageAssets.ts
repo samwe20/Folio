@@ -98,3 +98,54 @@ export function joinLibraryRelativePath(libraryPath: string, relative: string): 
   const sep = libraryPath.includes("\\") ? "\\" : "/";
   return `${root}${sep}${rel.replace(/\//g, sep)}`;
 }
+
+const IMAGE_REF_EXT_RE = /\.(png|jpe?g|gif|webp)$/i;
+
+/**
+ * Markdown may reference `stem`, `![](stem)`, or a bare screenshot name without `assets/` or extension.
+ * Map those to a library-relative `assets/…` path for preview (and drop repair).
+ */
+export function normalizeLibraryImageRef(src: string): string {
+  let rel = src.trim().replace(/\\/g, "/").replace(/^\/+/, "");
+  if (!rel || rel.includes("..")) return rel;
+  if (/^assets\//i.test(rel) && IMAGE_REF_EXT_RE.test(rel)) return rel;
+  const stem = rel.replace(/^assets\//i, "").replace(/\.[^.]+$/, "");
+  if (!stem) return rel;
+  if (IMAGE_REF_EXT_RE.test(rel)) {
+    return rel.startsWith("assets/") ? rel : `${LIBRARY_ASSETS_DIR}/${rel}`;
+  }
+  return `${LIBRARY_ASSETS_DIR}/${stem}.png`;
+}
+
+function libraryImageStemVariants(src: string): string[] {
+  const trimmed = src.trim().replace(/\\/g, "/").replace(/^\/+/, "");
+  const rawStem = trimmed.replace(/^assets\//i, "").replace(/\.[^.]+$/, "");
+  const normalizedStem = normalizeLibraryImageRef(trimmed)
+    .replace(/^assets\//i, "")
+    .replace(/\.[^.]+$/, "");
+  const stems = new Set<string>();
+  if (rawStem) stems.add(rawStem);
+  if (normalizedStem) stems.add(normalizedStem);
+  if (rawStem) stems.add(safeImageBaseName(rawStem));
+  if (normalizedStem) stems.add(safeImageBaseName(normalizedStem));
+  return [...stems];
+}
+
+/** Try common extensions (and dashed stems) when markdown does not match the saved filename. */
+export function libraryImageRefCandidates(src: string): string[] {
+  const stems = libraryImageStemVariants(src);
+  if (!stems.length) return [normalizeLibraryImageRef(src)];
+  const exts = ["png", "jpg", "jpeg", "gif", "webp"];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const stem of stems) {
+    for (const ext of exts) {
+      const candidate = `${LIBRARY_ASSETS_DIR}/${stem}.${ext}`;
+      if (!seen.has(candidate)) {
+        seen.add(candidate);
+        out.push(candidate);
+      }
+    }
+  }
+  return out;
+}
