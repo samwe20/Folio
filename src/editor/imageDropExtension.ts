@@ -53,6 +53,30 @@ function insertAt(view: EditorView, pos: number, markdown: string) {
   view.focus();
 }
 
+/** Windows sometimes leaves plain text or `![](stem)` while the file was saved under `assets/`. */
+function applyImageMarkdown(view: EditorView, pos: number, markdown: string, plainHint: string) {
+  const stem = plainHint.trim();
+  if (stem) {
+    const doc = view.state.doc;
+    const windowStart = Math.max(0, pos - 80);
+    const windowEnd = Math.min(doc.length, pos + 80);
+    const slice = doc.sliceString(windowStart, windowEnd);
+    const replacements = [`![](${stem})`, `![${stem}](${stem})`, stem];
+    for (const needle of replacements) {
+      const idx = slice.indexOf(needle);
+      if (idx < 0) continue;
+      const from = windowStart + idx;
+      view.dispatch({
+        changes: { from, to: from + needle.length, insert: markdown },
+        selection: { anchor: from + markdown.length },
+      });
+      view.focus();
+      return;
+    }
+  }
+  insertAt(view, pos, markdown);
+}
+
 export function imageDropExtension(handlers: ImageDropHandlers) {
   return EditorView.domEventHandlers({
     dragover(event) {
@@ -70,10 +94,12 @@ export function imageDropExtension(handlers: ImageDropHandlers) {
       const at = view.posAtCoords({ x: event.clientX, y: event.clientY }, false);
       const pos = at ?? view.state.selection.main.head;
 
+      const plainHint = data.getData("text/plain").trim() || file?.name.replace(/\.[^.]+$/, "") || "";
+
       if (file) {
         event.preventDefault();
         void handlers.onFile(file).then((markdown) => {
-          if (markdown) insertAt(view, pos, markdown);
+          if (markdown) applyImageMarkdown(view, pos, markdown, plainHint);
         });
         return true;
       }
@@ -81,8 +107,9 @@ export function imageDropExtension(handlers: ImageDropHandlers) {
       const path = filePathFromUriList(data);
       if (path && isImagePath(path) && handlers.onPath) {
         event.preventDefault();
+        const pathHint = path.split(/[/\\]/).pop()?.replace(/\.[^.]+$/, "") ?? plainHint;
         void handlers.onPath(path).then((markdown) => {
-          if (markdown) insertAt(view, pos, markdown);
+          if (markdown) applyImageMarkdown(view, pos, markdown, pathHint);
         });
         return true;
       }
