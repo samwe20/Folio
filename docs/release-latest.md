@@ -7,6 +7,7 @@
 
 - **Anglický tutoriál** — tlačítko *Start with sample library* vždy otevře `Welcome to Folio.md` a doplní anglickou sadu; staré české startovní soubory (`Vítejte ve Folio.md`, …) se nahradí i když máte vedle vlastní poznámky.
 - **První spuštění** — výchozí jazyk rozhraní je **English** (Čeština zůstává jedním klikem v toolbaru).
+- **Updater UI** — tlačítko *Rozumím* / *Later* má správnou velikost a klikací plochu.
 
 ### Instalace
 
@@ -26,6 +27,7 @@
 
 - **English tutorial** — *Start with sample library* always opens `Welcome to Folio.md` and installs the English starter set; legacy Czech starter files are replaced even when you already have your own notes in the folder.
 - **First launch** — default UI language is **English** (switch to Čeština anytime from the toolbar).
+- **Updater UI** — *OK* / *Later* buttons sized correctly (no 36px icon hitbox).
 
 ### Install
 

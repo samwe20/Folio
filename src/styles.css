@@ -1028,6 +1028,22 @@ input {
   align-items: center;
 }
 
+/* Text actions — not toolbar icon hitboxes (ghost-btn is 36×36 elsewhere). */
+.update-notice-actions .ghost-btn {
+  width: auto;
+  height: auto;
+  min-height: 36px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.82rem;
+  font-weight: 550;
+  white-space: nowrap;
+  border-radius: 10px;
+}
+
+.update-notice-actions .ghost-btn:not(.solid) {
+  border: 1px solid var(--border);
+}
+
 .app.immersive-focus .update-notice {
   display: none;
 }
@@ -1274,6 +1290,12 @@ input {
   .toolbar .icon-btn {
     width: 40px;
     height: 40px;
+  }
+
+  .update-notice-actions .ghost-btn {
+    width: auto;
+    height: auto;
+    min-height: 40px;
   }
 
   .sidebar .icon-btn {
