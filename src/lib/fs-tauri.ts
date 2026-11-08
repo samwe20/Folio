@@ -10,7 +10,12 @@ import {
   writeFile,
   writeTextFile,
 } from "@tauri-apps/plugin-fs";
-import { extensionForImageMime, LIBRARY_ASSETS_DIR, safeImageBaseName } from "./imageAssets";
+import {
+  extensionForImageMime,
+  LIBRARY_ASSETS_DIR,
+  resolveImageMime,
+  safeImageBaseName,
+} from "./imageAssets";
 import { appDataDir, dirname, documentDir, join } from "@tauri-apps/api/path";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import type { NoteMeta } from "../types";
@@ -160,7 +165,7 @@ export async function writeLibraryImage(libraryPath: string, file: File): Promis
   if (file.size > MAX_LIBRARY_IMAGE_BYTES) {
     throw new Error("Image is too large.");
   }
-  const ext = extensionForImageMime(file.type);
+  const ext = extensionForImageMime(resolveImageMime(file));
   if (!ext) throw new Error("Unsupported image type.");
   const assetsDir = await join(libraryPath, LIBRARY_ASSETS_DIR);
   await ensureDir(assetsDir);
@@ -175,6 +180,32 @@ export async function writeLibraryImage(libraryPath: string, file: File): Promis
   }
   const data = new Uint8Array(await file.arrayBuffer());
   await writeFile(dest, data);
+  return `${LIBRARY_ASSETS_DIR}/${fileName}`;
+}
+
+export async function writeLibraryImageBytes(
+  libraryPath: string,
+  bytes: Uint8Array,
+  originalName: string,
+  mime: string,
+): Promise<string> {
+  if (bytes.byteLength > MAX_LIBRARY_IMAGE_BYTES) {
+    throw new Error("Image is too large.");
+  }
+  const ext = extensionForImageMime(mime);
+  if (!ext) throw new Error("Unsupported image type.");
+  const assetsDir = await join(libraryPath, LIBRARY_ASSETS_DIR);
+  await ensureDir(assetsDir);
+  const stem = safeImageBaseName(originalName);
+  let fileName = `${stem}.${ext}`;
+  let dest = await join(assetsDir, fileName);
+  let suffix = 2;
+  while (await exists(dest)) {
+    fileName = `${stem}-${suffix}.${ext}`;
+    dest = await join(assetsDir, fileName);
+    suffix += 1;
+  }
+  await writeFile(dest, bytes);
   return `${LIBRARY_ASSETS_DIR}/${fileName}`;
 }
 

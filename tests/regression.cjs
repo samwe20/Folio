@@ -230,3 +230,10 @@ test('post-install tutorial library is always English',()=>{
   assert.equal(TUTORIAL_LOCALE,'en');
   assert.equal(tutorialNotes()[0].fileName,'Welcome to Folio.md');
 });
+
+test('image drop accepts Windows files with empty MIME type',()=>{
+  const {resolveImageMime,isImageFile}=require('../src/lib/imageAssets.ts');
+  const file={name:'1685716475425.png',type:''};
+  assert.equal(resolveImageMime(file),'image/png');
+  assert.equal(isImageFile(file),true);
+});

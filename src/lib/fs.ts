@@ -58,6 +58,16 @@ export async function writeLibraryImage(libraryPath: string, file: File): Promis
   return (await tauri()).writeLibraryImage(libraryPath, file);
 }
 
+export async function writeLibraryImageBytes(
+  libraryPath: string,
+  bytes: Uint8Array,
+  originalName: string,
+  mime: string,
+): Promise<string> {
+  if (!isTauri()) return web.writeLibraryImageBytes(libraryPath, bytes, originalName, mime);
+  return (await tauri()).writeLibraryImageBytes(libraryPath, bytes, originalName, mime);
+}
+
 export async function join(...parts: string[]): Promise<string> {
   if (!isTauri()) return parts.join("/").replace(/\/+/g, "/");
   return (await tauri()).join(...parts);

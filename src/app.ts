@@ -11,14 +11,17 @@ import {
   readNote,
   renameNote,
   writeLibraryImage,
+  writeLibraryImageBytes,
   writeNote,
 } from "./lib/fs";
 import {
   altTextFromFileName,
   imageMarkdown,
-  isAllowedImageFile,
+  imageMimeFromPath,
+  isImageFile,
   isLocalPreviewImageSrc,
   joinLibraryRelativePath,
+  resolveImageMime,
 } from "./lib/imageAssets";
 import {
   canUseDirectoryPicker,
@@ -160,7 +163,13 @@ export class FolioApp {
       {
         onChange: (text) => this.handleEditorChange(text),
         onOpenWiki: (title, createIfMissing) => void this.runAction(() => this.openWiki(title, createIfMissing)),
-        onImageFile: (file) => this.insertImageFromFile(file),
+        onImageDrop: {
+          onFile: (file) => this.insertImageFromFile(file),
+          onPath: (path) => this.insertImageFromPath(path),
+          onRejected: () => {
+            this.els.statusSave.textContent = t("status.imageUnsupported");
+          },
+        },
       },
       this.settings.theme,
       t("editor.placeholder"),
@@ -1254,14 +1263,42 @@ export class FolioApp {
   private async insertImageFromFile(file: File): Promise<string | null> {
     if (!this.settings.libraryPath || !this.current) return null;
     if (this.editor.view.state.readOnly) return null;
-    if (!isAllowedImageFile(file)) {
+    if (!isImageFile(file)) {
       this.els.statusSave.textContent = t("status.imageUnsupported");
       return null;
     }
     try {
       const src = await writeLibraryImage(this.settings.libraryPath, file);
       this.els.statusSave.textContent = t("status.imageInserted");
-      return imageMarkdown(src, altTextFromFileName(file.name));
+      const label = file.name || `image.${resolveImageMime(file).split("/")[1] ?? "png"}`;
+      return imageMarkdown(src, altTextFromFileName(label));
+    } catch (error) {
+      console.error(error);
+      this.els.statusSave.textContent = t("status.imageInsertFailed");
+      return null;
+    }
+  }
+
+  private async insertImageFromPath(path: string): Promise<string | null> {
+    if (!this.native || !this.settings.libraryPath || !this.current) return null;
+    if (this.editor.view.state.readOnly) return null;
+    const mime = imageMimeFromPath(path);
+    if (!mime) {
+      this.els.statusSave.textContent = t("status.imageUnsupported");
+      return null;
+    }
+    const name = path.split(/[/\\]/).pop() ?? "image.png";
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const bytes = await invoke<number[]>("read_dropped_image_file", { path });
+      const src = await writeLibraryImageBytes(
+        this.settings.libraryPath,
+        new Uint8Array(bytes),
+        name,
+        mime,
+      );
+      this.els.statusSave.textContent = t("status.imageInserted");
+      return imageMarkdown(src, altTextFromFileName(name));
     } catch (error) {
       console.error(error);
       this.els.statusSave.textContent = t("status.imageInsertFailed");
