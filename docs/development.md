@@ -36,6 +36,8 @@ Refresh README screenshots: `npm run docs:screenshots`
 
 ## Version bumps
 
+See **[release-versioning.md](release-versioning.md)** — stable `1.0.7` / `1.0.8` vs test builds `1.0.8-rc.N` (no patch bump per bugfix while testing).
+
 Keep these in sync:
 
 - `package.json`

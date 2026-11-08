@@ -99,13 +99,21 @@ jobs:
         run: |
           $version = (Get-Content src-tauri/tauri.conf.json | ConvertFrom-Json).version
           "version=$version" >> $env:GITHUB_OUTPUT
+      - name: Prerelease flag (SemVer pre-release suffix)
+        id: folio_prerelease
+        shell: pwsh
+        run: |
+          $v = "${{ steps.folio_version.outputs.version }}"
+          $pre = $v -match '-'
+          "prerelease=$pre" >> $env:GITHUB_OUTPUT
       - name: Publish the installer as a single file
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           tag_name: folio-${{ steps.folio_version.outputs.version }}
           name: Folio ${{ steps.folio_version.outputs.version }} pro Windows
           body_path: docs/release-latest.md
-          prerelease: false
+          prerelease: ${{ steps.folio_prerelease.outputs.prerelease == 'True' }}
+          make_latest: ${{ steps.folio_prerelease.outputs.prerelease != 'True' }}
           files: artifacts/src-tauri/target/release/bundle/nsis/*.exe
   web:
     if: github.event_name == 'pull_request' || github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
