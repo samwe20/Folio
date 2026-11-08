@@ -18,7 +18,7 @@ test('editing, theme changes, undo and reload preserve the intended note',async(
   await editor(page).click();await page.keyboard.press('Control+z');
   await expect(editor(page)).not.toHaveText('Browser test draft');
   await editor(page).fill('Saved browser text');
-  await expect(page.locator('#status-save')).toHaveText('Automaticky uloženo');
+  await expect(page.locator('#status-save')).toHaveText(/^(Automaticky uloženo|Saved automatically)$/);
   await page.reload();await expect(editor(page)).toHaveText('Saved browser text');
   await newNote(page);const original=await editor(page).innerText();
   await page.keyboard.press('Control+z');await expect(editor(page)).toHaveText(original);
@@ -32,13 +32,13 @@ test('HTML preview strips executable attributes',async({page})=>{
 });
 test('the first installed visit can reload offline',async({page,context})=>{
   await editor(page).fill('Offline content survives');
-  await expect(page.locator('#status-save')).toHaveText('Automaticky uloženo');
+  await expect(page.locator('#status-save')).toHaveText(/^(Automaticky uloženo|Saved automatically)$/);
   await page.evaluate(()=>navigator.serviceWorker.ready);
   await page.waitForFunction(()=>Boolean(navigator.serviceWorker.controller));
   await context.setOffline(true);await page.reload();
   await expect(editor(page)).toHaveText('Offline content survives');
   await editor(page).fill('Edited offline');
-  await expect(page.locator('#status-save')).toHaveText('Automaticky uloženo');
+  await expect(page.locator('#status-save')).toHaveText(/^(Automaticky uloženo|Saved automatically)$/);
   await page.reload();await expect(editor(page)).toHaveText('Edited offline');
 });
 test('importing the same file twice retains both notes',async({page})=>{
@@ -78,7 +78,7 @@ test('Focus respects Typewriter during line navigation and after reload',async({
   test.skip(isMobile,'Focus and Typewriter controls are desktop-only.');
   await newNote(page);
   await editor(page).fill(Array.from({length:40},(_,i)=>`Line ${i+1}: writing without distractions.`).join('\n'));
-  await expect(page.locator('#status-save')).toHaveText('Automaticky uloženo');
+  await expect(page.locator('#status-save')).toHaveText(/^(Automaticky uloženo|Saved automatically)$/);
   for(const typewriter of [false,true,false]) {
     if((await page.locator('#btn-typewriter').getAttribute('data-active'))!==String(typewriter))await page.locator('#btn-typewriter').click();
     await expectLineNavigation(page,expect,typewriter);

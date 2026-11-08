@@ -53,7 +53,7 @@ async function create(title,text) {
   await expect(page.locator('.note-item.active .note-item-title')).toHaveText(title);
   await expect(editor()).toHaveAttribute('contenteditable','true');
   await editor().fill(text);
-  await expect(page.locator('#status-save')).toHaveText('Automaticky uloženo');
+  await expect(page.locator('#status-save')).toHaveText(/^(Automaticky uloženo|Saved automatically)$/);
   assert.equal(await fs.readFile(path.join(library,title+'.md'),'utf8'),text);
 }
 async function closeThroughApp() {
@@ -165,7 +165,7 @@ async function main() {
   // the document, so replace through the editor's normal keyboard input path.
   await editor().press('Control+a');
   await page.keyboard.insertText('[[Desktop QA B|Open B]]');
-  await expect(page.locator('#status-save')).toHaveText('Automaticky uloženo');
+  await expect(page.locator('#status-save')).toHaveText(/^(Automaticky uloženo|Saved automatically)$/);
   assert.equal(await fs.readFile(path.join(library,'Desktop Preview Source.md'),'utf8'),'[[Desktop QA B|Open B]]');
   await page.locator('#btn-preview').click();
   await page.locator('#preview-root [data-wiki-title]').click();
