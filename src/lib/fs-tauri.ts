@@ -19,7 +19,11 @@ import {
 import { appDataDir, dirname, documentDir, join } from "@tauri-apps/api/path";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import type { NoteMeta } from "../types";
-import { tutorialNotes } from "./demoContent";
+import {
+  isLegacyCzechTutorialOnly,
+  replaceLegacyCzechTutorial,
+  seedEnglishTutorialLibrary,
+} from "./tutorialLibrary";
 import { noteIdFromRelative, titleFromPath } from "./paths";
 
 const MD_EXT = /\.md$/i;
@@ -209,16 +213,30 @@ export async function writeLibraryImageBytes(
   return `${LIBRARY_ASSETS_DIR}/${fileName}`;
 }
 
+async function tutorialSeedDeps(libraryPath: string) {
+  return {
+    libraryPath,
+    join,
+    writeNote,
+    deleteNote,
+  };
+}
+
+export async function ensureEnglishTutorialIfNeeded(libraryPath: string): Promise<string | null> {
+  await ensureDir(libraryPath);
+  const existing = await listNotes(libraryPath);
+  if (!isLegacyCzechTutorialOnly(existing)) return null;
+  return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps(libraryPath));
+}
+
 export async function createDemoLibrary(libraryPath: string): Promise<string> {
   await ensureDir(libraryPath);
   const existing = await listNotes(libraryPath);
-  if (existing.length) return existing[0].path;
-
-  const notes = tutorialNotes();
-  for (const note of notes) {
-    await writeNote(await join(libraryPath, note.fileName), note.content);
+  if (isLegacyCzechTutorialOnly(existing)) {
+    return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps(libraryPath));
   }
-  return await join(libraryPath, notes[0].fileName);
+  if (existing.length) return existing[0].path;
+  return seedEnglishTutorialLibrary(await tutorialSeedDeps(libraryPath));
 }
 
 export { join };

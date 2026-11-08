@@ -1010,6 +1010,11 @@ input {
   font-size: 0.82rem;
 }
 
+.update-notice.is-info {
+  border-color: color-mix(in srgb, var(--ink) 12%, var(--line));
+  background: color-mix(in srgb, var(--paper-elevated, var(--paper)) 92%, var(--line));
+}
+
 .update-notice-text {
   margin: 0;
   flex: 1 1 12rem;

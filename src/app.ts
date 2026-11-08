@@ -6,6 +6,7 @@ import {
   createDemoLibrary,
   createNote,
   deleteNote,
+  ensureEnglishTutorialIfNeeded,
   getDefaultLibraryPath,
   listNotes,
   readNote,
@@ -101,6 +102,7 @@ export class FolioApp {
   private appMenu: SidebarMenuController | null = null;
   private updateOffer: UpdateOffer | null = null;
   private updateNoticeUi: UpdateNoticeUi | null = null;
+  private updateStatusPinnedUntil = 0;
   private focusSnapshot: {
     showBacklinks: boolean;
     sidebarCollapsed: boolean;
@@ -299,9 +301,17 @@ export class FolioApp {
     const later = document.getElementById("btn-update-later");
     if (!bar || !text || !download || !later) return;
 
+    const resetUpdateNotice = () => {
+      download.classList.remove("hidden");
+      later.textContent = t("update.later");
+      bar.classList.remove("is-info");
+      bar.setAttribute("aria-label", t("update.region"));
+    };
+
     const hide = () => {
       this.updateOffer = null;
       bar.classList.add("hidden");
+      resetUpdateNotice();
     };
 
     download.addEventListener("click", () => {
@@ -315,12 +325,33 @@ export class FolioApp {
 
     this.updateNoticeUi = {
       show: (offer) => {
+        resetUpdateNotice();
         this.updateOffer = offer;
         text.textContent = t("update.available", { version: offer.version });
         bar.classList.remove("hidden");
       },
+      showNoUpdate: (version: string) => {
+        this.updateOffer = null;
+        resetUpdateNotice();
+        text.textContent = t("update.noneDetail", { version });
+        download.classList.add("hidden");
+        later.textContent = t("update.ok");
+        bar.classList.add("is-info");
+        bar.setAttribute("aria-label", t("update.regionNone"));
+        bar.classList.remove("hidden");
+      },
     };
     if (this.native) scheduleDesktopUpdateCheck(this.updateNoticeUi);
+  }
+
+  private setPinnedStatus(text: string, pinMs = 0) {
+    this.els.statusSave.textContent = text;
+    this.updateStatusPinnedUntil = pinMs > 0 ? Date.now() + pinMs : 0;
+  }
+
+  private setStatusSave(text: string) {
+    if (this.updateStatusPinnedUntil > Date.now()) return;
+    this.els.statusSave.textContent = text;
   }
 
   private async syncAppMenuVersion() {
@@ -338,12 +369,13 @@ export class FolioApp {
     try {
       const result = await runManualUpdateCheck(this.updateNoticeUi ?? undefined);
       if (result.status === "offer") {
-        this.els.statusSave.textContent = t("update.available", { version: result.offer.version });
+        this.setPinnedStatus(t("update.available", { version: result.offer.version }));
       } else if (result.status === "current") {
         const label = result.latestTag ?? result.current;
-        this.els.statusSave.textContent = t("menu.upToDate", { version: label });
+        this.updateNoticeUi?.showNoUpdate?.(label);
+        this.setPinnedStatus(t("update.noneDetail", { version: label }), 12_000);
       } else {
-        this.els.statusSave.textContent = t("menu.updateCheckFailed");
+        this.setPinnedStatus(t("menu.updateCheckFailed"), 8000);
       }
     } finally {
       if (btn) {
@@ -849,7 +881,8 @@ export class FolioApp {
   private async refreshLibrary(preferredPath?: string | null) {
     if (!this.settings.libraryPath) return;
     await this.flushCurrent();
-    const keepPath = preferredPath ?? this.current?.path;
+    const migrated = await ensureEnglishTutorialIfNeeded(this.settings.libraryPath);
+    const keepPath = migrated ?? preferredPath ?? this.current?.path;
     this.notes = await listNotes(this.settings.libraryPath);
     this.index.setNotes(this.notes);
 
@@ -1150,7 +1183,7 @@ export class FolioApp {
       if (this.current?.path === path && this.revision === revision) {
         this.index.setContent(path, text);
         this.dirty = false;
-        this.els.statusSave.textContent = manual ? t("status.saved") : t("status.autosaved");
+        this.setStatusSave(manual ? t("status.saved") : t("status.autosaved"));
       }
       const note = this.notes.find((n) => n.path === path);
       if (note) note.mtime = Date.now();
