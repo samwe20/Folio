@@ -1,6 +1,6 @@
 import { getAppVersion } from "./appVersion";
 import { isSafeFolioReleaseUrl } from "./openRelease";
-import { compareSemver, parseFolioReleaseTag } from "./semver";
+import { compareSemver, parseFolioReleaseTag, parseSemverCore } from "./semver";
 import { isTauri } from "./runtime";
 
 export const UPDATE_CHECK_STORAGE_KEY = "folio.update.lastCheckAt";
@@ -88,7 +88,8 @@ export function resolveUpdateOffer(
   const latest = parseFolioReleaseTag(release.tag_name);
   if (!latest) return null;
   if (!isSafeFolioReleaseUrl(release.html_url)) return null;
-  if (compareSemver(latest, currentVersion) <= 0) return null;
+  const currentCore = parseSemverCore(currentVersion) ?? currentVersion;
+  if (compareSemver(latest, currentCore) <= 0) return null;
   if (!options?.ignoreDismiss && isUpdateDismissed(latest)) return null;
   return { version: latest, url: release.html_url };
 }
