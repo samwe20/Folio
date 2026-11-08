@@ -6,7 +6,7 @@ Folio follows [Semantic Versioning 2.0.0](https://semver.org/): `MAJOR.MINOR.PAT
 
 | Label | Tag example | GitHub | Who |
 |--------|-------------|--------|-----|
-| **Production (live)** | `folio-1.0.7` | Stable release, can be **Latest** | End users on the current shipped build |
+| **Production (live)** | `folio-1.0.8` | Stable release, **Latest** | Current Windows installer |
 | **Next release (test)** | `folio-1.0.8-rc.1`, `folio-1.0.8-rc.2` | **Pre-release** (not Latest) | You test before calling 1.0.8 final |
 | **Next release (ship)** | `folio-1.0.8` | Stable **Latest** once | Promoted after testing |
 
@@ -35,7 +35,7 @@ For a one-off build from a PR without a release tag: download **`folio-windows`*
 
 | Stav | Příklad tagu | GitHub |
 |------|----------------|--------|
-| **Produkce** | `folio-1.0.7` | Stabilní (Latest) |
+| **Produkce** | `folio-1.0.8` | Stabilní (Latest) |
 | **Test další verze** | `folio-1.0.8-rc.2` | Pre-release |
 | **Vydání** | `folio-1.0.8` | Stabilní Latest |
 

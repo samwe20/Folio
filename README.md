@@ -24,13 +24,15 @@
 | **Platform** | Windows 10/11 (WebView2) |
 | **User guide (CS + EN)** | [docs/release-latest.md](docs/release-latest.md) |
 
-**Stable (production):** [folio-1.0.7](https://github.com/samwe20/Folio/releases/tag/folio-1.0.7) · **Testing 1.0.8:** [pre-releases](https://github.com/samwe20/Folio/releases) (`folio-1.0.8-rc.*`) — see [docs/release-versioning.md](docs/release-versioning.md).
+Published on GitHub Releases with tag **`folio-1.0.8`**. Versioning: [docs/release-versioning.md](docs/release-versioning.md).
 
-**What's new in the 1.0.8 line (rc)**
+**What's new in 1.0.8** (since 1.0.7)
 
+- **☰ menu** — version, manual updates, export, preview image settings.
 - **Windows image drop** fixes (Explorer paths, broken markdown after save).
 - **English starter library** migration from the old Czech-only demo set.
-- **Update check** shows a clear *no update available* message (CS/EN).
+- **Default UI English** on first launch (Čeština still one click away).
+- **Update check** — clear *no update available* message (CS/EN) and fixed action buttons.
 
 **Still core Folio:** Focus Mode, `[[wiki links]]`, backlinks, CS/EN UI, library on disk.
 
