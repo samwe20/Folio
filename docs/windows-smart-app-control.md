@@ -28,7 +28,7 @@ U staršího varování „Neznámý vydavatel“ po stažení z prohlížeče:
 ### 3. Ověření, že máš správný soubor
 
 - Stahuj jen z **`https://github.com/samwe20/Folio/releases`**
-- Kontrola tagu, např. `folio-1.0.7`
+- Kontrola tagu, např. `folio-1.0.8`
 - Volitelně porovnej SHA-256 hashe z release (až budou v poznámkách k vydání — plán v [windows-code-signing.md](windows-code-signing.md))
 
 ### 4. Sestavení ze zdrojů (vývojáři)
