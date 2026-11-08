@@ -152,7 +152,7 @@ export class FolioApp {
   async init() {
     await migrateLegacyDrafts();
     this.settings = await loadSettings();
-    if (!this.settings.uiLocale) this.settings.uiLocale = "cs";
+    if (!this.settings.uiLocale) this.settings.uiLocale = "en";
     setUiLocale(this.settings.uiLocale);
     this.els.sortBy.value = this.settings.sortBy;
     this.els.sortDirection.value = this.settings.sortDirection;

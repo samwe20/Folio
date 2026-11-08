@@ -43,7 +43,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   editorFont: "literata",
   sortBy: "title",
   sortDirection: "asc",
-  uiLocale: "cs",
+  uiLocale: "en",
   previewRemoteImagesGlobal: false,
   previewRemoteImagesNotes: {},
 };

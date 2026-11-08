@@ -41,11 +41,11 @@ test("isSafeFolioReleaseUrl only allows Folio release pages", () => {
 
 test("resolveUpdateOffer skips current, invalid, and dismissed versions", () => {
   const release = {
-    tag_name: "folio-1.0.8",
-    html_url: "https://github.com/samwe20/Folio/releases/tag/folio-1.0.8",
+    tag_name: "folio-1.0.9",
+    html_url: "https://github.com/samwe20/Folio/releases/tag/folio-1.0.9",
   };
-  assert.deepEqual(resolveUpdateOffer("1.0.7", release), { version: "1.0.8", url: release.html_url });
-  assert.equal(resolveUpdateOffer("1.0.8", release), null);
+  assert.deepEqual(resolveUpdateOffer("1.0.8", release), { version: "1.0.9", url: release.html_url });
+  assert.equal(resolveUpdateOffer("1.0.9", release), null);
   assert.equal(resolveUpdateOffer("1.0.6", { tag_name: "broken", html_url: release.html_url }), null);
 });
 
@@ -53,13 +53,13 @@ test("resolveUpdateOffer can ignore dismissed version for manual check", () => {
   const dom = new (require("jsdom").JSDOM)("", { url: "http://localhost/" });
   globalThis.localStorage = dom.window.localStorage;
   const { dismissUpdateVersion, UPDATE_DISMISS_STORAGE_KEY } = require("../src/lib/updateNotice.ts");
-  dismissUpdateVersion("1.0.8");
+  dismissUpdateVersion("1.0.9");
   const release = {
-    tag_name: "folio-1.0.8",
-    html_url: "https://github.com/samwe20/Folio/releases/tag/folio-1.0.8",
+    tag_name: "folio-1.0.9",
+    html_url: "https://github.com/samwe20/Folio/releases/tag/folio-1.0.9",
   };
-  assert.equal(resolveUpdateOffer("1.0.7", release), null);
-  assert.ok(resolveUpdateOffer("1.0.7", release, { ignoreDismiss: true }));
+  assert.equal(resolveUpdateOffer("1.0.8", release), null);
+  assert.ok(resolveUpdateOffer("1.0.8", release, { ignoreDismiss: true }));
   localStorage.removeItem(UPDATE_DISMISS_STORAGE_KEY);
 });
 
