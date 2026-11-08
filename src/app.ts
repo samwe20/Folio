@@ -22,6 +22,8 @@ import {
   isImageFile,
   isLocalPreviewImageSrc,
   joinLibraryRelativePath,
+  libraryImageRefCandidates,
+  normalizeLibraryImageRef,
   resolveImageMime,
 } from "./lib/imageAssets";
 import {
@@ -531,7 +533,7 @@ export class FolioApp {
       this.settings.previewRemoteImagesGlobal = !this.settings.previewRemoteImagesGlobal;
       void saveSettings(this.settings);
       this.syncRemoteImageChips();
-      if (this.previewOn) this.renderPreview(this.editor.getText());
+      if (this.previewOn) void this.renderPreview(this.editor.getText());
     });
     this.els.menuRemoteImagesNote.addEventListener("click", () => {
       if (!this.current) return;
@@ -542,7 +544,7 @@ export class FolioApp {
       this.settings.previewRemoteImagesNotes = overrides;
       void saveSettings(this.settings);
       this.syncRemoteImageChips();
-      if (this.previewOn) this.renderPreview(this.editor.getText());
+      if (this.previewOn) void this.renderPreview(this.editor.getText());
     });
 
     this.els.btnLocale.addEventListener("click", () => {
@@ -1043,7 +1045,7 @@ export class FolioApp {
     this.renderNoteList();
     this.renderLinks();
     this.updateStats(text);
-    if (this.previewOn) this.renderPreview(text);
+    if (this.previewOn) void this.renderPreview(text);
     this.syncRemoteImageChips();
     this.closeMobileOverlays();
     if (!this.busy) this.editor.setReadOnly(false);
@@ -1153,7 +1155,7 @@ export class FolioApp {
     this.index.setContent(this.current.path, text);
     this.renderLinks();
     this.updateStats(text);
-    if (this.previewOn) this.renderPreview(text);
+    if (this.previewOn) void this.renderPreview(text);
 
     this.scheduleSave();
   }
@@ -1271,7 +1273,7 @@ export class FolioApp {
     this.els.previewPane.classList.toggle("hidden", !this.previewOn);
     if (this.previewOn) {
       this.syncRemoteImageChips();
-      this.renderPreview(this.editor.getText());
+      void this.renderPreview(this.editor.getText());
       this.els.previewPane.focus({ preventScroll: true });
     }
     else this.editor.focus();
@@ -1284,13 +1286,29 @@ export class FolioApp {
       })
     : Promise.resolve();
 
-  private resolvePreviewAssetSrc(src: string): string {
-    if (!isLocalPreviewImageSrc(src) || !this.settings.libraryPath || !this.convertFileSrcFn) return src;
-    try {
-      return this.convertFileSrcFn(joinLibraryRelativePath(this.settings.libraryPath, src));
-    } catch {
-      return src;
-    }
+  private async hydratePreviewLocalImages() {
+    if (!this.native || !this.settings.libraryPath || !this.convertFileSrcFn) return;
+    const { exists } = await import("@tauri-apps/plugin-fs");
+    const libraryPath = this.settings.libraryPath;
+    const convert = this.convertFileSrcFn;
+    const imgs = [...this.els.previewRoot.querySelectorAll("img")];
+    await Promise.all(
+      imgs.map(async (img) => {
+        const rel = img.getAttribute("src") ?? "";
+        if (!isLocalPreviewImageSrc(rel)) return;
+        for (const cand of libraryImageRefCandidates(rel)) {
+          const abs = joinLibraryRelativePath(libraryPath, cand);
+          try {
+            if (await exists(abs)) {
+              img.src = convert(abs);
+              return;
+            }
+          } catch {
+            /* try next extension */
+          }
+        }
+      }),
+    );
   }
 
   private async insertImageFromFile(file: File): Promise<string | null> {
@@ -1339,12 +1357,14 @@ export class FolioApp {
     }
   }
 
-  private renderPreview(text: string) {
+  private async renderPreview(text: string) {
+    if (this.native) await this.previewAssetReady;
     this.els.previewRoot.innerHTML = renderMarkdown(text, this.index, {
       allowRemoteImages: this.allowRemoteImagesForCurrent(),
       blockedImageLabel: t("preview.remoteBlocked"),
-      resolveAssetSrc: (src) => this.resolvePreviewAssetSrc(src),
+      resolveAssetSrc: (src) => (isLocalPreviewImageSrc(src) ? normalizeLibraryImageRef(src) : src),
     });
+    await this.hydratePreviewLocalImages();
     this.els.previewRoot.querySelectorAll("a").forEach((a) => {
       const href = a.getAttribute("href") ?? "";
       if (a.dataset.wikiTitle) {

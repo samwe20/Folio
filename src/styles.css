@@ -1030,6 +1030,11 @@ input {
 
 /* Text actions — not toolbar icon hitboxes (ghost-btn is 36×36 elsewhere). */
 .update-notice-actions .ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex: 0 0 auto;
   width: auto;
   height: auto;
   min-height: 36px;
@@ -1038,10 +1043,6 @@ input {
   font-weight: 550;
   white-space: nowrap;
   border-radius: 10px;
-}
-
-.update-notice-actions .ghost-btn:not(.solid) {
-  border: 1px solid var(--border);
 }
 
 .app.immersive-focus .update-notice {
