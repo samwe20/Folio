@@ -231,9 +231,9 @@ Po opravě DOMPurify nechá `<img src="https://...">` — síťový požadavek p
 - **Závažnost:** Medium  
 - **Oblast:** Windows installer
 
-**Popis:** NSIS instalátor nemá v repu popsaný Authenticode podpis; uživatel spoléhá na HTTPS z GitHubu.
+**Popis:** NSIS instalátor nemá v repu popsaný Authenticode podpis; uživatel spoléhá na HTTPS z GitHubu. Na Windows 11 se **Smart App Control** může nepodepsaný instalátor zcela zablokovat.
 
-**Stav:** **Otevřeno** — podpis + transparentní hash v release notes.
+**Stav:** **Otevřeno** — podpis + transparentní hash v release notes. Uživatelská nápověda: [`docs/windows-smart-app-control.md`](windows-smart-app-control.md). Návrh implementace: [`docs/windows-code-signing.md`](windows-code-signing.md).
 
 ---
 
@@ -369,7 +369,7 @@ Desktop **max. jednou za 24 h** načte `GET https://api.github.com/repos/samwe20
 
 ## 6. Co zůstává na rozhodnutí vlastníka
 
-1. **MEDIUM-07** — Authenticode / code signing instalátoru (záměrně mimo tento PR).  
+1. **MEDIUM-07** — Authenticode / code signing instalátoru — viz [`docs/windows-code-signing.md`](windows-code-signing.md).  
 2. **MEDIUM-04** — odstranění `style-src 'unsafe-inline'` v CSP.  
 3. **LOW-01** — šifrování knihovny v IndexedDB (PWA).  
 4. Recovery journal v **PWA** `localStorage` (desktop již v app data).
