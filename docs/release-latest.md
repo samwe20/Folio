@@ -16,6 +16,8 @@
 2. Spusťte instalátor (samostatný NSIS setup, ne zip).
 3. Po spuštění Folio vytvoří knihovnu v `Dokumenty/Folio/Library` — nebo zvolte **Otevřít knihovnu** a vyberte složku s `.md` soubory (včetně OneDrive / iCloud Drive ve Windows).
 
+**Windows 11 blokuje instalaci?** Smart App Control může nepodepsaný instalátor odmítnout. Návod: [docs/windows-smart-app-control.md](https://github.com/samwe20/Folio/blob/main/docs/windows-smart-app-control.md) (dočasně vypnout SAC, nebo sestavit ze zdrojů). Trvalé řešení: podpis instalátoru — [docs/windows-code-signing.md](https://github.com/samwe20/Folio/blob/main/docs/windows-code-signing.md).
+
 ### Tipy
 
 - **Focus Mode** — celá obrazovka pro psaní; volitelný typewriter.
@@ -41,6 +43,8 @@
 1. Download `Folio_1.0.7_x64-setup.exe` from the link above (or the [release page](https://github.com/samwe20/Folio/releases/tag/folio-1.0.7)).
 2. Run the standalone NSIS installer.
 3. On first launch Folio uses `Documents/Folio/Library` by default — or use **Open library** to pick any folder of `.md` files (including OneDrive / iCloud Drive on Windows).
+
+**Installer blocked on Windows 11?** See [windows-smart-app-control.md](https://github.com/samwe20/Folio/blob/main/docs/windows-smart-app-control.md). Signing roadmap: [windows-code-signing.md](https://github.com/samwe20/Folio/blob/main/docs/windows-code-signing.md).
 
 ### Tips
 

@@ -14,6 +14,14 @@ Native app for **Windows 10/11** (Tauri 2, WebView2, NSIS installer).
 
 `Folio_*_x64-setup.exe` is a standalone installer (not a zip). After install, Folio runs offline; your library is ordinary `.md` files on disk.
 
+## Windows blocks the installer (Smart App Control)
+
+If Windows 11 **Smart App Control** says the app **may be unsafe** and there is no **Run anyway**, the installer is **unsigned** (no Authenticode publisher yet). That is expected until we ship a signed build.
+
+**User guide (Czech + English):** [windows-smart-app-control.md](windows-smart-app-control.md)
+
+**Maintainer plan (signing in CI):** [windows-code-signing.md](windows-code-signing.md)
+
 ## Development requirements
 
 | Tool | Notes |

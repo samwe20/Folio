@@ -108,6 +108,8 @@ Details: [Windows](docs/windows.md)
 |-----|--------|
 | [docs/release-latest.md](docs/release-latest.md) | **Current release** — install steps & what's new (CS + EN) |
 | [docs/windows.md](docs/windows.md) | Install, development, shortcuts, library |
+| [docs/windows-smart-app-control.md](docs/windows-smart-app-control.md) | Installer blocked by Smart App Control (Win 11) |
+| [docs/windows-code-signing.md](docs/windows-code-signing.md) | Authenticode signing plan for releases |
 | [docs/web-pwa.md](docs/web-pwa.md) | Experimental local web build (developers) |
 | [docs/ios-native.md](docs/ios-native.md) | Tauri iOS on Mac (developers) |
 | [docs/development.md](docs/development.md) | Tests, CI, repo layout |
