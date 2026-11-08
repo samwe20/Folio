@@ -1,7 +1,7 @@
 {
   "name": "folio",
   "private": true,
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Merge iA Writer minimalism with Obsidian backlinks — Markdown editor (Tauri 2, Windows, PWA).",
   "repository": {
     "type": "git",

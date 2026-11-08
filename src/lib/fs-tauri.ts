@@ -20,9 +20,9 @@ import { appDataDir, dirname, documentDir, join } from "@tauri-apps/api/path";
 import { LazyStore } from "@tauri-apps/plugin-store";
 import type { NoteMeta } from "../types";
 import {
-  isLegacyCzechTutorialOnly,
+  ensureEnglishTutorialForDemo,
+  hasLegacyCzechStarter,
   replaceLegacyCzechTutorial,
-  seedEnglishTutorialLibrary,
 } from "./tutorialLibrary";
 import { noteIdFromRelative, titleFromPath } from "./paths";
 
@@ -225,18 +225,14 @@ async function tutorialSeedDeps(libraryPath: string) {
 export async function ensureEnglishTutorialIfNeeded(libraryPath: string): Promise<string | null> {
   await ensureDir(libraryPath);
   const existing = await listNotes(libraryPath);
-  if (!isLegacyCzechTutorialOnly(existing)) return null;
+  if (!hasLegacyCzechStarter(existing)) return null;
   return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps(libraryPath));
 }
 
 export async function createDemoLibrary(libraryPath: string): Promise<string> {
   await ensureDir(libraryPath);
   const existing = await listNotes(libraryPath);
-  if (isLegacyCzechTutorialOnly(existing)) {
-    return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps(libraryPath));
-  }
-  if (existing.length) return existing[0].path;
-  return seedEnglishTutorialLibrary(await tutorialSeedDeps(libraryPath));
+  return ensureEnglishTutorialForDemo(existing, await tutorialSeedDeps(libraryPath));
 }
 
 export { join };

@@ -24,6 +24,15 @@ export function isLegacyCzechTutorialOnly(notes: NoteMeta[]): boolean {
   return names.every((name) => allowed.has(name));
 }
 
+/** Any install that still has the old Czech welcome note (even beside user notes). */
+export function hasLegacyCzechStarter(notes: NoteMeta[]): boolean {
+  return notes.some((n) => noteBaseName(n.path) === "Vítejte ve Folio.md");
+}
+
+export function welcomeEnglishTutorialPath(deps: TutorialSeedDeps): Promise<string> {
+  return deps.join(deps.libraryPath, "Welcome to Folio.md");
+}
+
 export type TutorialSeedDeps = {
   libraryPath: string;
   join: (base: string, file: string) => Promise<string>;
@@ -49,5 +58,23 @@ export async function replaceLegacyCzechTutorial(
       await deps.deleteNote(note.path);
     }
   }
-  return seedEnglishTutorialLibrary(deps);
+  await seedEnglishTutorialLibrary(deps);
+  return welcomeEnglishTutorialPath(deps);
+}
+
+export async function ensureEnglishTutorialForDemo(
+  existing: NoteMeta[],
+  deps: TutorialSeedDeps,
+): Promise<string> {
+  if (!existing.length) {
+    return seedEnglishTutorialLibrary(deps);
+  }
+  if (hasLegacyCzechStarter(existing)) {
+    return replaceLegacyCzechTutorial(existing, deps);
+  }
+  const names = existing.map((n) => noteBaseName(n.path));
+  if (!names.includes("Welcome to Folio.md")) {
+    await seedEnglishTutorialLibrary(deps);
+  }
+  return welcomeEnglishTutorialPath(deps);
 }

@@ -3,9 +3,9 @@ import { noteIdFromRelative, titleFromPath } from "./paths";
 import { safeNoteTitle } from "./names";
 import { extensionForImageMime, resolveImageMime } from "./imageAssets";
 import {
-  isLegacyCzechTutorialOnly,
+  ensureEnglishTutorialForDemo,
+  hasLegacyCzechStarter,
   replaceLegacyCzechTutorial,
-  seedEnglishTutorialLibrary,
 } from "./tutorialLibrary";
 import { WEB_LIBRARY_PATH, isMarketingDesktopCapture, MARKETING_DESKTOP_LIBRARY_LABEL } from "./runtime";
 
@@ -154,21 +154,12 @@ async function tutorialSeedDeps() {
 export async function ensureEnglishTutorialIfNeeded(_libraryPath: string): Promise<string | null> {
   const root = webLibraryRoot();
   const existing = await listNotes(root);
-  if (!isLegacyCzechTutorialOnly(existing)) return null;
+  if (!hasLegacyCzechStarter(existing)) return null;
   return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps());
 }
 
 export async function createDemoLibrary(_libraryPath: string): Promise<string> {
   const root = webLibraryRoot();
   const existing = await listNotes(root);
-  if (isLegacyCzechTutorialOnly(existing)) {
-    return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps());
-  }
-  if (existing.length) {
-    return (
-      existing.find((n) => n.title === "Welcome to Folio" || n.title === "Vítejte ve Folio")?.path ??
-      existing[0].path
-    );
-  }
-  return seedEnglishTutorialLibrary(await tutorialSeedDeps());
+  return ensureEnglishTutorialForDemo(existing, await tutorialSeedDeps());
 }

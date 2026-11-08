@@ -149,7 +149,7 @@ test('switching libraries clears stale backlink indexes', () => {
 test('portable note names exclude Windows reserved names and trailing dots', () => {
   const {safeNoteTitle}=require('../src/lib/names.ts');
   assert.equal(safeNoteTitle('CON'),'_CON'); assert.equal(safeNoteTitle('  title.  '),'title');
-  assert.equal(safeNoteTitle('...'),'Bez názvu');
+  assert.equal(safeNoteTitle('...'),'Untitled');
 });
 test('case-only filename collisions remain distinct in the wiki index',async()=>{
   const a=await web.createNote('','Case','one'); const b=await web.createNote('','case','two');
@@ -232,13 +232,16 @@ test('post-install tutorial library is always English',()=>{
 });
 
 test('legacy Czech starter library is detected for migration',()=>{
-  const {isLegacyCzechTutorialOnly,LEGACY_CZECH_STARTER_FILES}=require('../src/lib/tutorialLibrary.ts');
+  const {isLegacyCzechTutorialOnly,hasLegacyCzechStarter,LEGACY_CZECH_STARTER_FILES}=require('../src/lib/tutorialLibrary.ts');
   const czech=LEGACY_CZECH_STARTER_FILES.map((file,i)=>({path:`/lib/${file}`,title:`t${i}`,mtime:1,createdAt:1}));
   assert.equal(isLegacyCzechTutorialOnly(czech),true);
+  assert.equal(hasLegacyCzechStarter(czech),true);
   const mixed=[...czech,{path:'/lib/My note.md',title:'My note',mtime:1,createdAt:1}];
   assert.equal(isLegacyCzechTutorialOnly(mixed),false);
+  assert.equal(hasLegacyCzechStarter(mixed),true);
   const english=[{path:'/lib/Welcome to Folio.md',title:'Welcome',mtime:1,createdAt:1}];
   assert.equal(isLegacyCzechTutorialOnly(english),false);
+  assert.equal(hasLegacyCzechStarter(english),false);
 });
 
 test('image drop accepts Windows files with empty MIME type',()=>{
