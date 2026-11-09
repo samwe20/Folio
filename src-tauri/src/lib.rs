@@ -1,4 +1,5 @@
 use std::path::Path;
+use tauri::Manager;
 use tauri_plugin_fs::FsExt;
 
 const IMAGE_EXT: &[&str] = &["png", "jpg", "jpeg", "gif", "webp"];
@@ -28,7 +29,10 @@ fn allow_library_path(app: tauri::AppHandle, path: String) -> Result<(), String>
     }
     app.fs_scope()
         .allow_directory(path, true)
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+  app.asset_protocol_scope()
+      .allow_directory(path, true)
+      .map_err(|e| e.to_string())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

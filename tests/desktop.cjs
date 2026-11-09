@@ -161,6 +161,18 @@ async function main() {
   assert.equal(await fs.readFile(path.join(library,'Desktop Preview Source.md'),'utf8'),previewDocument('First preview'));
   checks.push('Preview renders Markdown, supports wheel in margins and PageDown, resets scroll for another note, returns to editing');
 
+  const assetsDir=path.join(library,'assets');
+  await fs.mkdir(assetsDir,{recursive:true});
+  const previewAsset=path.join(assetsDir,'desktop-preview-pixel.png');
+  await fs.writeFile(previewAsset,Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64'));
+  await create('Desktop Preview Image','# Image\n\n![pixel](assets/desktop-preview-pixel.png)\n');
+  await page.locator('#btn-preview').click();
+  const previewImg=page.locator('#preview-root img');
+  await expect(previewImg).toHaveAttribute('src',/asset\.localhost|asset:/i);
+  await expect.poll(async()=>previewImg.evaluate(img=>img.naturalWidth)).toBeGreaterThan(0);
+  await page.locator('#btn-preview').click();
+  checks.push('Library image preview loads through asset protocol scope');
+
   // CodeMirror virtualizes long documents. Fill can mutate a spacer instead of
   // the document, so replace through the editor's normal keyboard input path.
   await editor().press('Control+a');

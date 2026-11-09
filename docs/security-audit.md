@@ -64,7 +64,7 @@
 
 **Dopad:** Únik citlivých souborů, přepis dat mimo knihovnu poznámek.
 
-**Oprava (2. kolo):** Statický scope pouze `$APPDATA/**`, `$APPLOCALDATA/**`, `$APPCONFIG/**`, `$TEMP/**`. Přístup ke knihovně výhradně přes **`allow_library_path`** (Tauri command + `fs_scope().allow_directory`) volaný z `ensureLibraryFsScope()` při `openLibrary`, plus **persisted scope** po dialogu.
+**Oprava (2. kolo):** Statický scope pouze `$APPDATA/**`, `$APPLOCALDATA/**`, `$APPCONFIG/**`, `$TEMP/**`. Přístup ke knihovně výhradně přes **`allow_library_path`** (`fs_scope()` + **`asset_protocol_scope()`** pro náhled obrázků přes `convertFileSrc`) volaný z `ensureLibraryFsScope()` při `openLibrary`, plus **persisted scope** po dialogu. V `tauri.conf.json` je zapnutý `assetProtocol` (bez něj `convertFileSrc` nic nenačte).
 
 **Stav:** **Opraveno** (viz LOW-02).
 
