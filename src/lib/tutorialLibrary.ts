@@ -62,6 +62,39 @@ export async function replaceLegacyCzechTutorial(
   return welcomeEnglishTutorialPath(deps);
 }
 
+const WELCOME_TUTORIAL_FILE = "Welcome to Folio.md";
+
+/** Remove `![](…)` lines accidentally saved into the English starter welcome note. */
+export function stripMarkdownImageLines(content: string): string {
+  return content
+    .replace(/^\s*!\[[^\]]*\]\([^)]+\)\s*$/gm, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trimEnd();
+}
+
+export function welcomeTutorialHasEmbeddedImages(content: string): boolean {
+  return /!\[[^\]]*\]\([^)]+\)/.test(content);
+}
+
+export function welcomeTutorialCanonicalContent(): string {
+  const note = tutorialNotes().find((n) => n.fileName === WELCOME_TUTORIAL_FILE);
+  return note?.content ?? "";
+}
+
+export async function repairWelcomeTutorialImages(
+  existing: NoteMeta[],
+  deps: TutorialSeedDeps & { readNote: (path: string) => Promise<string> },
+): Promise<boolean> {
+  const welcome = existing.find((n) => noteBaseName(n.path) === WELCOME_TUTORIAL_FILE);
+  if (!welcome) return false;
+  const current = await deps.readNote(welcome.path);
+  if (!welcomeTutorialHasEmbeddedImages(current)) return false;
+  const cleaned = stripMarkdownImageLines(current);
+  if (cleaned === current) return false;
+  await deps.writeNote(welcome.path, `${cleaned}\n`);
+  return true;
+}
+
 export async function ensureEnglishTutorialForDemo(
   existing: NoteMeta[],
   deps: TutorialSeedDeps,

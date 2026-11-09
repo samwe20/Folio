@@ -251,6 +251,18 @@ test('image drop accepts Windows files with empty MIME type',()=>{
   assert.equal(isImageFile(file),true);
 });
 
+test('welcome tutorial strips embedded markdown images',()=>{
+  const {
+    stripMarkdownImageLines,
+    welcomeTutorialHasEmbeddedImages,
+    welcomeTutorialCanonicalContent,
+  }=require('../src/lib/tutorialLibrary.ts');
+  const polluted=`# Welcome\n\n![king](assets/king.png)\n\nStill here.`;
+  assert.equal(welcomeTutorialHasEmbeddedImages(polluted),true);
+  assert.equal(stripMarkdownImageLines(polluted),'# Welcome\n\nStill here.');
+  assert.equal(welcomeTutorialHasEmbeddedImages(welcomeTutorialCanonicalContent()),false);
+});
+
 test('library image refs normalize bare screenshot names',()=>{
   const {
     normalizeLibraryImageRef,

@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 import { Marked } from "marked";
 import type { NoteIndex } from "./noteIndex";
+import { isLocalPreviewImageSrc } from "./imageAssets";
 import { isRemotePreviewImageSrc, isSafePreviewImageSrc, isSafePreviewLinkHref } from "./safeUrl";
 
 const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -37,16 +38,18 @@ export const PREVIEW_SANITIZE = {
 
 export type PreviewOptions = {
   allowRemoteImages?: boolean;
+  allowLocalImages?: boolean;
   blockedImageLabel?: string;
   /** Rewrite local asset paths (e.g. library files) to displayable URLs. */
   resolveAssetSrc?: (src: string) => string;
 };
 
 let previewHooksInstalled = false;
-let previewHookOptions: Required<Pick<PreviewOptions, "allowRemoteImages" | "blockedImageLabel">> & {
+let previewHookOptions: Required<Pick<PreviewOptions, "allowRemoteImages" | "allowLocalImages" | "blockedImageLabel">> & {
   resolveAssetSrc?: (src: string) => string;
 } = {
   allowRemoteImages: false,
+  allowLocalImages: true,
   blockedImageLabel: "",
 };
 
@@ -76,6 +79,14 @@ function ensurePreviewSanitizeHooks(): void {
         src = previewHookOptions.resolveAssetSrc(src);
         node.setAttribute("src", src);
       }
+      if (!previewHookOptions.allowLocalImages && src && isLocalPreviewImageSrc(src)) {
+        const placeholder = blockedImagePlaceholder(src, previewHookOptions.blockedImageLabel);
+        const template = document.createElement("template");
+        template.innerHTML = placeholder;
+        const replacement = template.content.firstElementChild;
+        if (replacement) node.replaceWith(replacement);
+        return;
+      }
       if (!previewHookOptions.allowRemoteImages && src && isRemotePreviewImageSrc(src)) {
         const placeholder = blockedImagePlaceholder(src, previewHookOptions.blockedImageLabel);
         const template = document.createElement("template");
@@ -95,6 +106,7 @@ export function renderMarkdown(text: string, index: NoteIndex, options: PreviewO
   ensurePreviewSanitizeHooks();
   previewHookOptions = {
     allowRemoteImages: options.allowRemoteImages ?? false,
+    allowLocalImages: options.allowLocalImages ?? true,
     blockedImageLabel: options.blockedImageLabel ?? "",
     resolveAssetSrc: options.resolveAssetSrc,
   };

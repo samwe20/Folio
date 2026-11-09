@@ -9,6 +9,7 @@ import {
   ensureEnglishTutorialIfNeeded,
   getDefaultLibraryPath,
   listNotes,
+  repairWelcomeTutorialLibrary,
   readNote,
   renameNote,
   writeLibraryImage,
@@ -539,8 +540,8 @@ export class FolioApp {
       if (!this.current) return;
       const path = this.current.path;
       const overrides = { ...this.settings.previewRemoteImagesNotes };
-      if (path in overrides) delete overrides[path];
-      else overrides[path] = !this.allowRemoteImagesForCurrent();
+      if (this.previewImagesEnabledForNote()) overrides[path] = false;
+      else delete overrides[path];
       this.settings.previewRemoteImagesNotes = overrides;
       void saveSettings(this.settings);
       this.syncRemoteImageChips();
@@ -884,6 +885,8 @@ export class FolioApp {
     if (!this.settings.libraryPath) return;
     await this.flushCurrent();
     const migrated = await ensureEnglishTutorialIfNeeded(this.settings.libraryPath);
+    const welcomeRepaired =
+      this.native && (await repairWelcomeTutorialLibrary(this.settings.libraryPath));
     const keepPath = migrated ?? preferredPath ?? this.current?.path;
     this.notes = await listNotes(this.settings.libraryPath);
     this.index.setNotes(this.notes);
@@ -1248,17 +1251,21 @@ export class FolioApp {
     this.els.statusChars.textContent = formatCharCount(text.length);
   }
 
+  /** Per-note “load images” — when off, block local and remote images in preview. */
+  private previewImagesEnabledForNote(): boolean {
+    if (!this.current) return true;
+    return this.settings.previewRemoteImagesNotes[this.current.path] !== false;
+  }
+
   private allowRemoteImagesForCurrent(): boolean {
-    if (!this.current) return this.settings.previewRemoteImagesGlobal;
-    const override = this.settings.previewRemoteImagesNotes[this.current.path];
-    if (override !== undefined) return override;
+    if (!this.previewImagesEnabledForNote()) return false;
     return this.settings.previewRemoteImagesGlobal;
   }
 
   private syncRemoteImageChips() {
     const globalOn = this.settings.previewRemoteImagesGlobal;
     this.els.menuRemoteImagesGlobal.setAttribute("aria-checked", String(globalOn));
-    const noteOn = this.allowRemoteImagesForCurrent();
+    const noteOn = this.previewImagesEnabledForNote();
     this.els.menuRemoteImagesNote.setAttribute("aria-checked", String(noteOn));
     this.els.menuRemoteImagesNote.toggleAttribute("disabled", !this.current);
     const hasLibrary = Boolean(this.settings.libraryPath);
@@ -1287,6 +1294,7 @@ export class FolioApp {
     : Promise.resolve();
 
   private async hydratePreviewLocalImages() {
+    if (!this.previewImagesEnabledForNote()) return;
     if (!this.native || !this.settings.libraryPath || !this.convertFileSrcFn) return;
     const { exists } = await import("@tauri-apps/plugin-fs");
     const libraryPath = this.settings.libraryPath;
@@ -1361,6 +1369,7 @@ export class FolioApp {
     if (this.native) await this.previewAssetReady;
     this.els.previewRoot.innerHTML = renderMarkdown(text, this.index, {
       allowRemoteImages: this.allowRemoteImagesForCurrent(),
+      allowLocalImages: this.previewImagesEnabledForNote(),
       blockedImageLabel: t("preview.remoteBlocked"),
       resolveAssetSrc: (src) => (isLocalPreviewImageSrc(src) ? normalizeLibraryImageRef(src) : src),
     });

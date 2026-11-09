@@ -158,6 +158,10 @@ export async function ensureEnglishTutorialIfNeeded(_libraryPath: string): Promi
   return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps());
 }
 
+export async function repairWelcomeTutorialLibrary(_libraryPath: string): Promise<boolean> {
+  return false;
+}
+
 export async function createDemoLibrary(_libraryPath: string): Promise<string> {
   const root = webLibraryRoot();
   const existing = await listNotes(root);
