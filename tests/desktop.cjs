@@ -173,6 +173,10 @@ async function main() {
   await page.locator('#btn-preview').click();
   checks.push('Library image preview loads through asset protocol scope');
 
+  await page.locator('.note-item').filter({has:page.locator('.note-item-title',{hasText:/^Desktop Preview Source$/})}).click();
+  await expect(page.locator('#note-title')).toHaveValue('Desktop Preview Source');
+  await expect(editor()).toContainText('First preview');
+
   // CodeMirror virtualizes long documents. Fill can mutate a spacer instead of
   // the document, so replace through the editor's normal keyboard input path.
   await editor().press('Control+a');
