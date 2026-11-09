@@ -9,7 +9,6 @@ import {
   ensureEnglishTutorialIfNeeded,
   getDefaultLibraryPath,
   listNotes,
-  repairWelcomeTutorialLibrary,
   readNote,
   renameNote,
   writeLibraryImage,
@@ -885,7 +884,6 @@ export class FolioApp {
     if (!this.settings.libraryPath) return;
     await this.flushCurrent();
     const migrated = await ensureEnglishTutorialIfNeeded(this.settings.libraryPath);
-    if (this.native) await repairWelcomeTutorialLibrary(this.settings.libraryPath);
     const keepPath = migrated ?? preferredPath ?? this.current?.path;
     this.notes = await listNotes(this.settings.libraryPath);
     this.index.setNotes(this.notes);

@@ -22,7 +22,6 @@ import type { NoteMeta } from "../types";
 import {
   ensureEnglishTutorialForDemo,
   hasLegacyCzechStarter,
-  repairWelcomeTutorialImages,
   replaceLegacyCzechTutorial,
 } from "./tutorialLibrary";
 import { noteIdFromRelative, titleFromPath } from "./paths";
@@ -228,14 +227,6 @@ export async function ensureEnglishTutorialIfNeeded(libraryPath: string): Promis
   const existing = await listNotes(libraryPath);
   if (!hasLegacyCzechStarter(existing)) return null;
   return replaceLegacyCzechTutorial(existing, await tutorialSeedDeps(libraryPath));
-}
-
-export async function repairWelcomeTutorialLibrary(libraryPath: string): Promise<boolean> {
-  const existing = await listNotes(libraryPath);
-  return repairWelcomeTutorialImages(existing, {
-    ...(await tutorialSeedDeps(libraryPath)),
-    readNote: readTextFile,
-  });
 }
 
 export async function createDemoLibrary(libraryPath: string): Promise<string> {
