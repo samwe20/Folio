@@ -1,7 +1,7 @@
 # Bezpečnostní audit Folio
 
 **Datum auditu:** 7. listopadu 2026  
-**Verze aplikace:** 1.0.8  
+**Verze aplikace:** 1.0.10  
 **Rozsah:** desktop (Tauri 2 + WebView2), PWA (Vite build + service worker), CI/release, závislosti  
 **Metodika:** adversariální přezkum zdrojů, statická analýza, `npm audit`, ruční PoC v Node/jsdom, automatizované testy v `tests/security.cjs`
 
@@ -64,7 +64,7 @@
 
 **Dopad:** Únik citlivých souborů, přepis dat mimo knihovnu poznámek.
 
-**Oprava (2. kolo):** Statický scope pouze `$APPDATA/**`, `$APPLOCALDATA/**`, `$APPCONFIG/**`, `$TEMP/**`. Přístup ke knihovně výhradně přes **`allow_library_path`** (Tauri command + `fs_scope().allow_directory`) volaný z `ensureLibraryFsScope()` při `openLibrary`, plus **persisted scope** po dialogu.
+**Oprava (2. kolo):** Statický scope pouze `$APPDATA/**`, `$APPLOCALDATA/**`, `$APPCONFIG/**`, `$TEMP/**`. Přístup ke knihovně výhradně přes **`allow_library_path`** (`fs_scope()` + **`asset_protocol_scope()`** pro náhled obrázků přes `convertFileSrc`) volaný z `ensureLibraryFsScope()` při `openLibrary`, plus **persisted scope** po dialogu. V `tauri.conf.json` je zapnutý `assetProtocol` (bez něj `convertFileSrc` nic nenačte).
 
 **Stav:** **Opraveno** (viz LOW-02).
 
