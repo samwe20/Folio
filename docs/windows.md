@@ -48,6 +48,8 @@ npm run desktop:build -- --bundles nsis
 
 Output: `src-tauri/target/release/bundle/nsis/*-setup.exe`
 
+The NSIS installer always creates a **desktop shortcut** after install (including upgrades over an existing copy). Tauri’s default wizard skips the desktop link on update; Folio’s `src-tauri/windows/installer-hooks.nsh` forces it. **Folio 1.0.10** does not include this hook — use **1.0.11-rc** or newer to verify.
+
 ## Library
 
 - Default path: `Documents/Folio/Library`

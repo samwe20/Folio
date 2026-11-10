@@ -116,6 +116,12 @@ test("preview blocks protocol-relative links and remote images by default", () =
   assert.match(blocked, /preview-img-placeholder/);
   assert.equal(/<img[^>]+src="https:\/\/allowed/i.test(blocked), false);
   const allowed = renderMarkdown("![t](https://allowed.example/i.png)", index, { allowRemoteImages: true });
+  const localBlocked = renderMarkdown("![local](assets/shot.png)", index, {
+    allowLocalImages: false,
+    blockedImageLabel: "blocked",
+  });
+  assert.match(localBlocked, /data-remote-blocked="1"/);
+  assert.doesNotMatch(localBlocked, /<img[^>]+src="assets\/shot\.png"/);
   assert.match(allowed, /https:\/\/allowed\.example\/i\.png/);
 });
 
