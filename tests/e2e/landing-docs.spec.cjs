@@ -24,7 +24,7 @@ test.afterAll(async () => {
 const locales = [
   { id: "cs", path: "/?lang=cs", title: /Folio/ },
   { id: "en", path: "/en/", title: /calm Markdown editor/i },
-  { id: "de", path: "/de/", title: /ruhiger Markdown-Editor/i },
+  { id: "de", path: "/de/", title: /Markdown-Editor für konzentriertes Schreiben/i },
 ];
 
 for (const locale of locales) {
