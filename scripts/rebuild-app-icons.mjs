@@ -8,7 +8,34 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Resvg } from "@resvg/resvg-js";
-import toIco from "to-ico";
+
+/** Pack PNG buffers into a multi-resolution ICO (PNG-in-ICO). */
+function packPngIco(pngBuffers) {
+  const count = pngBuffers.length;
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(count, 4);
+
+  const entries = [];
+  let imageOffset = 6 + count * 16;
+  for (const png of pngBuffers) {
+    const width = png.readUInt32BE(16);
+    const height = png.readUInt32BE(20);
+    const entry = Buffer.alloc(16);
+    entry.writeUInt8(width >= 256 ? 0 : width, 0);
+    entry.writeUInt8(height >= 256 ? 0 : height, 1);
+    entry.writeUInt8(0, 2);
+    entry.writeUInt8(0, 3);
+    entry.writeUInt16LE(1, 4);
+    entry.writeUInt16LE(32, 6);
+    entry.writeUInt32LE(png.length, 8);
+    entry.writeUInt32LE(imageOffset, 12);
+    entries.push(entry);
+    imageOffset += png.length;
+  }
+  return Buffer.concat([header, ...entries, ...pngBuffers]);
+}
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const masterSvg = path.join(root, "docs/assets/folio-app-icon.svg");
@@ -37,7 +64,7 @@ function cleanTauriExtras() {
   }
 }
 
-async function buildIco() {
+function buildIco() {
   const layers = [
     { size: 16, svg: smallSvg },
     { size: 24, svg: smallSvg },
@@ -48,8 +75,7 @@ async function buildIco() {
     { size: 256, svg: masterSvg },
   ];
   const buffers = layers.map(({ size, svg }) => renderPng(svg, size));
-  const ico = await toIco(buffers, { resize: false });
-  fs.writeFileSync(path.join(tauriIcons, "icon.ico"), ico);
+  fs.writeFileSync(path.join(tauriIcons, "icon.ico"), packPngIco(buffers));
   return layers.map((l) => l.size);
 }
 
@@ -62,7 +88,7 @@ async function main() {
 
   writeRender(smallSvg, 32, path.join(tauriIcons, "32x32.png"));
 
-  const icoSizes = await buildIco();
+  const icoSizes = buildIco();
 
   for (const [name, size] of [
     ["icon-192.png", 192],
