@@ -64,6 +64,27 @@ function relativeToLibrary(root: string, full: string): string {
   return full.slice(root.length).replace(/^[/\\]/, "").replace(/\\/g, "/");
 }
 
+/** Atomic saves replace the file, so a listing can observe a path that is gone a moment later. */
+function isMissingPath(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return /os error 2\b|os error 3\b|not found|cannot find the (file|path)|enoent/i.test(message);
+}
+
+async function metadata(full: string) {
+  try {
+    return await stat(full);
+  } catch (error) {
+    if (!isMissingPath(error)) throw error;
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    try {
+      return await stat(full);
+    } catch (retryError) {
+      if (!isMissingPath(retryError)) throw retryError;
+      return null;
+    }
+  }
+}
+
 async function walkLibrary(
   root: string,
   current: string,
@@ -73,7 +94,13 @@ async function walkLibrary(
 ): Promise<void> {
   if (seen.has(current)) return;
   seen.add(current);
-  const entries = await readDir(current);
+  let entries;
+  try {
+    entries = await readDir(current);
+  } catch (error) {
+    if (isMissingPath(error)) return;
+    throw error;
+  }
   for (const entry of entries) {
     const full = await join(current, entry.name);
     if (entry.isDirectory) {
@@ -84,7 +111,8 @@ async function walkLibrary(
       continue;
     }
     if (!MD_EXT.test(entry.name)) continue;
-    const info = await stat(full);
+    const info = await metadata(full);
+    if (!info) continue;
     const relativePath = relativeToLibrary(root, full);
     notes.push({
       id: noteIdFromRelative(relativePath),

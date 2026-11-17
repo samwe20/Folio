@@ -944,11 +944,8 @@ export class FolioApp {
     if (token !== this.librarySyncToken || this.settings.libraryPath !== libraryPath) return;
 
     let notes = listed.notes;
-    if (
-      this.current &&
-      (this.dirty || this.saveTimer !== null) &&
-      !notes.some((note) => note.path === this.current!.path)
-    ) {
+    // A save can replace the open file while the scan is in flight. Keep it listed.
+    if (this.current && !notes.some((note) => note.path === this.current!.path)) {
       notes = [...notes, this.current];
     }
     const previousIds = new Set(this.notes.map((note) => note.id));

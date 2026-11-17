@@ -289,6 +289,7 @@ test('library scan keeps directories that have no markdown', async () => {
       { name: 'test', isDirectory: true },
       { name: 'Root.md', isDirectory: false },
       { name: '.secret.md', isDirectory: false },
+      { name: 'Gone.md', isDirectory: false },
       { name: '.hidden', isDirectory: true },
     ]],
     ['/library/assets', []],
@@ -301,7 +302,12 @@ test('library scan keeps directories that have no markdown', async () => {
   ]);
   const mock = {
     readDir: async (dir) => tree.get(dir) ?? [],
-    stat: async () => ({ mtime: new Date(1000), birthtime: new Date(1000) }),
+    stat: async (file) => {
+      if (String(file).endsWith('Gone.md')) {
+        throw new Error('failed to get metadata of path: /library/Gone.md with error: The system cannot find the file specified. (os error 2)');
+      }
+      return { mtime: new Date(1000), birthtime: new Date(1000) };
+    },
     exists: async (dir) => dir === '/library' || tree.has(dir),
   };
   Module._load = function (request, parent, isMain) {
