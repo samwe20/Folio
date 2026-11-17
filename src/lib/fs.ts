@@ -19,6 +19,14 @@ export async function listNotes(libraryPath: string): Promise<NoteMeta[]> {
   return (await tauri()).listNotes(libraryPath);
 }
 
+/** Notes plus every directory, including folders that do not contain a note yet. */
+export async function listLibrary(
+  libraryPath: string,
+): Promise<{ notes: NoteMeta[]; folders: string[] }> {
+  if (!isTauri()) return { notes: await web.listNotes(libraryPath), folders: [] };
+  return (await tauri()).listLibrary(libraryPath);
+}
+
 export async function readNote(path: string): Promise<string> {
   if (!isTauri()) return web.readNote(path);
   return (await tauri()).readNote(path);

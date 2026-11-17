@@ -31,6 +31,7 @@
     "fs:allow-copy-file",
     "fs:allow-stat",
     "fs:allow-read-dir",
+    "fs:allow-watch",
     "fs:allow-read-text-file",
     "fs:allow-write-text-file",
     "fs:allow-appdata-read-recursive",

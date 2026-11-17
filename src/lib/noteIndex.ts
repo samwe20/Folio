@@ -56,6 +56,24 @@ export class NoteIndex {
     }
   }
 
+  /** Path → text for notes that already have indexed content. */
+  exportContentByPath(): Map<string, string> {
+    const saved = new Map<string, string>();
+    for (const note of this.notes) {
+      const text = this.content.get(note.id);
+      if (text !== undefined) saved.set(note.path, text);
+    }
+    return saved;
+  }
+
+  /** Put back content kept across a sidebar rescan. Unknown paths are ignored. */
+  restoreContentByPath(saved: ReadonlyMap<string, string>) {
+    for (const note of this.notes) {
+      const text = saved.get(note.path);
+      if (text !== undefined) this.setContent(note.path, text);
+    }
+  }
+
   getNotes() {
     return this.notes;
   }

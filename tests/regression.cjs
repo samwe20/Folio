@@ -251,6 +251,119 @@ test('image drop accepts Windows files with empty MIME type',()=>{
   assert.equal(isImageFile(file),true);
 });
 
+test('sidebar lists folders that do not contain a note yet', () => {
+  app.notes = [{
+    id: 'denik/dnes',
+    title: 'Dnes',
+    path: 'C:/Folio/Denik/Dnes.md',
+    relativePath: 'Denik/Dnes.md',
+    mtime: 1,
+    createdAt: 1,
+  }];
+  app.current = null;
+  app.folders = ['assets', 'Denik', 'Denik/prazdna', 'test'];
+  app.renderNoteList();
+  const labels = [...document.querySelectorAll('#note-list .tree-label')].map((el) => el.textContent);
+  assert.deepEqual(labels, ['assets', 'Denik', 'prazdna', 'test']);
+  assert.equal(document.querySelector('#note-list .note-empty'), null);
+  const titles = [...document.querySelectorAll('#note-list .note-item-title')].map((el) => el.textContent);
+  assert.deepEqual(titles, ['Dnes']);
+});
+
+test('an empty library folder is still a sidebar row', () => {
+  app.notes = [];
+  app.current = null;
+  app.folders = ['Deníky'];
+  app.renderNoteList();
+  assert.equal(document.querySelector('#note-list .note-empty'), null);
+  assert.equal(document.querySelector('#note-list .tree-label').textContent, 'Deníky');
+});
+
+test('library scan keeps directories that have no markdown', async () => {
+  const Module = require('node:module');
+  const load = Module._load;
+  const tree = new Map([
+    ['/library', [
+      { name: 'assets', isDirectory: true },
+      { name: 'Denik', isDirectory: true },
+      { name: 'test', isDirectory: true },
+      { name: 'Root.md', isDirectory: false },
+      { name: '.secret.md', isDirectory: false },
+      { name: 'Gone.md', isDirectory: false },
+      { name: '.hidden', isDirectory: true },
+    ]],
+    ['/library/assets', []],
+    ['/library/Denik', [
+      { name: 'Dnes.md', isDirectory: false },
+      { name: 'prazdna', isDirectory: true },
+    ]],
+    ['/library/Denik/prazdna', []],
+    ['/library/test', []],
+  ]);
+  const mock = {
+    readDir: async (dir) => tree.get(dir) ?? [],
+    stat: async (file) => {
+      if (String(file).endsWith('Gone.md')) {
+        throw new Error('failed to get metadata of path: /library/Gone.md with error: The system cannot find the file specified. (os error 2)');
+      }
+      return { mtime: new Date(1000), birthtime: new Date(1000) };
+    },
+    exists: async (dir) => dir === '/library' || tree.has(dir),
+  };
+  Module._load = function (request, parent, isMain) {
+    if (request === '@tauri-apps/plugin-fs') return mock;
+    if (request === '@tauri-apps/plugin-store') {
+      return { LazyStore: class { async get() { return null; } async set() {} async save() {} async delete() {} } };
+    }
+    if (request === '@tauri-apps/api/path') {
+      return {
+        dirname: async (dir) => dir.slice(0, dir.lastIndexOf('/')),
+        join: async (...parts) => parts.join('/'),
+      };
+    }
+    return load.call(this, request, parent, isMain);
+  };
+  try {
+    delete require.cache[require.resolve('../src/lib/fs-tauri.ts')];
+    const native = require('../src/lib/fs-tauri.ts');
+    const listed = await native.listLibrary('/library');
+    assert.deepEqual([...listed.folders].sort(), ['Denik', 'Denik/prazdna', 'assets', 'test']);
+    assert.deepEqual(listed.notes.map((note) => note.relativePath).sort(), ['.secret.md', 'Denik/Dnes.md', 'Root.md']);
+  } finally {
+    Module._load = load;
+    delete require.cache[require.resolve('../src/lib/fs-tauri.ts')];
+  }
+});
+
+test('sidebar watch ignores note edits and keeps new or removed folders', () => {
+  const { libraryEventAffectsSidebar, normalizeLibraryPath } = require('../src/lib/libraryWatch.ts');
+  const known = new Set([normalizeLibraryPath('C:/Folio/Denik/Dnes.md')]);
+  assert.equal(libraryEventAffectsSidebar({
+    type: { create: { kind: 'folder' } },
+    paths: ['C:/Folio/Deníky'],
+  }, known), true);
+  assert.equal(libraryEventAffectsSidebar({
+    type: { modify: { kind: 'data' } },
+    paths: ['C:/Folio/Denik/Dnes.md'],
+  }, known), false);
+  assert.equal(libraryEventAffectsSidebar({
+    type: { create: { kind: 'file' } },
+    paths: ['C:/Folio/.folio-abc.tmp'],
+  }, known), false);
+  assert.equal(libraryEventAffectsSidebar({
+    type: { modify: { kind: 'rename' } },
+    paths: ['C:/Folio/.folio-abc.tmp', 'C:\\Folio\\Denik\\Dnes.md'],
+  }, known), false);
+  assert.equal(libraryEventAffectsSidebar({
+    type: { remove: { kind: 'folder' } },
+    paths: ['C:/Folio/test'],
+  }, known), true);
+  assert.equal(libraryEventAffectsSidebar({
+    type: { remove: { kind: 'file' } },
+    paths: ['C:/Folio/Denik/Dnes.md'],
+  }, known), true);
+});
+
 test('library image refs normalize bare screenshot names',()=>{
   const {
     normalizeLibraryImageRef,
