@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Folio">
+  <title>Folio app icon</title>
+  <!-- Concept A: open book on dark squircle; margin note on right page -->
+  <rect width="1024" height="1024" rx="226" ry="226" fill="#26272C"/>
+  <g fill="#F7F3EE">
+    <!-- Open book (single silhouette) -->
+    <path d="M 308 404
+             L 512 358
+             L 716 404
+             L 736 618
+             C 736 668 718 692 664 706
+             L 568 722
+             C 536 748 512 752 512 752
+             C 512 752 488 748 456 722
+             L 360 706
+             C 306 692 288 668 288 618
+             Z"/>
+    <!-- Spine crease (slightly thickened for 16–32 px legibility) -->
+    <path d="M 502 358 L 522 358 L 522 748 L 502 748 Z" fill="#E8E2DA"/>
+  </g>
+  <!-- Margin note on right page -->
+  <rect x="638" y="458" width="16" height="168" rx="8" fill="#5A5A5A"/>
+</svg>

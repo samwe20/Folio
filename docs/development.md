@@ -10,6 +10,18 @@ docs/          Documentation and README screenshots
 public/        PWA icons, manifest
 ```
 
+### App icon (source SVG)
+
+Vector source: [`docs/assets/folio-app-icon.svg`](assets/folio-app-icon.svg) (concept A — open book on dark squircle).
+
+Regenerate **desktop / installer** assets (Tauri `src-tauri/icons/`):
+
+```bash
+npm run tauri -- icon docs/assets/folio-app-icon.svg -o src-tauri/icons
+```
+
+After that, re-export `public/icons/*.png` (192, 512, apple-touch 180) from the same SVG so the PWA matches the desktop icon.
+
 ## Local checks
 
 ```bash
