@@ -27,6 +27,9 @@
     "desktop:build:windows": "tauri build --target x86_64-pc-windows-msvc",
     "docs:screenshots": "npm run build && node scripts/capture-readme-assets.cjs && node scripts/capture-social-preview.cjs",
     "docs:social-preview": "npm run build && node scripts/capture-social-preview.cjs",
+    "icons:rebuild": "node scripts/rebuild-app-icons.mjs",
+    "icons:preview": "node scripts/icon-preview-artifacts.mjs",
+    "icons:verify-ico": "node scripts/verify-ico-layers.mjs",
     "ios:init": "tauri ios init",
     "ios:dev": "tauri ios dev",
     "ios:build": "tauri ios build"
@@ -55,10 +58,12 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@tauri-apps/cli": "^2",
     "@types/marked": "^5.0.2",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
+    "sharp": "^0.35.5",
     "typescript": "~5.6.2",
     "vite": "^6.0.3"
   }

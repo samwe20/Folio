@@ -10,6 +10,23 @@ docs/          Documentation and README screenshots
 public/        PWA icons, manifest
 ```
 
+### App icon (source SVG)
+
+Vector sources (concept A):
+
+- [`docs/assets/folio-app-icon.svg`](assets/folio-app-icon.svg) — master (≥48 px)
+- [`docs/assets/folio-app-icon-small.svg`](assets/folio-app-icon-small.svg) — simplified for 16–32 px (larger book, thick spine, no margin line)
+
+Regenerate **desktop / installer / PWA** icons:
+
+```bash
+npm run icons:rebuild
+npm run icons:verify-ico   # 16–256 layers in icon.ico; 16–32 from small SVG
+npm run icons:preview      # combined review PNGs in /opt/cursor/artifacts (local)
+```
+
+Squircle corners outside the shape are transparent (alpha 0). Taskbar contrast: slightly lighter fill `#2E3038` plus a subtle `stroke` on the squircle.
+
 ## Local checks
 
 ```bash

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-label="Folio small">
+  <title>Folio app icon — simplified for 16–32 px</title>
+  <defs>
+    <clipPath id="squircle">
+      <rect width="1024" height="1024" rx="226" ry="226"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#squircle)">
+  <rect width="1024" height="1024" rx="226" ry="226" fill="#2E3038"/>
+  <rect x="2" y="2" width="1020" height="1020" rx="224" ry="224" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="3"/>
+  <g fill="#F5F2ED">
+    <!-- Larger book footprint (~68% width), simpler curves -->
+    <path d="M 176 292
+             C 160 292 150 306 150 320
+             L 150 684
+             C 150 706 164 716 182 718
+             L 488 744
+             C 504 752 520 752 536 744
+             L 842 718
+             C 860 716 874 706 874 684
+             L 874 320
+             C 874 306 864 292 848 292
+             L 542 292
+             C 528 292 520 302 512 308
+             C 504 302 496 292 482 292
+             L 176 292 Z"/>
+    <path d="M 488 308 L 536 308 L 536 732 L 488 732 Z" fill="#E6E0D6"/>
+  </g>
+  <!-- No margin line — avoids smudge at 16 px -->
+  </g>
+</svg>
