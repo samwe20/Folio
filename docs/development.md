@@ -12,15 +12,20 @@ public/        PWA icons, manifest
 
 ### App icon (source SVG)
 
-Vector source: [`docs/assets/folio-app-icon.svg`](assets/folio-app-icon.svg) (concept A — open book on dark squircle).
+Vector sources (concept A):
 
-Regenerate **desktop / installer** assets (Tauri `src-tauri/icons/`):
+- [`docs/assets/folio-app-icon.svg`](assets/folio-app-icon.svg) — master (≥48 px)
+- [`docs/assets/folio-app-icon-small.svg`](assets/folio-app-icon-small.svg) — simplified for 16–32 px (larger book, thick spine, no margin line)
+
+Regenerate **desktop / installer / PWA** icons:
 
 ```bash
-npm run tauri -- icon docs/assets/folio-app-icon.svg -o src-tauri/icons
+npm run icons:rebuild
+npm run icons:verify-ico   # 16–256 layers in icon.ico; 16–32 from small SVG
+npm run icons:preview      # combined review PNGs in /opt/cursor/artifacts (local)
 ```
 
-After that, re-export `public/icons/*.png` (192, 512, apple-touch 180) from the same SVG so the PWA matches the desktop icon.
+Squircle corners outside the shape are transparent (alpha 0). Taskbar contrast: slightly lighter fill `#2E3038` plus a subtle `stroke` on the squircle.
 
 ## Local checks
 
