@@ -60,26 +60,33 @@ export async function getDefaultLibraryPath(): Promise<string> {
   return await join(root, "Folio", "Library");
 }
 
-async function walkMarkdown(
+function relativeToLibrary(root: string, full: string): string {
+  return full.slice(root.length).replace(/^[/\\]/, "").replace(/\\/g, "/");
+}
+
+async function walkLibrary(
   root: string,
   current: string,
-  acc: NoteMeta[],
+  notes: NoteMeta[],
+  folders: string[],
+  seen: Set<string>,
 ): Promise<void> {
+  if (seen.has(current)) return;
+  seen.add(current);
   const entries = await readDir(current);
   for (const entry of entries) {
     const full = await join(current, entry.name);
     if (entry.isDirectory) {
       if (entry.name.startsWith(".")) continue;
-      await walkMarkdown(root, full, acc);
+      const relativePath = relativeToLibrary(root, full);
+      if (relativePath) folders.push(relativePath);
+      await walkLibrary(root, full, notes, folders, seen);
       continue;
     }
     if (!MD_EXT.test(entry.name)) continue;
     const info = await stat(full);
-    const relativePath = full
-      .slice(root.length)
-      .replace(/^[/\\]/, "")
-      .replace(/\\/g, "/");
-    acc.push({
+    const relativePath = relativeToLibrary(root, full);
+    notes.push({
       id: noteIdFromRelative(relativePath),
       title: titleFromPath(entry.name),
       path: full,
@@ -90,12 +97,20 @@ async function walkMarkdown(
   }
 }
 
-export async function listNotes(libraryPath: string): Promise<NoteMeta[]> {
-  if (!(await exists(libraryPath))) return [];
+export async function listLibrary(
+  libraryPath: string,
+): Promise<{ notes: NoteMeta[]; folders: string[] }> {
+  if (!(await exists(libraryPath))) return { notes: [], folders: [] };
   const notes: NoteMeta[] = [];
-  await walkMarkdown(libraryPath, libraryPath, notes);
+  const folders: string[] = [];
+  await walkLibrary(libraryPath, libraryPath, notes, folders, new Set());
   notes.sort((a, b) => a.title.localeCompare(b.title, "cs", { sensitivity: "base" }));
-  return notes;
+  folders.sort((a, b) => a.localeCompare(b, "cs", { sensitivity: "base" }));
+  return { notes, folders };
+}
+
+export async function listNotes(libraryPath: string): Promise<NoteMeta[]> {
+  return (await listLibrary(libraryPath)).notes;
 }
 
 export async function readNote(path: string): Promise<string> {

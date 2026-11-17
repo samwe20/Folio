@@ -8,7 +8,7 @@ import {
   deleteNote,
   ensureEnglishTutorialIfNeeded,
   getDefaultLibraryPath,
-  listNotes,
+  listLibrary,
   readNote,
   renameNote,
   writeLibraryImage,
@@ -54,6 +54,8 @@ import {
 } from "./lib/i18n";
 import { loadSettings, saveSettings } from "./lib/settings";
 import { sortNotes } from "./lib/sortNotes";
+import { buildFileTree, type FolderNode } from "./lib/fileTree";
+import { libraryEventAffectsSidebar, normalizeLibraryPath } from "./lib/libraryWatch";
 import { getAppVersion } from "./lib/appVersion";
 import { openFolioReleaseUrl } from "./lib/openRelease";
 import { createSidebarMenu, type SidebarMenuController } from "./lib/sidebarMenu";
@@ -66,20 +68,16 @@ import {
 } from "./lib/updateNotice";
 import type { AppSettings, NoteMeta } from "./types";
 
-type FolderNode = {
-  name: string;
-  path: string;
-  folders: Map<string, FolderNode>;
-  notes: NoteMeta[];
-};
-
-function folderNode(name: string, path: string): FolderNode {
-  return { name, path, folders: new Map(), notes: [] };
-}
-
 export class FolioApp {
   private settings!: AppSettings;
   private notes: NoteMeta[] = [];
+  /** Relative directory paths, including folders that have no notes yet. */
+  private folders: string[] = [];
+  private libraryUnwatch: (() => void) | null = null;
+  private librarySyncTimer: number | null = null;
+  private librarySyncToken = 0;
+  private libraryListing = 0;
+  private libraryWatchGeneration = 0;
   private current: NoteMeta | null = null;
   private editor!: FolioEditor;
   private index = new NoteIndex();
@@ -878,56 +876,170 @@ export class FolioApp {
     this.showWelcome(false);
     await this.refreshLibrary(openPath ?? this.settings.lastOpenPath);
     await saveSettings(this.settings);
+    void this.startLibraryWatch(path);
   }
 
-  private async refreshLibrary(preferredPath?: string | null) {
-    if (!this.settings.libraryPath) return;
-    await this.flushCurrent();
-    const migrated = await ensureEnglishTutorialIfNeeded(this.settings.libraryPath);
-    const keepPath = migrated ?? preferredPath ?? this.current?.path;
-    this.notes = await listNotes(this.settings.libraryPath);
-    this.index.setNotes(this.notes);
+  private stopLibraryWatch() {
+    if (this.librarySyncTimer !== null) {
+      window.clearTimeout(this.librarySyncTimer);
+      this.librarySyncTimer = null;
+    }
+    this.libraryUnwatch?.();
+    this.libraryUnwatch = null;
+    this.librarySyncToken += 1;
+  }
 
-    // Index contents for backlinks
+  private async startLibraryWatch(libraryPath: string) {
+    const generation = ++this.libraryWatchGeneration;
+    this.stopLibraryWatch();
+    if (!this.native || !libraryPath) return;
+    try {
+      const { watch } = await import("@tauri-apps/plugin-fs");
+      if (generation !== this.libraryWatchGeneration) return;
+      const stop = await watch(
+        libraryPath,
+        (event) => {
+          const known = new Set(this.notes.map((note) => normalizeLibraryPath(note.path)));
+          if (this.current) known.add(normalizeLibraryPath(this.current.path));
+          if (!libraryEventAffectsSidebar(event, known)) return;
+          this.scheduleLibrarySync();
+        },
+        { recursive: true, delayMs: 200 },
+      );
+      if (generation !== this.libraryWatchGeneration || this.settings.libraryPath !== libraryPath) {
+        stop();
+        return;
+      }
+      this.libraryUnwatch = stop;
+    } catch (error) {
+      console.error("Library watch failed", error);
+    }
+  }
+
+  private scheduleLibrarySync() {
+    if (!this.settings.libraryPath) return;
+    if (this.librarySyncTimer !== null) window.clearTimeout(this.librarySyncTimer);
+    this.librarySyncTimer = window.setTimeout(() => {
+      this.librarySyncTimer = null;
+      void this.syncLibraryFromDisk().catch((error) => console.error("Library sync failed", error));
+    }, 200);
+  }
+
+  /** Update the sidebar from disk without reopening the note that is on screen. */
+  private async syncLibraryFromDisk() {
+    const libraryPath = this.settings.libraryPath;
+    if (!libraryPath) return;
+    if (this.busy || this.renaming || this.libraryListing > 0) {
+      this.scheduleLibrarySync();
+      return;
+    }
+    const token = ++this.librarySyncToken;
+    await this.saveQueue.catch(() => undefined);
+    if (token !== this.librarySyncToken || this.settings.libraryPath !== libraryPath) return;
+    if (this.busy || this.renaming || this.libraryListing > 0) {
+      this.scheduleLibrarySync();
+      return;
+    }
+    const listed = await listLibrary(libraryPath);
+    if (token !== this.librarySyncToken || this.settings.libraryPath !== libraryPath) return;
+
+    let notes = listed.notes;
+    if (
+      this.current &&
+      (this.dirty || this.saveTimer !== null) &&
+      !notes.some((note) => note.path === this.current!.path)
+    ) {
+      notes = [...notes, this.current];
+    }
+    const previousIds = new Set(this.notes.map((note) => note.id));
+    const pathKey = (items: NoteMeta[]) => items.map((note) => note.path).sort().join("\n");
+    const folderKey = (items: readonly string[]) => [...items].sort().join("\n");
+    if (pathKey(notes) === pathKey(this.notes) && folderKey(listed.folders) === folderKey(this.folders)) {
+      return;
+    }
+
+    const added = notes.filter((note) => !previousIds.has(note.id));
+    const idsChanged = notes.length !== previousIds.size || added.length > 0;
+    const saved = this.index.exportContentByPath();
+    const scroll = this.els.noteList.scrollTop;
+    this.notes = notes;
+    this.folders = listed.folders;
+    this.index.setNotes(this.notes);
+    this.index.restoreContentByPath(saved);
+    this.renderNoteList();
+    this.els.noteList.scrollTop = scroll;
+    if (idsChanged) this.editor.reconfigureWiki();
+
     await Promise.all(
-      this.notes.map(async (note) => {
+      added.map(async (note) => {
+        if (note.path === this.current?.path) return;
         try {
           const text = await readNote(note.path);
+          if (token !== this.librarySyncToken) return;
           this.index.setContent(note.path, text);
         } catch {
           /* ignore unreadable */
         }
       }),
     );
+  }
 
-    this.renderNoteList();
-    this.editor.reconfigureWiki();
+  private async refreshLibrary(preferredPath?: string | null) {
+    if (!this.settings.libraryPath) return;
+    this.libraryListing += 1;
+    try {
+      await this.flushCurrent();
+      const migrated = await ensureEnglishTutorialIfNeeded(this.settings.libraryPath);
+      const keepPath = migrated ?? preferredPath ?? this.current?.path;
+      const listed = await listLibrary(this.settings.libraryPath);
+      this.notes = listed.notes;
+      this.folders = listed.folders;
+      this.index.setNotes(this.notes);
 
-    const target =
-      this.notes.find((n) => n.path === keepPath) ??
-      this.notes[0] ??
-      null;
+      // Index contents for backlinks
+      await Promise.all(
+        this.notes.map(async (note) => {
+          try {
+            const text = await readNote(note.path);
+            this.index.setContent(note.path, text);
+          } catch {
+            /* ignore unreadable */
+          }
+        }),
+      );
 
-    if (target) {
-      await this.openNote(target);
-    } else {
-      this.current = null;
-      this.dirty = false;
-      this.clearSaveTimer();
-      this.els.titleInput.value = "";
-      this.suppressChange = true;
-      this.editor.setText("");
-      this.suppressChange = false;
-      this.renderLinks();
-      this.updateStats("");
-      this.els.previewRoot.replaceChildren();
+      this.renderNoteList();
+      this.editor.reconfigureWiki();
+
+      const target =
+        this.notes.find((n) => n.path === keepPath) ??
+        this.notes[0] ??
+        null;
+
+      if (target) {
+        await this.openNote(target);
+      } else {
+        this.current = null;
+        this.dirty = false;
+        this.clearSaveTimer();
+        this.els.titleInput.value = "";
+        this.suppressChange = true;
+        this.editor.setText("");
+        this.suppressChange = false;
+        this.renderLinks();
+        this.updateStats("");
+        this.els.previewRoot.replaceChildren();
+      }
+    } finally {
+      this.libraryListing -= 1;
     }
   }
 
   private renderNoteList() {
     this.notes = sortNotes(this.notes, this.settings);
     this.els.noteList.replaceChildren();
-    if (!this.notes.length) {
+    const tree = buildFileTree(this.notes, this.folders);
+    if (!this.notes.length && tree.folders.size === 0) {
       const empty = document.createElement("div");
       empty.className = "note-empty";
       empty.textContent = t("empty.notes");
@@ -935,7 +1047,7 @@ export class FolioApp {
       return;
     }
     if (this.current) this.expandFoldersAround(this.current.relativePath);
-    this.renderFolder(this.fileTree(this.notes), this.els.noteList, 0);
+    this.renderFolder(tree, this.els.noteList, 0);
   }
 
   private expandFoldersAround(relativePath: string) {
@@ -946,27 +1058,6 @@ export class FolioApp {
       path = path ? `${path}/${part}` : part;
       this.collapsedFolders.delete(path);
     }
-  }
-
-  private fileTree(notes: NoteMeta[]) {
-    const root = folderNode("", "");
-    for (const note of notes) {
-      const parts = note.relativePath.split("/").filter(Boolean);
-      parts.pop();
-      let node = root;
-      let path = "";
-      for (const part of parts) {
-        path = path ? `${path}/${part}` : part;
-        let child = node.folders.get(part);
-        if (!child) {
-          child = folderNode(part, path);
-          node.folders.set(part, child);
-        }
-        node = child;
-      }
-      node.notes.push(note);
-    }
-    return root;
   }
 
   private renderFolder(node: FolderNode, parent: HTMLElement, depth: number) {
